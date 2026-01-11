@@ -1,0 +1,24 @@
+[project]
+name = "lic-dsf-programmatic-extraction"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "excel-grapher",
+    "formula-expander",
+    "llm>=0.28",
+    "openai>=2.15.0",
+    "python-dotenv>=1.2.1",
+]
+
+[tool.uv.sources]
+formula-expander = { git = "https://github.com/Teal-Insights/excel-formula-expander" }
+excel-grapher = { git = "https://github.com/Teal-Insights/excel-grapher" }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.14.11",
+    "ty>=0.0.11",
+]
