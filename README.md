@@ -142,3 +142,40 @@ Then rerun:
 uv run python lic_dsf_annotate.py
 ```
 
+## Script 3: Export formulas to standalone Python code
+
+This script:
+
+- Discovers formula targets (by default, from the configured indicator rows)
+- Builds a dependency graph including cached cell values from the workbook
+- Uses `excel-formula-expander`'s `CodeGenerator` to emit standalone Python code
+
+### Run
+
+```bash
+uv run python lic_dsf_export.py
+```
+
+### Output
+
+- `export/<workbook-stem>.py` (overwritten on every run)
+
+### Common options
+
+Export to a specific output path:
+
+```bash
+uv run python lic_dsf_export.py --output export/lic_dsf_generated.py
+```
+
+Export specific targets:
+
+```bash
+uv run python lic_dsf_export.py --target "START!A1" --target "B1_GDP_ext!H35"
+```
+
+Export in smaller chunks (useful when exporting many targets):
+
+```bash
+uv run python lic_dsf_export.py --chunk-size 25
+```
