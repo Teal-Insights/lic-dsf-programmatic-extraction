@@ -95,7 +95,7 @@ wheels = [
 [[package]]
 name = "excel-formula-expander"
 version = "0.1.0"
-source = { git = "https://github.com/Teal-Insights/excel-formula-expander#1e91cf9751b1f00e051da5fde354e319dfbd960b" }
+source = { git = "https://github.com/Teal-Insights/excel-formula-expander#d971c13aba3964ecbcffeb52da16eb3a8b80a0b8" }
 dependencies = [
     { name = "excel-grapher" },
     { name = "numpy" },
@@ -105,7 +105,7 @@ dependencies = [
 [[package]]
 name = "excel-grapher"
 version = "0.1.0"
-source = { git = "https://github.com/Teal-Insights/excel-grapher#d401682af92837ffe70f825c4c3d6bc7e8f20ddb" }
+source = { git = "https://github.com/Teal-Insights/excel-grapher#6980557188e87b9b5f0f7b2cefc4c91d03f00eda" }
 dependencies = [
     { name = "openpyxl" },
 ]
