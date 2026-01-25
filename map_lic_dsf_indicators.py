@@ -400,6 +400,24 @@ def is_year_like(value: int | float) -> bool:
     return 1900 <= value <= 2100
 
 
+def dedupe_labels(labels: list[str]) -> list[str]:
+    """
+    De-duplicate labels while preserving their original order.
+
+    Label extraction may pick up the same header text multiple times (for example,
+    stacked header rows that both contain a year). For downstream grouping and
+    year-axis inference, repeated labels are not useful and can create ambiguity.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for label in labels:
+        if label in seen:
+            continue
+        seen.add(label)
+        out.append(label)
+    return out
+
+
 def find_region_config(sheet: str, row: int, col: int) -> RegionConfig | None:
     """
     Find the first matching region configuration for a cell.
@@ -497,7 +515,7 @@ def get_labels_from_region_config(
             elif is_year_like(cell_value):
                 col_labels.append(str(cell_value))
 
-    return row_labels, col_labels
+    return dedupe_labels(row_labels), dedupe_labels(col_labels)
 
 
 def get_row_labels(ws: Worksheet, row: int, col: int) -> list[str]:
@@ -552,7 +570,7 @@ def get_row_labels(ws: Worksheet, row: int, col: int) -> list[str]:
 
         current_col -= 1
 
-    return labels
+    return dedupe_labels(labels)
 
 
 def get_column_labels(ws: Worksheet, row: int, col: int) -> list[str]:
@@ -607,7 +625,7 @@ def get_column_labels(ws: Worksheet, row: int, col: int) -> list[str]:
 
         current_row -= 1
 
-    return labels
+    return dedupe_labels(labels)
 
 
 def enrich_graph_with_labels(

@@ -88,9 +88,14 @@ def build_entrypoints(
     labels_by_row = load_enrichment_audit_labels(ENRICHMENT_AUDIT_PATH)
     entrypoints: dict[str, list[str]] = {}
     for (sheet, row), targets in targets_by_row.items():
+        prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
+        sheet_prefix = normalize_entrypoint_name(prefix_match.group(1) if prefix_match else sheet)
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
         base = normalize_entrypoint_name(label or f"{sheet} {row}")
-        name = base
+        if base.startswith(f"{sheet_prefix}_") or base == sheet_prefix:
+            name = base
+        else:
+            name = f"{sheet_prefix}_{base}"
         suffix = 2
         while name in entrypoints:
             name = f"{base}_{suffix}"
@@ -159,9 +164,9 @@ def main() -> None:
 
     print("Generating Python package...")
     generator = CodeGenerator(graph)
-    modules = generator.generate_modules_in_package(
+    modules = generator.generate_modules(
         targets,
-        package_name=WORKBOOK_PATH.stem,
+        package_name="lic_dsf",
         entrypoints=entrypoints if entrypoints else None,
     )
 
