@@ -8,6 +8,7 @@ dependencies = [
     "excel-formula-expander",
     "excel-grapher",
     "llm>=0.28",
+    "numpy",
     "openai>=2.15.0",
     "openpyxl>=3.1.5",
     "python-dotenv>=1.2.1",

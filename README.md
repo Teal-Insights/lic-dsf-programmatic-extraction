@@ -159,3 +159,28 @@ uv run python lic_dsf_export.py
 ### Output
 
 - `export/<normalized-workbook-stem>/` (overwritten on every run)
+
+### Using generated input setters
+
+The generated package exposes a context object with helper setters derived from `input_groups_export.json`.
+
+- **Year-series setters**: accept `{year: value}` (primary) and also `values + start_year` (secondary).
+- **Range setters (scalars / 1D / 2D tables)**: accept a scalar, 1D sequence, or 2D sequence-of-sequences matching the range shape.
+
+Example:
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path("export").resolve()))
+import lic_dsf
+
+ctx = lic_dsf.make_context()
+
+# Year-series: dict form (recommended)
+assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({2023: 123, 2026: None})
+
+# 1D range
+ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
+```

@@ -201,7 +201,7 @@ def _key_for_cell(cell: InputCell) -> GroupKey:
         return GroupKey(
             sheet=cell.sheet,
             mode=mode,
-            row_labels_key=(),
+            row_labels_key=_labels_key(_non_year_labels(cell.row_labels)),
             column_labels_key=_labels_key(cell.column_labels),
         )
     if mode == "no_year_axis":
