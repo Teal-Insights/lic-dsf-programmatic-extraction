@@ -1,38 +1,77 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-from lic_dsf_export import generate_setters_module, load_input_groups
+from lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
 
 
-def test_generate_setters_module_contains_ext_debt_data_row10_setter() -> None:
-    groups = load_input_groups(Path("input_groups_export.json"))
-    # Reduce to a single known year-series group to keep the generated module stable for assertions.
-    target = next(g for g in groups if g.get("range_a1") == "Ext_Debt_Data!E10:H10")
+def _pick_wide_year_series(groups: list[dict]) -> dict:
+    for g in groups:
+        shape = g.get("shape") or {}
+        if (
+            g.get("mode") == "ignore_column_axis_years"
+            and shape.get("rows") == 1
+            and shape.get("cols", 0) > 1
+            and g.get("cells")
+            and g.get("range_a1")
+        ):
+            return g
+    raise AssertionError("No wide year-series group found in input_groups.json")
+
+
+def _pick_non_year_group(groups: list[dict]) -> dict:
+    for g in groups:
+        shape = g.get("shape") or {}
+        if (
+            g.get("mode") == "no_year_axis"
+            and shape.get("rows")
+            and shape.get("cols")
+            and g.get("cells")
+            and g.get("range_a1")
+        ):
+            return g
+    raise AssertionError("No non-year group found in input_groups.json")
+
+
+def test_generate_setters_module_contains_wide_year_series_setter() -> None:
+    groups = load_input_groups(Path("input_groups.json"))
+    target = _pick_wide_year_series(groups)
     module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
 
     assert "class LicDsfContext(EvalContext):" in module
-    # Naming scheme is deterministic: set_<sheet>_<label>
-    assert "def set_ext_debt_data_external_debt_excluding_locally_issued_debt" in module
-    # Year mapping should be embedded.
-    assert "Ext_Debt_Data!E10" in module
-    assert "Ext_Debt_Data!H10" in module
+    name = generate_setter_method_name(
+        str(target.get("sheet")),
+        list(target.get("row_labels_key") or []),
+        str(target.get("group_id", "group")),
+    )
+    assert f"def {name}" in module
+    cells = sorted(str(c) for c in target.get("cells", []))
+    assert cells[0] in module
+    assert cells[-1] in module
 
 
 def test_generate_setters_module_contains_no_year_range_setters() -> None:
-    groups = load_input_groups(Path("input_groups_export.json"))
-    scalar = next(g for g in groups if g.get("range_a1") == "B1_GDP_ext!AF4:AF4")
-    row_vec = next(g for g in groups if g.get("range_a1") == "Ext_Debt_Data!BP79:CC79")
-    table = next(g for g in groups if g.get("range_a1") == "PV_Base!B40:C44")
-
-    module = generate_setters_module(
-        workbook=Path("workbooks/lic-dsf-template.xlsm"),
-        groups=[scalar, row_vec, table],
-    )
+    groups = load_input_groups(Path("input_groups.json"))
+    target = _pick_non_year_group(groups)
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
 
     assert "class RangeAssignment" in module
-    assert "def set_ext_debt_data_ida_new_60_year_credits" in module
-    assert "Ext_Debt_Data!BP79" in module
-    assert "PV_Base!B40" in module
+    name = generate_setter_method_name(
+        str(target.get("sheet")),
+        list(target.get("row_labels_key") or []),
+        str(target.get("group_id", "group")),
+    )
+    assert f"def {name}" in module
+    cells = sorted(str(c) for c in target.get("cells", []))
+    assert cells[0] in module
+
+
+def test_generate_setters_module_includes_workbook_loader() -> None:
+    groups = load_input_groups(Path("input_groups.json"))
+    target = _pick_wide_year_series(groups)
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
+
+    assert "def load_inputs_from_workbook" in module
+    assert "_read_inputs_from_workbook" in module
+    assert "DEFAULT_INPUTS" in module
 

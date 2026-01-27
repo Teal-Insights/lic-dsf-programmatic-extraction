@@ -195,6 +195,9 @@ assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({
 
 # 1D range
 ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
+
+# Load all inputs from a filled-out template (requires optional openpyxl)
+ctx.load_inputs_from_workbook("workbooks/lic-dsf-template.xlsm")
 ```
 
 ## Script 4: Group inputs for setter generation

@@ -46,7 +46,7 @@ from lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
 
 EXPORT_DIR = Path("export")
 ENRICHMENT_AUDIT_PATH = Path("enrichment_audit.json")
-INPUT_GROUPS_PATH = Path("input_groups_export.json")
+INPUT_GROUPS_PATH = Path("input_groups.json")
 MAX_DEPTH = 50
 
 
@@ -510,6 +510,7 @@ def generate_setters_module(
         lines.append("from typing import Mapping, Sequence")
         lines.append("")
         lines.append("from .internals import CellValue, EvalContext")
+        lines.append("from .inputs import DEFAULT_INPUTS")
         lines.append("")
         lines.append("")
         lines.append("@dataclass(frozen=True, slots=True)")
@@ -530,6 +531,63 @@ def generate_setters_module(
         lines.append("    years: tuple[int, ...]")
         lines.append("    applied: dict[int, tuple[str, ...]]")
         lines.append("    ignored: dict[int, CellValue]")
+        lines.append("")
+        lines.append("")
+        lines.append("def _split_sheet_address(address: str) -> tuple[str, str]:")
+        lines.append("    if '!' not in address:")
+        lines.append("        raise ValueError(f\"Invalid address: {address}\")")
+        lines.append("    if address.startswith(\"'\"):")
+        lines.append("        i = 1")
+        lines.append("        sheet_chars: list[str] = []")
+        lines.append("        while i < len(address):")
+        lines.append("            ch = address[i]")
+        lines.append("            if ch == \"'\":")
+        lines.append("                if i + 1 < len(address) and address[i + 1] == \"'\":")
+        lines.append("                    sheet_chars.append(\"'\")")
+        lines.append("                    i += 2")
+        lines.append("                    continue")
+        lines.append("                if i + 1 < len(address) and address[i + 1] == \"!\":")
+        lines.append("                    sheet = \"\".join(sheet_chars)")
+        lines.append("                    a1 = address[i + 2 :]")
+        lines.append("                    if not a1:")
+        lines.append("                        raise ValueError(f\"Invalid address: {address}\")")
+        lines.append("                    return sheet, a1")
+        lines.append("                raise ValueError(f\"Invalid address: {address}\")")
+        lines.append("            sheet_chars.append(ch)")
+        lines.append("            i += 1")
+        lines.append("        raise ValueError(f\"Invalid address: {address}\")")
+        lines.append("    sheet, a1 = address.split(\"!\", 1)")
+        lines.append("    if not sheet or not a1:")
+        lines.append("        raise ValueError(f\"Invalid address: {address}\")")
+        lines.append("    return sheet, a1")
+        lines.append("")
+        lines.append("")
+        lines.append("def _read_inputs_from_workbook(workbook_path: str) -> dict[str, CellValue]:")
+        lines.append("    try:")
+        lines.append("        import openpyxl")
+        lines.append("    except ImportError as exc:")
+        lines.append(
+            "        raise ImportError(\"openpyxl is required to read inputs from a workbook\") from exc"
+        )
+        lines.append("    wb = openpyxl.load_workbook(workbook_path, data_only=True, keep_vba=True)")
+        lines.append("    try:")
+        lines.append("        updates: dict[str, CellValue] = {}")
+        lines.append("        ws_cache: dict[str, object] = {}")
+        lines.append("        for addr in DEFAULT_INPUTS.keys():")
+        lines.append("            sheet_name, a1 = _split_sheet_address(str(addr))")
+        lines.append("            if sheet_name not in wb.sheetnames:")
+        lines.append(
+            "                raise KeyError(f\"Workbook is missing sheet {sheet_name!r} for address {addr}\")"
+        )
+        lines.append("            ws = ws_cache.get(sheet_name)")
+        lines.append("            if ws is None:")
+        lines.append("                ws = wb[sheet_name]")
+        lines.append("                ws_cache[sheet_name] = ws")
+        lines.append("            value = ws[a1].value")
+        lines.append("            updates[str(addr)] = 0 if value is None else value")
+        lines.append("        return updates")
+        lines.append("    finally:")
+        lines.append("        wb.close()")
         lines.append("")
         lines.append("")
         lines.append("def _apply_range(")
@@ -691,6 +749,12 @@ def generate_setters_module(
         lines.append("class LicDsfContext(EvalContext):")
         lines.append("    __slots__ = ()")
         lines.append("")
+        lines.append("    def load_inputs_from_workbook(self, workbook_path: str) -> dict[str, CellValue]:")
+        lines.append("        updates = _read_inputs_from_workbook(workbook_path)")
+        lines.append("        if updates:")
+        lines.append("            self.set_inputs(updates)")
+        lines.append("        return updates")
+        lines.append("")
 
         for spec in year_specs:
             name = spec["name"]
@@ -769,11 +833,15 @@ def generate_setters_module(
 
 def patch_entrypoint_for_setters(entrypoint_py: str) -> str:
     if "from .setters import LicDsfContext" not in entrypoint_py:
-        entrypoint_py = entrypoint_py.replace(
-            "from .internals import EvalContext, xl_cell, xl_range, _resolve_formula\n",
-            "from .internals import EvalContext, xl_cell, xl_range, _resolve_formula\n"
-            "from .setters import LicDsfContext\n",
-        )
+        lines = entrypoint_py.splitlines()
+        insert_at = None
+        for idx, line in enumerate(lines):
+            if line.startswith("from .internals import "):
+                insert_at = idx + 1
+                break
+        if insert_at is not None:
+            lines.insert(insert_at, "from .setters import LicDsfContext")
+            entrypoint_py = "\n".join(lines) + ("\n" if entrypoint_py.endswith("\n") else "")
     entrypoint_py = entrypoint_py.replace(
         "return EvalContext(inputs=merged, resolver=_resolve_formula)",
         "return LicDsfContext(inputs=merged, resolver=_resolve_formula)",
