@@ -24,14 +24,17 @@ from pathlib import Path
 from typing import Any, Iterable, Literal
 
 import openpyxl.utils.cell
-from excel_grapher import DependencyGraph, create_dependency_graph
+from excel_grapher import DependencyGraph
 
-from map_lic_dsf_indicators import (
-    INDICATOR_CONFIG,
-    WORKBOOK_PATH,
-    discover_formula_cells_in_rows,
-    ensure_workbook_available,
-    enrich_graph_with_labels,
+from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available
+from lic_dsf_pipeline import (
+    STRING_CONSTANT_EXCLUDES,
+    build_graph,
+    classify_input_addresses,
+    discover_targets,
+    enrich_graph,
+    iter_string_constant_addresses,
+    populate_leaf_values,
 )
 
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
@@ -120,16 +123,6 @@ class InputCell:
     column_labels: list[str]
 
 
-def _discover_targets(workbook: Path) -> list[str]:
-    all_targets: list[str] = []
-    for config in INDICATOR_CONFIG:
-        sheet = config["sheet"]
-        rows = config["indicator_rows"]
-        all_targets.extend(discover_formula_cells_in_rows(workbook, sheet, rows))
-    # Preserve order while de-duping.
-    return list(dict.fromkeys(all_targets))
-
-
 def _load_export_default_input_addresses(path: Path) -> set[str]:
     """
     Load `DEFAULT_INPUTS` keys from a generated `export/.../inputs.py` module.
@@ -151,7 +144,7 @@ def _load_export_default_input_addresses(path: Path) -> set[str]:
     raise ValueError("DEFAULT_INPUTS not found")
 
 
-def _iter_input_cells(
+def iter_input_cells(
     graph: DependencyGraph,
     enrichment_results: dict[str, dict[str, Any]],
 ) -> list[InputCell]:
@@ -185,6 +178,85 @@ def _iter_input_cells(
             )
         )
     return inputs
+
+
+def build_input_groups_payload(
+    *,
+    targets: list[str],
+    graph: DependencyGraph,
+    input_cells: list[InputCell],
+    restricted_to_export_default_inputs: bool = False,
+    export_default_inputs_count: int | None = None,
+) -> dict[str, Any]:
+    groups: dict[GroupKey, list[InputCell]] = {}
+    for cell in input_cells:
+        key = _key_for_cell(cell)
+        groups.setdefault(key, []).append(cell)
+
+    keys_sorted = sorted(
+        groups.keys(),
+        key=lambda k: (k.sheet, k.mode, k.row_labels_key, k.column_labels_key),
+    )
+
+    payload_groups: list[dict[str, Any]] = []
+    for idx, key in enumerate(keys_sorted, start=1):
+        cells = groups[key]
+        cells_sorted = sorted(cells, key=lambda c: (c.row, c.col))
+        rect = _rectangular_range(cells_sorted)
+
+        group_payload: dict[str, Any] = {
+            "group_id": f"g{idx:05d}",
+            "sheet": key.sheet,
+            "mode": key.mode,
+            "row_labels_key": list(key.row_labels_key),
+            "column_labels_key": list(key.column_labels_key),
+            "row_labels_has_year": _contains_year(cells_sorted[0].row_labels)
+            if cells_sorted
+            else False,
+            "column_labels_has_year": _contains_year(cells_sorted[0].column_labels)
+            if cells_sorted
+            else False,
+            "example_row_labels": cells_sorted[0].row_labels if cells_sorted else [],
+            "example_column_labels": cells_sorted[0].column_labels if cells_sorted else [],
+            "cell_count": len(cells_sorted),
+            "cells": [c.address for c in cells_sorted],
+        }
+
+        if rect is not None:
+            bbox, range_a1, shape = rect
+            group_payload["bounding_box"] = bbox
+            group_payload["range_a1"] = range_a1
+            group_payload["shape"] = {"rows": shape[0], "cols": shape[1]}
+        else:
+            group_payload["bounding_box"] = None
+            group_payload["range_a1"] = None
+            group_payload["shape"] = None
+
+        payload_groups.append(group_payload)
+
+    summary = {
+        "targets": len(targets),
+        "graph_nodes": len(graph),
+        "input_cells": len(input_cells),
+        "groups": len(payload_groups),
+        "restricted_to_export_default_inputs": bool(restricted_to_export_default_inputs),
+        "export_default_inputs_count": export_default_inputs_count,
+        "groups_by_mode": {
+            mode: sum(1 for g in payload_groups if g["mode"] == mode)
+            for mode in (
+                "ignore_column_axis_years",
+                "ignore_row_axis_years",
+                "no_year_axis",
+                "both_axes_years",
+            )
+        },
+    }
+
+    return {
+        "workbook": str(WORKBOOK_PATH),
+        "summary": summary,
+        "groups": payload_groups,
+    }
 
 
 def _key_for_cell(cell: InputCell) -> GroupKey:
@@ -296,22 +368,37 @@ def main() -> None:
     print(f"Workbook: {workbook}")
 
     print("\n1. Discovering formula targets in indicator rows...")
-    targets = _discover_targets(workbook)
+    targets = discover_targets(workbook)
     print(f"   Targets: {len(targets)}")
     if not targets:
         raise SystemExit("No targets found. Nothing to group.")
 
     print("\n2. Building dependency graph...")
-    graph = create_dependency_graph(workbook, targets, load_values=False, max_depth=args.max_depth)
+    graph = build_graph(workbook, targets, max_depth=args.max_depth)
     print(f"   Graph nodes: {len(graph)}")
 
+    print("\n2b. Populating leaf values from cached workbook values...")
+    populate_leaf_values(graph, workbook)
+
     print("\n3. Enriching nodes with row/column labels...")
-    enrichment_results = enrich_graph_with_labels(graph, workbook)
+    enrichment_results = enrich_graph(graph, workbook)
     print(f"   Enriched nodes: {len(enrichment_results)}")
 
     print("\n4. Extracting leaf input cells...")
-    input_cells = _iter_input_cells(graph, enrichment_results)
+    input_cells = iter_input_cells(graph, enrichment_results)
     print(f"   Input cells (leaf, non-formula): {len(input_cells)}")
+
+    print("\n4b. Classifying constants vs inputs...")
+    constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
+    input_addresses = classify_input_addresses(
+        graph,
+        targets,
+        constant_ranges=constant_ranges,
+        constant_blanks=True,
+    )
+    before = len(input_cells)
+    input_cells = [c for c in input_cells if c.address in input_addresses]
+    print(f"   Inputs after constant filtering: {len(input_cells)} (dropped {before - len(input_cells)})")
 
     export_default_inputs: set[str] | None = None
     if args.restrict_to_export_default_inputs:
@@ -324,71 +411,15 @@ def main() -> None:
         )
 
     print("\n5. Grouping inputs by labels (ignoring year axes)...")
-    groups: dict[GroupKey, list[InputCell]] = {}
-    for cell in input_cells:
-        key = _key_for_cell(cell)
-        groups.setdefault(key, []).append(cell)
-
-    keys_sorted = sorted(
-        groups.keys(),
-        key=lambda k: (k.sheet, k.mode, k.row_labels_key, k.column_labels_key),
+    output_payload = build_input_groups_payload(
+        targets=targets,
+        graph=graph,
+        input_cells=input_cells,
+        restricted_to_export_default_inputs=bool(args.restrict_to_export_default_inputs),
+        export_default_inputs_count=len(export_default_inputs)
+        if export_default_inputs is not None
+        else None,
     )
-
-    payload_groups: list[dict[str, Any]] = []
-    for idx, key in enumerate(keys_sorted, start=1):
-        cells = groups[key]
-        cells_sorted = sorted(cells, key=lambda c: (c.row, c.col))
-        rect = _rectangular_range(cells_sorted)
-
-        group_payload: dict[str, Any] = {
-            "group_id": f"g{idx:05d}",
-            "sheet": key.sheet,
-            "mode": key.mode,
-            "row_labels_key": list(key.row_labels_key),
-            "column_labels_key": list(key.column_labels_key),
-            "row_labels_has_year": _contains_year(cells_sorted[0].row_labels) if cells_sorted else False,
-            "column_labels_has_year": _contains_year(cells_sorted[0].column_labels) if cells_sorted else False,
-            "example_row_labels": cells_sorted[0].row_labels if cells_sorted else [],
-            "example_column_labels": cells_sorted[0].column_labels if cells_sorted else [],
-            "cell_count": len(cells_sorted),
-            "cells": [c.address for c in cells_sorted],
-        }
-
-        if rect is not None:
-            bbox, range_a1, shape = rect
-            group_payload["bounding_box"] = bbox
-            group_payload["range_a1"] = range_a1
-            group_payload["shape"] = {"rows": shape[0], "cols": shape[1]}
-        else:
-            group_payload["bounding_box"] = None
-            group_payload["range_a1"] = None
-            group_payload["shape"] = None
-
-        payload_groups.append(group_payload)
-
-    summary = {
-        "targets": len(targets),
-        "graph_nodes": len(graph),
-        "input_cells": len(input_cells),
-        "groups": len(payload_groups),
-        "restricted_to_export_default_inputs": bool(args.restrict_to_export_default_inputs),
-        "export_default_inputs_count": len(export_default_inputs) if export_default_inputs is not None else None,
-        "groups_by_mode": {
-            mode: sum(1 for g in payload_groups if g["mode"] == mode)
-            for mode in (
-                "ignore_column_axis_years",
-                "ignore_row_axis_years",
-                "no_year_axis",
-                "both_axes_years",
-            )
-        },
-    }
-
-    output_payload = {
-        "workbook": str(workbook),
-        "summary": summary,
-        "groups": payload_groups,
-    }
 
     args.output.write_text(
         json.dumps(output_payload, indent=2, ensure_ascii=False),

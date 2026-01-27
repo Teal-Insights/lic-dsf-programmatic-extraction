@@ -30,7 +30,7 @@ import openpyxl.utils.cell
 import sqlite_utils
 
 from excel_grapher import DependencyGraph, create_dependency_graph
-from map_lic_dsf_indicators import (
+from lic_dsf_labels import (
     INDICATOR_CONFIG,
     WORKBOOK_PATH,
     ensure_workbook_available,

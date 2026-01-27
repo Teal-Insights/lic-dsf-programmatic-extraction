@@ -2,7 +2,7 @@
 """
 Export LIC-DSF workbook formulas as standalone Python code.
 
-This script discovers formula targets from `map_lic_dsf_indicators.INDICATOR_CONFIG`,
+This script discovers formula targets from `lic_dsf_labels.INDICATOR_CONFIG`,
 builds a dependency graph, and uses `excel-formula-expander`'s `CodeGenerator` to
 emit a small Python package under `export/`.
 """
@@ -10,6 +10,7 @@ emit a small Python package under `export/`.
 from __future__ import annotations
 
 from pathlib import Path
+import argparse
 import ast
 import json
 import re
@@ -17,12 +18,13 @@ import re
 import openpyxl
 import openpyxl.utils.cell
 from openpyxl.worksheet.worksheet import Worksheet
-from excel_grapher import create_dependency_graph
+from excel_grapher import get_calc_settings
 from excel_formula_expander.codegen import CodeGenerator
 
-from map_lic_dsf_indicators import (
+from lic_dsf_labels import (
     INDICATOR_CONFIG,
     WORKBOOK_PATH,
+    WORKBOOK_TEMPLATE_URL,
     discover_formula_cells_in_rows,
     ensure_workbook_available,
     find_region_config,
@@ -30,6 +32,16 @@ from map_lic_dsf_indicators import (
     get_row_labels,
     get_labels_from_region_config,
 )
+from lic_dsf_pipeline import (
+    STRING_CONSTANT_EXCLUDES,
+    build_graph,
+    classify_input_addresses,
+    enrich_graph,
+    export_enrichment_audit,
+    iter_string_constant_addresses,
+    populate_leaf_values,
+)
+from lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
 
 
 EXPORT_DIR = Path("export")
@@ -89,9 +101,10 @@ def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]
 
 
 def build_entrypoints(
-    targets_by_row: dict[tuple[str, int], list[str]]
+    targets_by_row: dict[tuple[str, int], list[str]],
+    audit_path: Path = ENRICHMENT_AUDIT_PATH,
 ) -> dict[str, list[str]]:
-    labels_by_row = load_enrichment_audit_labels(ENRICHMENT_AUDIT_PATH)
+    labels_by_row = load_enrichment_audit_labels(audit_path)
     entrypoints: dict[str, list[str]] = {}
     for (sheet, row), targets in targets_by_row.items():
         prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
@@ -109,30 +122,6 @@ def build_entrypoints(
         entrypoints[name] = targets
     return entrypoints
 
-
-def populate_leaf_values(graph, workbook: Path) -> None:
-    """
-    Populate values for leaf (non-formula) nodes from cached workbook values.
-
-    Code generation only needs `node.value` for leaf cells; formulas are emitted
-    from `node.formula`.
-    """
-    wb = openpyxl.load_workbook(workbook, data_only=True, keep_vba=True)
-    try:
-        worksheets: dict[str, Worksheet] = {}
-        for key in graph:
-            node = graph.get_node(key)
-            if node is None or node.formula is not None:
-                continue
-            if node.sheet not in worksheets:
-                if node.sheet not in wb.sheetnames:
-                    continue
-                worksheets[node.sheet] = wb[node.sheet]
-            ws = worksheets[node.sheet]
-            col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
-            node.value = ws.cell(row=node.row, column=col_idx).value
-    finally:
-        wb.close()
 
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
 
@@ -834,12 +823,73 @@ def patch_init_for_setters(init_py: str) -> str:
     return init_py
 
 
-def main() -> None:
-    if not ensure_workbook_available(WORKBOOK_PATH):
-        print(f"Error: Workbook not available at {WORKBOOK_PATH}")
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Export LIC-DSF workbook formulas (with optional audit-only mode)."
+    )
+    parser.add_argument(
+        "--workbook",
+        type=Path,
+        default=WORKBOOK_PATH,
+        help="Path to workbook (default: workbooks/lic-dsf-template.xlsm)",
+    )
+    parser.add_argument(
+        "--workbook-url",
+        type=str,
+        default=WORKBOOK_TEMPLATE_URL,
+        help="Download URL for the default workbook",
+    )
+    parser.add_argument("--max-depth", type=int, default=MAX_DEPTH, help="Dependency graph max depth")
+    parser.add_argument(
+        "--audit-path",
+        type=Path,
+        default=ENRICHMENT_AUDIT_PATH,
+        help="Path for enrichment audit JSON output",
+    )
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help="Generate enrichment audit only; skip export generation",
+    )
+    parser.add_argument(
+        "--input-groups-path",
+        type=Path,
+        default=INPUT_GROUPS_PATH,
+        help="Path to input groups JSON for setter generation",
+    )
+    parser.add_argument(
+        "--input-groups-audit-path",
+        type=Path,
+        default=Path("input_groups.json"),
+        help="Path for input groups JSON output in audit-only mode",
+    )
+    parser.add_argument(
+        "--export-dir",
+        type=Path,
+        default=EXPORT_DIR,
+        help="Directory to write exported package",
+    )
+    parser.add_argument(
+        "--package-name",
+        type=str,
+        default="lic_dsf",
+        help="Package name for generated modules",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = build_arg_parser().parse_args(argv)
+
+    if args.workbook == WORKBOOK_PATH:
+        if not ensure_workbook_available(args.workbook, args.workbook_url):
+            print(f"Error: Workbook not available at {args.workbook}")
+            return
+    elif not args.workbook.exists():
+        print(f"Error: Workbook not found at {args.workbook}")
         return
 
-    targets_by_row = discover_targets_by_indicator_row(WORKBOOK_PATH)
+    targets_by_row = discover_targets_by_indicator_row(args.workbook)
     targets: list[str] = []
     for row_targets in targets_by_row.values():
         targets.extend(row_targets)
@@ -851,54 +901,154 @@ def main() -> None:
     print("=" * 70)
     print("LIC-DSF Workbook Export (standalone Python code)")
     print("=" * 70)
-    print(f"Workbook: {WORKBOOK_PATH}")
-    entrypoints = build_entrypoints(targets_by_row)
+    print(f"Workbook: {args.workbook}")
     print(f"Targets:  {len(targets)}")
-    print(f"Entrypoints: {len(entrypoints)}")
 
     print("\nBuilding dependency graph...")
-    graph = create_dependency_graph(
-        WORKBOOK_PATH,
+    graph = build_graph(args.workbook, targets, max_depth=args.max_depth)
+
+    print(f"   Nodes in graph: {len(graph)}")
+    print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
+    print(f"   Formula nodes: {len(graph) - sum(1 for _ in graph.leaves())}")
+
+    sheets: dict[str, int] = {}
+    for key in graph:
+        node = graph.get_node(key)
+        if node:
+            sheets[node.sheet] = sheets.get(node.sheet, 0) + 1
+    print("\n   Nodes by sheet:")
+    for sheet_name in sorted(sheets.keys()):
+        print(f"      {sheet_name}: {sheets[sheet_name]}")
+
+    print("\nPopulating leaf values from cached workbook values...")
+    populate_leaf_values(graph, args.workbook)
+
+    constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
+    input_addresses = classify_input_addresses(
+        graph,
         targets,
-        load_values=False,
-        max_depth=MAX_DEPTH,
+        constant_ranges=constant_ranges,
+        constant_blanks=True,
+        attach_to_graph=True,
     )
 
-    print("Populating leaf values from cached workbook values...")
-    populate_leaf_values(graph, WORKBOOK_PATH)
+    print("\nEnriching nodes with row/column labels...")
+    enrichment_results = enrich_graph(graph, args.workbook)
+    total_nodes = len(enrichment_results)
+    nodes_with_row_labels = sum(1 for r in enrichment_results.values() if r["row_labels"])
+    nodes_with_col_labels = sum(1 for r in enrichment_results.values() if r["column_labels"])
+    nodes_with_any_label = sum(
+        1 for r in enrichment_results.values() if r["row_labels"] or r["column_labels"]
+    )
+    nodes_without_labels = total_nodes - nodes_with_any_label
+    print(f"   Nodes with any label: {nodes_with_any_label}")
+    print(f"   Nodes with row labels: {nodes_with_row_labels}")
+    print(f"   Nodes with column labels: {nodes_with_col_labels}")
+    print(f"   Nodes without labels: {nodes_without_labels}")
+
+    input_with_row = 0
+    input_with_col = 0
+    input_with_any = 0
+    input_without = 0
+    for data in enrichment_results.values():
+        address = format_address(data["sheet"], data["address"])
+        if address not in input_addresses:
+            continue
+        has_row = bool(data["row_labels"])
+        has_col = bool(data["column_labels"])
+        if has_row:
+            input_with_row += 1
+        if has_col:
+            input_with_col += 1
+        if has_row or has_col:
+            input_with_any += 1
+        else:
+            input_without += 1
+
+    print("\n   Input nodes (constants excluded):")
+    print(f"      Inputs with any label: {input_with_any}")
+    print(f"      Inputs with row labels: {input_with_row}")
+    print(f"      Inputs with column labels: {input_with_col}")
+    print(f"      Inputs without labels: {input_without}")
+
+    print("\n   Sample enriched nodes:")
+    sample_count = 0
+    for key, data in enrichment_results.items():
+        if sample_count >= 5:
+            break
+        if not data["row_labels"] and not data["column_labels"]:
+            continue
+        row_str = ", ".join(data["row_labels"]) if data["row_labels"] else "(none)"
+        col_str = ", ".join(data["column_labels"]) if data["column_labels"] else "(none)"
+        print(f"      {key}:")
+        print(f"         Row labels: {row_str}")
+        print(f"         Col labels: {col_str}")
+        sample_count += 1
+
+    print(f"\nExporting audit file to {args.audit_path}...")
+    export_enrichment_audit(graph, enrichment_results, args.audit_path)
+    print(f"   Done. Review {args.audit_path} for sheet-by-sheet details.")
+
+    print(f"\nExporting input groups to {args.input_groups_audit_path}...")
+    input_cells = iter_input_cells(graph, enrichment_results)
+    input_cells = [c for c in input_cells if c.address in input_addresses]
+    input_groups_payload = build_input_groups_payload(
+        targets=targets,
+        graph=graph,
+        input_cells=input_cells,
+        restricted_to_export_default_inputs=False,
+        export_default_inputs_count=None,
+    )
+    args.input_groups_audit_path.write_text(
+        json.dumps(input_groups_payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"   Done. Review {args.input_groups_audit_path} for group details.")
+
+    print("\nWorkbook calculation settings...")
+    settings = get_calc_settings(args.workbook)
+    print(f"   Iterate enabled: {settings.iterate_enabled}")
+    print(f"   Iterate count:   {settings.iterate_count}")
+    print(f"   Iterate delta:   {settings.iterate_delta}")
+
+    if args.audit_only:
+        return
+
+    entrypoints = build_entrypoints(targets_by_row, audit_path=args.audit_path)
+    print(f"Entrypoints: {len(entrypoints)}")
 
     print("Generating Python package...")
     generator = CodeGenerator(graph)
     modules = generator.generate_modules(
         targets,
-        package_name="lic_dsf",
+        package_name=args.package_name,
         entrypoints=entrypoints if entrypoints else None,
     )
 
     # Generate year-aware input setters from canonical input groups.
-    if INPUT_GROUPS_PATH.exists():
-        groups = load_input_groups(INPUT_GROUPS_PATH)
-        setters_py = generate_setters_module(workbook=WORKBOOK_PATH, groups=groups)
-        modules["lic_dsf/setters.py"] = setters_py
-        if "lic_dsf/entrypoint.py" in modules:
-            modules["lic_dsf/entrypoint.py"] = patch_entrypoint_for_setters(
-                modules["lic_dsf/entrypoint.py"]
-            )
-        if "lic_dsf/__init__.py" in modules:
-            modules["lic_dsf/__init__.py"] = patch_init_for_setters(
-                modules["lic_dsf/__init__.py"]
-            )
+    if args.input_groups_path.exists():
+        groups = load_input_groups(args.input_groups_path)
+        setters_py = generate_setters_module(workbook=args.workbook, groups=groups)
+        modules[f"{args.package_name}/setters.py"] = setters_py
+        entrypoint_path = f"{args.package_name}/entrypoint.py"
+        init_path = f"{args.package_name}/__init__.py"
+        if entrypoint_path in modules:
+            modules[entrypoint_path] = patch_entrypoint_for_setters(modules[entrypoint_path])
+        if init_path in modules:
+            modules[init_path] = patch_init_for_setters(modules[init_path])
     else:
-        print(f"Warning: {INPUT_GROUPS_PATH} not found; skipping input setter generation.")
+        print(
+            f"Warning: {args.input_groups_path} not found; skipping input setter generation."
+        )
 
-    EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    args.export_dir.mkdir(parents=True, exist_ok=True)
     for rel, content in modules.items():
-        dst = EXPORT_DIR / rel
+        dst = args.export_dir / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(content, encoding="utf-8")
 
     pkg_prefix = Path(next(iter(modules.keys()))).parts[0] if modules else "(unknown)"
-    print(f"\nWrote {len(modules)} files under {EXPORT_DIR / pkg_prefix}")
+    print(f"\nWrote {len(modules)} files under {args.export_dir / pkg_prefix}")
 
 
 if __name__ == "__main__":

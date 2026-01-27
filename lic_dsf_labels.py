@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-Map formula dependencies for LIC-DSF indicator rows using excel-grapher.
-
-This script:
-- Discovers formula cells in configured indicator rows
-- Builds a dependency graph of upstream cell relationships
-- Enriches nodes with row/column labels for auditing
-- Exports an enrichment audit JSON for review
+Label extraction and workbook configuration helpers for LIC-DSF workflows.
 """
+
+from __future__ import annotations
 
 import json
 from collections import defaultdict
@@ -17,16 +13,11 @@ import tempfile
 from typing import Any, Literal, TypedDict
 from urllib.request import urlopen
 
-
 import openpyxl
 import openpyxl.utils.cell
-
-from excel_grapher import (
-    create_dependency_graph,
-    get_calc_settings,
-    DependencyGraph,
-)
+from excel_grapher import DependencyGraph
 from openpyxl.worksheet.worksheet import Worksheet
+
 
 # Configuration: sheets and indicator rows to trace
 class IndicatorConfig(TypedDict):
@@ -47,11 +38,13 @@ WORKBOOK_TEMPLATE_URL = (
 )
 
 
-def ensure_workbook_available(path: Path = WORKBOOK_PATH) -> bool:
+def ensure_workbook_available(
+    path: Path = WORKBOOK_PATH, url: str | None = None
+) -> bool:
     """
     Ensure the default LIC-DSF template workbook exists locally.
 
-    If the workbook is missing, downloads it from `WORKBOOK_TEMPLATE_URL` into `path`.
+    If the workbook is missing, downloads it from `url` (or `WORKBOOK_TEMPLATE_URL`) into `path`.
     """
     if path.exists() and path.stat().st_size > 0:
         return True
@@ -59,7 +52,8 @@ def ensure_workbook_available(path: Path = WORKBOOK_PATH) -> bool:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with urlopen(WORKBOOK_TEMPLATE_URL, timeout=60) as resp:
+        source_url = url or WORKBOOK_TEMPLATE_URL
+        with urlopen(source_url, timeout=60) as resp:
             with tempfile.NamedTemporaryFile(
                 prefix=f".{path.name}.", suffix=".download", dir=str(path.parent), delete=False
             ) as tmp:
@@ -93,6 +87,7 @@ class RegionConfig(TypedDict, total=False):
             time series (one annotation per row), "column" for columnar time series,
             or "cell" for individual cell annotations. Default: auto-detect.
     """
+
     sheet: str
     min_row: int | None
     max_row: int | None
@@ -319,44 +314,42 @@ REGION_CONFIG: list[RegionConfig] = [
 ]
 
 # Excel error values to filter out
-EXCEL_ERRORS = frozenset({
-    "#DIV/0!",
-    "#REF!",
-    "#NAME?",
-    "#VALUE!",
-    "#N/A",
-    "#NULL!",
-    "#NUM!",
-    "#GETTING_DATA",
-    "#SPILL!",
-    "#CALC!",
-})
+EXCEL_ERRORS = frozenset(
+    {
+        "#DIV/0!",
+        "#REF!",
+        "#NAME?",
+        "#VALUE!",
+        "#N/A",
+        "#NULL!",
+        "#NUM!",
+        "#GETTING_DATA",
+        "#SPILL!",
+        "#CALC!",
+    }
+)
 
 # Placeholder patterns to filter out (exact matches after stripping)
-PLACEHOLDER_PATTERNS = frozenset({
-    "...",
-    "…",  # Unicode ellipsis
-    "---",
-    "--",
-    "-",
-    "n/a",
-    "N/A",
-    "n.a.",
-    "N.A.",
-    "TBD",
-    "tbd",
-})
+PLACEHOLDER_PATTERNS = frozenset(
+    {
+        "...",
+        "…",  # Unicode ellipsis
+        "---",
+        "--",
+        "-",
+        "n/a",
+        "N/A",
+        "n.a.",
+        "N.A.",
+        "TBD",
+        "tbd",
+    }
+)
 
 
 def is_valid_label(text: str) -> bool:
     """
     Check if a text string is a valid label (not an error or placeholder).
-
-    Args:
-        text: The text to validate
-
-    Returns:
-        True if the text is a valid label, False otherwise
     """
     stripped = text.strip()
 
@@ -382,16 +375,6 @@ def is_valid_label(text: str) -> bool:
 def is_year_like(value: int | float) -> bool:
     """
     Check if a numeric value looks like a year (1900-2100 range).
-
-    This heuristic treats integers in the year range as potential column/row
-    headers rather than data values. Note: this may produce false positives
-    in tables where values in this range are actual data.
-
-    Args:
-        value: The numeric value to check
-
-    Returns:
-        True if the value looks like a year, False otherwise
     """
     # Only integers can be years
     if not isinstance(value, int) or isinstance(value, bool):
@@ -403,10 +386,6 @@ def is_year_like(value: int | float) -> bool:
 def dedupe_labels(labels: list[str]) -> list[str]:
     """
     De-duplicate labels while preserving their original order.
-
-    Label extraction may pick up the same header text multiple times (for example,
-    stacked header rows that both contain a year). For downstream grouping and
-    year-axis inference, repeated labels are not useful and can create ambiguity.
     """
     seen: set[str] = set()
     out: list[str] = []
@@ -421,18 +400,6 @@ def dedupe_labels(labels: list[str]) -> list[str]:
 def find_region_config(sheet: str, row: int, col: int) -> RegionConfig | None:
     """
     Find the first matching region configuration for a cell.
-
-    Searches REGION_CONFIG for a region that matches the given sheet, row,
-    and column. Returns the first match found, so more specific regions
-    should be listed before less specific ones.
-
-    Args:
-        sheet: The sheet name
-        row: The row number (1-indexed)
-        col: The column number (1-indexed)
-
-    Returns:
-        The matching RegionConfig, or None if no match found
     """
     for config in REGION_CONFIG:
         # Check sheet name
@@ -472,18 +439,6 @@ def get_labels_from_region_config(
 ) -> tuple[list[str], list[str]]:
     """
     Extract row and column labels using explicit region configuration.
-
-    Instead of scanning for labels heuristically, this function looks up
-    labels from the specified header rows and label columns.
-
-    Args:
-        ws: The worksheet
-        row: The row number of the cell (1-indexed)
-        col: The column number of the cell (1-indexed)
-        config: The region configuration specifying header rows and label columns
-
-    Returns:
-        Tuple of (row_labels, column_labels)
     """
     row_labels: list[str] = []
     col_labels: list[str] = []
@@ -521,20 +476,6 @@ def get_labels_from_region_config(
 def get_row_labels(ws: Worksheet, row: int, col: int) -> list[str]:
     """
     Scan leftward from a cell to find text labels.
-
-    Starts from the column immediately left of the given cell and moves left,
-    collecting valid text values and year-like integers until hitting a blank
-    cell, non-year numeric value, or the sheet edge.
-    Skips over invalid labels (placeholders, errors) while continuing to scan.
-    Returns labels in order from closest to the cell to furthest.
-
-    Args:
-        ws: The worksheet to scan
-        row: The row number of the cell
-        col: The column number of the cell (1-indexed)
-
-    Returns:
-        List of valid text labels found, from closest to furthest from the cell
     """
     labels: list[str] = []
 
@@ -576,20 +517,6 @@ def get_row_labels(ws: Worksheet, row: int, col: int) -> list[str]:
 def get_column_labels(ws: Worksheet, row: int, col: int) -> list[str]:
     """
     Scan upward from a cell to find text labels.
-
-    Starts from the row immediately above the given cell and moves up,
-    collecting valid text values and year-like integers until hitting a blank
-    cell, non-year numeric value, or the sheet edge.
-    Skips over invalid labels (placeholders, errors) while continuing to scan.
-    Returns labels in order from closest to the cell to furthest.
-
-    Args:
-        ws: The worksheet to scan
-        row: The row number of the cell
-        col: The column number of the cell (1-indexed)
-
-    Returns:
-        List of valid text labels found, from closest to furthest from the cell
     """
     labels: list[str] = []
 
@@ -634,18 +561,6 @@ def enrich_graph_with_labels(
 ) -> dict[str, dict[str, Any]]:
     """
     Enrich all nodes in the graph with row and column labels.
-
-    For each node in the graph, first checks for a matching region configuration.
-    If found, uses explicit header rows and label columns from the config.
-    Otherwise, falls back to heuristic scanning (left for row labels, up for
-    column labels).
-
-    Args:
-        graph: The dependency graph with nodes to enrich
-        wb_path: Path to the workbook for reading cell values
-
-    Returns:
-        Dictionary mapping node keys to their enrichment data
     """
     wb = openpyxl.load_workbook(wb_path, data_only=True, keep_vba=True)
 
@@ -711,16 +626,6 @@ def export_enrichment_audit(
 ) -> None:
     """
     Export enrichment results to a JSON file for auditing.
-
-    Creates a structured JSON file with:
-    - Summary statistics
-    - Per-sheet breakdown
-    - Detailed cell-by-cell enrichment data grouped by sheet
-
-    Args:
-        graph: The dependency graph
-        enrichment_results: Results from enrich_graph_with_labels
-        output_path: Path to write the JSON file
     """
     # Compute per-sheet statistics
     sheet_stats: dict[str, dict[str, int]] = defaultdict(
@@ -746,13 +651,15 @@ def export_enrichment_audit(
         else:
             sheet_stats[sheet]["none"] += 1
 
-        cells_by_sheet[sheet].append({
-            "key": key,
-            "address": data["address"],
-            "row_labels": data["row_labels"],
-            "column_labels": data["column_labels"],
-            "is_leaf": data["is_leaf"],
-        })
+        cells_by_sheet[sheet].append(
+            {
+                "key": key,
+                "address": data["address"],
+                "row_labels": data["row_labels"],
+                "column_labels": data["column_labels"],
+                "is_leaf": data["is_leaf"],
+            }
+        )
 
     # Sort cells within each sheet by address
     for sheet in cells_by_sheet:
@@ -821,110 +728,3 @@ def discover_formula_cells_in_rows(
     finally:
         wb_formulas.close()
         wb_values.close()
-
-
-def main() -> None:
-    print("=" * 70)
-    print("LIC-DSF Indicator Dependency Mapping")
-    print("=" * 70)
-    
-    if not ensure_workbook_available(WORKBOOK_PATH):
-        print(f"Error: Workbook not available at {WORKBOOK_PATH}")
-        print("Download it manually or check network access.")
-        return
-    
-    # Discover all formula cells in indicator rows
-    print("\n1. Discovering formula cells in indicator rows...")
-    all_targets: list[str] = []
-    
-    for config in INDICATOR_CONFIG:
-        sheet = config["sheet"]
-        rows = config["indicator_rows"]
-        print(f"   {sheet}: rows {rows}")
-        
-        targets = discover_formula_cells_in_rows(WORKBOOK_PATH, sheet, rows)
-        print(f"      Found {len(targets)} formula cells")
-        all_targets.extend(targets)
-    
-    print(f"\n   Total targets: {len(all_targets)}")
-    
-    if not all_targets:
-        print("No formula cells found. Exiting.")
-        return
-    
-    # Build dependency graph
-    print("\n2. Building dependency graph...")
-    graph = create_dependency_graph(
-        WORKBOOK_PATH,
-        all_targets,
-        load_values=False,  # Skip cached values for speed
-        max_depth=50,
-    )
-    
-    print(f"   Nodes in graph: {len(graph)}")
-    print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
-    print(f"   Formula nodes: {len(graph) - sum(1 for _ in graph.leaves())}")
-    
-    # Group nodes by sheet
-    sheets: dict[str, int] = {}
-    for key in graph:
-        node = graph.get_node(key)
-        if node:
-            sheets[node.sheet] = sheets.get(node.sheet, 0) + 1
-    
-    print("\n   Nodes by sheet:")
-    for sheet_name in sorted(sheets.keys()):
-        print(f"      {sheet_name}: {sheets[sheet_name]}")
-
-    # Enrich nodes with row/column labels
-    print("\n3. Enriching nodes with row/column labels...")
-    enrichment_results = enrich_graph_with_labels(graph, WORKBOOK_PATH)
-
-    total_nodes = len(enrichment_results)
-    nodes_with_row_labels = sum(
-        1 for r in enrichment_results.values() if r["row_labels"]
-    )
-    nodes_with_col_labels = sum(
-        1 for r in enrichment_results.values() if r["column_labels"]
-    )
-    nodes_with_any_label = sum(
-        1 for r in enrichment_results.values() if r["row_labels"] or r["column_labels"]
-    )
-    nodes_without_labels = total_nodes - nodes_with_any_label
-
-    print(f"   Nodes with any label: {nodes_with_any_label}")
-    print(f"   Nodes with row labels: {nodes_with_row_labels}")
-    print(f"   Nodes with column labels: {nodes_with_col_labels}")
-    print(f"   Nodes without labels: {nodes_without_labels}")
-
-    # Show sample enriched nodes (first 5 WITH labels)
-    print("\n   Sample enriched nodes:")
-    sample_count = 0
-    for key, data in enrichment_results.items():
-        if sample_count >= 5:
-            break
-        if not data["row_labels"] and not data["column_labels"]:
-            continue
-        row_str = ", ".join(data["row_labels"]) if data["row_labels"] else "(none)"
-        col_str = ", ".join(data["column_labels"]) if data["column_labels"] else "(none)"
-        print(f"      {key}:")
-        print(f"         Row labels: {row_str}")
-        print(f"         Col labels: {col_str}")
-        sample_count += 1
-
-    # Export audit file
-    audit_path = Path("enrichment_audit.json")
-    print(f"\n4. Exporting audit file to {audit_path}...")
-    export_enrichment_audit(graph, enrichment_results, audit_path)
-    print(f"   Done. Review {audit_path} for sheet-by-sheet details.")
-
-    # Workbook calc settings (useful context for interpreting cycles)
-    print("\n5. Workbook calculation settings...")
-    settings = get_calc_settings(WORKBOOK_PATH)
-    print(f"   Iterate enabled: {settings.iterate_enabled}")
-    print(f"   Iterate count:   {settings.iterate_count}")
-    print(f"   Iterate delta:   {settings.iterate_delta}")
-
-
-if __name__ == "__main__":
-    main()

@@ -19,6 +19,7 @@ sk-*
 *.xlsx
 *.pdf
 *.json
+.~lock*
 
 # Generated text extracts
 guidance_note/

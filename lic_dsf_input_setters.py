@@ -6,7 +6,7 @@ from typing import Any, Mapping, Protocol, Sequence, TypeAlias
 import openpyxl
 import openpyxl.utils.cell
 
-from map_lic_dsf_indicators import (
+from lic_dsf_labels import (
     find_region_config,
     get_column_labels,
     get_labels_from_region_config,

@@ -21,10 +21,16 @@ workflow lives in a dedicated entrypoint.
   - `lic-dsf-guidance-note.txt`: plaintext guidance note used for semantic search
 - `lic-dsf-chunks/`
   - Local chunk files used to build the embeddings store (created only if missing)
-- `map_lic_dsf_indicators.py`
-  - Dependency mapping + label enrichment + `enrichment_audit.json` export
 - `lic_dsf_annotate.py`
-  - RAG + DeepSeek annotations + `annotations.json` export
+  - DeepSeek annotations + `annotations.json` export
+- `lic_dsf_pipeline.py`
+  - Shared graph + classification utilities used by export and input grouping
+- `lic_dsf_labels.py`
+  - Workbook configuration and label extraction helpers
+- `lic_dsf_group_inputs.py`
+  - Input grouping + `input_groups.json` export (inputs only, constants filtered)
+- `lic_dsf_input_setters.py`
+  - Shared setter helpers used by generated export package
 
 ## Prerequisites
 
@@ -60,14 +66,14 @@ nodes with row/column labels, and writes an audit JSON.
 ### Run
 
 ```bash
-uv run python map_lic_dsf_indicators.py
+uv run python lic_dsf_export.py --audit-only
 ```
 
 ### Inputs
 
 - `workbooks/lic-dsf-template.xlsm` (default path configured via `WORKBOOK_PATH`)
-- Indicator-row configuration in `INDICATOR_CONFIG` inside `map_lic_dsf_indicators.py`
-- Label extraction configuration in `REGION_CONFIG` inside `map_lic_dsf_indicators.py`
+- Indicator-row configuration in `INDICATOR_CONFIG` inside `lic_dsf_labels.py`
+- Label extraction configuration in `REGION_CONFIG` inside `lic_dsf_labels.py`
 
 ### Output
 
@@ -96,7 +102,7 @@ uv run python lic_dsf_annotate.py
 
 ### Inputs
 
-- Workbook: `workbooks/lic-dsf-template.xlsm` (imported from `map_lic_dsf_indicators.WORKBOOK_PATH`)
+- Workbook: `workbooks/lic-dsf-template.xlsm` (imported from `lic_dsf_labels.WORKBOOK_PATH`)
 - Guidance note text: `guidance_note/lic-dsf-guidance-note.txt`
 - DeepSeek API key: `DEEPSEEK_API_KEY`
 
@@ -156,6 +162,12 @@ This script:
 uv run python lic_dsf_export.py
 ```
 
+### Audit-only mode
+
+```bash
+uv run python lic_dsf_export.py --audit-only
+```
+
 ### Output
 
 - `export/<normalized-workbook-stem>/` (overwritten on every run)
@@ -184,3 +196,35 @@ assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({
 # 1D range
 ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
 ```
+
+## Script 4: Group inputs for setter generation
+
+This script:
+
+- Discovers formula targets from `INDICATOR_CONFIG`
+- Builds a dependency graph
+- Populates leaf values and classifies constants vs inputs
+- Enriches input cells with row/column labels
+- Groups inputs into labeled clusters and writes JSON
+
+### Run
+
+```bash
+uv run python lic_dsf_group_inputs.py
+```
+
+### Output
+
+- `input_groups.json` (overwritten on every run)
+
+### Export integration
+
+If you copy or rename the output to `input_groups_export.json`, `lic_dsf_export.py` will
+generate setters in the exported package using those groups.
+
+## Recommended sequence
+
+1. `lic_dsf_export.py --audit-only` (optional, if you want updated `enrichment_audit.json`)
+2. `lic_dsf_group_inputs.py` (optional, if you want updated input groups for setters)
+3. `lic_dsf_annotate.py` (optional today; planned to inform export docstrings)
+4. `lic_dsf_export.py` (core export step)
