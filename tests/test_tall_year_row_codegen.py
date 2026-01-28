@@ -26,4 +26,5 @@ def test_codegen_generates_tall_year_row_setter() -> None:
         str(g.get("group_id", "group")),
     )
     assert f"def {base}_by_year" in module
+    assert f"def {base}_by_year_from_array" not in module
 

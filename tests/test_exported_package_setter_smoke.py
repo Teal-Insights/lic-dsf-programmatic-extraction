@@ -3,6 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 from lic_dsf_export import generate_setter_method_name, load_input_groups
 from lic_dsf_input_setters import build_wide_year_series_spec
 
@@ -63,6 +65,15 @@ def test_exported_package_has_year_series_setter() -> None:
     assert ctx.inputs[assignment.applied[year]] == 123
     assert ctx.inputs[assignment.applied[spec.years[-1]]] == 0
 
+    years = list(spec.years)
+    expected = list(range(years[0], years[0] + len(years)))
+    if years != expected:
+        pytest.skip("Non-contiguous years; array mapping requires contiguous years.")
+
+    ctx2 = lic_dsf.make_context()
+    assignment2 = getattr(ctx2, name)([10, 20], start_year=years[0], strict=True)
+    assert assignment2.applied[years[0]] in ctx2.inputs
+
 
 def test_exported_package_exports_range_assignment() -> None:
     sys.path.insert(0, str(Path("export").resolve()))
@@ -70,6 +81,14 @@ def test_exported_package_exports_range_assignment() -> None:
 
     assert hasattr(lic_dsf, "RangeAssignment")
     assert "RangeAssignment" in getattr(lic_dsf, "__all__", [])
+
+
+def test_exported_package_exports_context_with_setters() -> None:
+    sys.path.insert(0, str(Path("export").resolve()))
+    import lic_dsf  # type: ignore
+
+    assert hasattr(lic_dsf, "LicDsfContext")
+    assert "LicDsfContext" in getattr(lic_dsf, "__all__", [])
 
 
 def test_exported_package_exports_year_row_assignment() -> None:

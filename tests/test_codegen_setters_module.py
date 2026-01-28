@@ -45,6 +45,7 @@ def test_generate_setters_module_contains_wide_year_series_setter() -> None:
         str(target.get("group_id", "group")),
     )
     assert f"def {name}" in module
+    assert f"def {name}_from_array" not in module
     cells = sorted(str(c) for c in target.get("cells", []))
     assert cells[0] in module
     assert cells[-1] in module
