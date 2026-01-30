@@ -33,6 +33,7 @@ from lic_dsf_labels import (
     get_labels_from_region_config,
 )
 from lic_dsf_pipeline import (
+    BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,
     build_graph,
     classify_input_addresses,
@@ -997,6 +998,7 @@ def main(argv: list[str] | None = None) -> None:
         targets,
         constant_ranges=constant_ranges,
         constant_blanks=True,
+        blank_excludes=BLANK_CONSTANT_EXCLUDES,
         attach_to_graph=True,
     )
 

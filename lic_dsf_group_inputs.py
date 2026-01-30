@@ -28,6 +28,7 @@ from excel_grapher import DependencyGraph
 
 from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available
 from lic_dsf_pipeline import (
+    BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,
     build_graph,
     classify_input_addresses,
@@ -395,6 +396,7 @@ def main() -> None:
         targets,
         constant_ranges=constant_ranges,
         constant_blanks=True,
+        blank_excludes=BLANK_CONSTANT_EXCLUDES,
     )
     before = len(input_cells)
     input_cells = [c for c in input_cells if c.address in input_addresses]

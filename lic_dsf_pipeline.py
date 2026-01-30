@@ -14,7 +14,24 @@ from excel_grapher import DependencyGraph, create_dependency_graph
 from excel_formula_expander.codegen import CodeGenerator
 from openpyxl.worksheet.worksheet import Worksheet
 
-STRING_CONSTANT_EXCLUDES = {"START!K10", "'BLEND floating calculations WB'!C6"}
+STRING_CONSTANT_EXCLUDES = {
+    "START!K10",
+    "'BLEND floating calculations WB'!C6",
+    "'Input 6(optional)-Standard Test'!C4",
+    "'Input 6(optional)-Standard Test'!C5",
+    "'Input 6(optional)-Standard Test'!C7",
+    "'Input 6(optional)-Standard Test'!C8",
+    "'Input 6(optional)-Standard Test'!D18",
+    "'Input 6(optional)-Standard Test'!D26",
+    "'Input 6(optional)-Standard Test'!D30",
+    "'Input 6(optional)-Standard Test'!D33",
+    "'Input 6(optional)-Standard Test'!D8",
+    "'Input 6(optional)-Standard Test'!D9",
+}
+BLANK_CONSTANT_EXCLUDES = {
+    "'Input 6(optional)-Standard Test'!D8",
+    "'Input 6(optional)-Standard Test'!D9",
+}
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
 
 
@@ -33,6 +50,10 @@ def _format_sheet_name(sheet: str) -> str:
 
 def _format_address(sheet: str, a1: str) -> str:
     return f"{_format_sheet_name(sheet)}!{a1}"
+
+
+def _is_blank_value(value: object) -> bool:
+    return value is None or value == ""
 
 
 def discover_targets(workbook: Path) -> list[str]:
@@ -101,6 +122,7 @@ def classify_input_addresses(
     constant_types: set[str] | None = None,
     constant_ranges: list[str] | None = None,
     constant_blanks: bool = False,
+    blank_excludes: set[str] | None = None,
     attach_to_graph: bool = True,
 ) -> set[str]:
     inputs, _constants = CodeGenerator(graph).classify_leaf_nodes(
@@ -110,7 +132,28 @@ def classify_input_addresses(
         constant_blanks=constant_blanks,
         attach_to_graph=attach_to_graph,
     )
-    return {str(address) for address in inputs}
+    input_addresses = {str(address) for address in inputs}
+    if not blank_excludes:
+        return input_addresses
+
+    address_to_node: dict[str, object] = {}
+    for key in graph:
+        node = graph.get_node(key)
+        if node is None:
+            continue
+        address_to_node[_format_address(node.sheet, node.address)] = node
+
+    for address in blank_excludes:
+        if address in input_addresses:
+            continue
+        node = address_to_node.get(address)
+        if node is None:
+            continue
+        if node.formula is not None or not node.is_leaf:
+            continue
+        if _is_blank_value(node.value):
+            input_addresses.add(address)
+    return input_addresses
 
 
 def enrich_graph(graph: DependencyGraph, workbook: Path) -> dict[str, dict[str, object]]:

@@ -1,10 +1,28 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import lic_dsf_pipeline as pipeline
 
 
+@dataclass(frozen=True)
+class _DummyNode:
+    sheet: str
+    address: str
+    formula: str | None
+    is_leaf: bool
+    value: object
+
+
 class _DummyGraph:
-    pass
+    def __init__(self, nodes: dict[str, _DummyNode] | None = None) -> None:
+        self._nodes = nodes or {}
+
+    def __iter__(self):
+        return iter(self._nodes.keys())
+
+    def get_node(self, key: str):
+        return self._nodes.get(key)
 
 
 class _DummyGenerator:
@@ -33,3 +51,22 @@ def test_classify_input_addresses_returns_set(monkeypatch) -> None:
     )
 
     assert inputs == {"Sheet1!A1", "Sheet1!B2"}
+
+
+def test_classify_input_addresses_readds_blank_excludes(monkeypatch) -> None:
+    nodes = {
+        "blank": _DummyNode(
+            "Input 6(optional)-Standard Test", "D8", None, True, None
+        ),
+    }
+    graph = _DummyGraph(nodes)
+    monkeypatch.setattr(pipeline, "CodeGenerator", _DummyGenerator)
+
+    inputs = pipeline.classify_input_addresses(
+        graph,
+        ["Sheet1!Z9"],
+        constant_blanks=True,
+        blank_excludes={"'Input 6(optional)-Standard Test'!D8"},
+    )
+
+    assert "'Input 6(optional)-Standard Test'!D8" in inputs

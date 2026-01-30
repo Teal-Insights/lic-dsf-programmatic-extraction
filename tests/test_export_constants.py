@@ -33,10 +33,18 @@ def test_iter_string_constant_addresses_excludes_and_quotes() -> None:
         "b": _DummyNode("Sheet1", "A2", None, True, 10),
         "c": _DummyNode("Sheet1", "A3", "=A1", False, "ignored"),
         "d": _DummyNode("Weird Sheet", "B2", None, True, "value"),
+        "e": _DummyNode("Input 6(optional)-Standard Test", "C4", None, True, "New"),
     }
     graph = _DummyGraph(nodes)
 
-    ranges = iter_string_constant_addresses(graph, {"Sheet1!A1"})
+    ranges = iter_string_constant_addresses(
+        graph,
+        {
+            "Sheet1!A1",
+            "'Input 6(optional)-Standard Test'!C4",
+        },
+    )
 
     assert "Sheet1!A1" not in ranges
     assert "'Weird Sheet'!B2" in ranges
+    assert "'Input 6(optional)-Standard Test'!C4" not in ranges
