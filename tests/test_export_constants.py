@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from dataclasses import dataclass
 
 from lic_dsf_pipeline import iter_string_constant_addresses
