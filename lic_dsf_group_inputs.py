@@ -335,7 +335,7 @@ def main() -> None:
         "--workbook",
         type=Path,
         default=WORKBOOK_PATH,
-        help="Path to workbook (default: workbooks/lic-dsf-template.xlsm)",
+        help="Path to workbook (default: workbooks/lic-dsf-template-2026-01-31.xlsm)",
     )
     parser.add_argument(
         "--output",

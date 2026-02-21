@@ -71,7 +71,7 @@ uv run python lic_dsf_export.py --audit-only
 
 ### Inputs
 
-- `workbooks/lic-dsf-template.xlsm` (default path configured via `WORKBOOK_PATH`)
+- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH`)
 - Indicator-row configuration in `INDICATOR_CONFIG` inside `lic_dsf_labels.py`
 - Label extraction configuration in `REGION_CONFIG` inside `lic_dsf_labels.py`
 
@@ -102,7 +102,7 @@ uv run python lic_dsf_annotate.py
 
 ### Inputs
 
-- Workbook: `workbooks/lic-dsf-template.xlsm` (imported from `lic_dsf_labels.WORKBOOK_PATH`)
+- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (imported from `lic_dsf_labels.WORKBOOK_PATH`)
 - Guidance note text: `guidance_note/lic-dsf-guidance-note.txt`
 - DeepSeek API key: `DEEPSEEK_API_KEY`
 
@@ -197,7 +197,7 @@ assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({
 ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
 
 # Load all inputs from a filled-out template (requires optional openpyxl)
-ctx.load_inputs_from_workbook("workbooks/lic-dsf-template.xlsm")
+ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2026-01-31.xlsm")
 ```
 
 ## Script 4: Group inputs for setter generation

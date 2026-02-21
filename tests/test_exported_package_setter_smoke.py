@@ -43,7 +43,7 @@ def test_exported_package_has_year_series_setter() -> None:
     end_col = int(bbox.get("end_col"))
 
     spec = build_wide_year_series_spec(
-        workbook_path="workbooks/lic-dsf-template.xlsm",
+        workbook_path="workbooks/lic-dsf-template-2026-01-31.xlsm",
         sheet=sheet,
         row=row,
         start_col=start_col,

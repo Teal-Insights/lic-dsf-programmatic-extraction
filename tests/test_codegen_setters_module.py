@@ -36,7 +36,7 @@ def _pick_non_year_group(groups: list[dict]) -> dict:
 def test_generate_setters_module_contains_wide_year_series_setter() -> None:
     groups = load_input_groups(Path("input_groups.json"))
     target = _pick_wide_year_series(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
 
     assert "class LicDsfContext(EvalContext):" in module
     name = generate_setter_method_name(
@@ -54,7 +54,7 @@ def test_generate_setters_module_contains_wide_year_series_setter() -> None:
 def test_generate_setters_module_contains_no_year_range_setters() -> None:
     groups = load_input_groups(Path("input_groups.json"))
     target = _pick_non_year_group(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
 
     assert "class RangeAssignment" in module
     name = generate_setter_method_name(
@@ -70,7 +70,7 @@ def test_generate_setters_module_contains_no_year_range_setters() -> None:
 def test_generate_setters_module_includes_workbook_loader() -> None:
     groups = load_input_groups(Path("input_groups.json"))
     target = _pick_wide_year_series(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
 
     assert "def load_inputs_from_workbook" in module
     assert "_read_inputs_from_workbook" in module

@@ -23,7 +23,7 @@ class DummyCtx:
 def test_build_wide_year_series_spec_ext_debt_data_row10() -> None:
     # Known year header row around Ext_Debt_Data!E10:H10
     spec = build_wide_year_series_spec(
-        workbook_path="workbooks/lic-dsf-template.xlsm",
+        workbook_path="workbooks/lic-dsf-template-2026-01-31.xlsm",
         sheet="Ext_Debt_Data",
         row=10,
         start_col=openpyxl.utils.cell.column_index_from_string("E"),

@@ -18,7 +18,7 @@ def test_codegen_generates_tall_year_row_setter() -> None:
     groups = load_input_groups(Path("input_groups.json"))
     g = _pick_tall_year_group(groups)
 
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template.xlsm"), groups=[g])
+    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[g])
     assert "class YearRowAssignment" in module
     base = generate_setter_method_name(
         str(g.get("sheet")),

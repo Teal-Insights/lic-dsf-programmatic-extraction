@@ -32,9 +32,9 @@ INDICATOR_CONFIG: list[IndicatorConfig] = [
 ]
 
 # Default workbook used for dependency mapping / enrichment.
-WORKBOOK_PATH = Path("workbooks/lic-dsf-template.xlsm")
+WORKBOOK_PATH = Path("workbooks/lic-dsf-template-2026-01-31.xlsm")
 WORKBOOK_TEMPLATE_URL = (
-    "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/original/LIC-DSF-IDA21-Template-08-12-2025-vf.xlsm"
+    "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/new-lic-dsf-template"
 )
 
 
