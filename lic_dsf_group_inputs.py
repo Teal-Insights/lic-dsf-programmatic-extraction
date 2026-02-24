@@ -26,7 +26,7 @@ from typing import Any, Iterable, Literal
 import openpyxl.utils.cell
 from excel_grapher import DependencyGraph
 
-from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available
+from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available, is_offset_label
 from lic_dsf_pipeline import (
     BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,
@@ -64,6 +64,8 @@ def _normalize_label(label: str) -> str:
 
 def _is_year_label(label: str) -> bool:
     text = _normalize_label(label)
+    if is_offset_label(text):
+        return True
     try:
         year = int(text)
     except ValueError:

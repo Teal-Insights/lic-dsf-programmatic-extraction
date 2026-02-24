@@ -372,6 +372,151 @@ def is_valid_label(text: str) -> bool:
     return True
 
 
+import re as _re
+
+# Patterns that identify a header cell as the ProjectionYear anchor (offset 0).
+_ANCHOR_PATTERNS: list[_re.Pattern[str]] = [
+    _re.compile(r"^=\+?ProjectionYear$", _re.IGNORECASE),
+    _re.compile(r"^=\+?'?Macro-Debt_Data'?!U[45]$"),
+    _re.compile(r"^=\+?U4$"),
+]
+
+# =<COL><ROW>+1  or  =+<COL><ROW>+1
+_PLUS_ONE_RE = _re.compile(r"^=\+?([A-Z]{1,3})(\d+)\+1$")
+# =<COL><ROW>-1  or  =+<COL><ROW>-1
+_MINUS_ONE_RE = _re.compile(r"^=\+?([A-Z]{1,3})(\d+)-1$")
+# =+<COL><OTHER_ROW>  (same column, different row — row-copy pattern)
+_ROW_COPY_RE = _re.compile(r"^=\+?([A-Z]{1,3})(\d+)$")
+
+
+def _is_anchor_formula(formula: str) -> bool:
+    return any(p.match(formula) for p in _ANCHOR_PATTERNS)
+
+
+def detect_year_offset_headers(
+    ws_formulas: Worksheet,
+    ws_values: Worksheet,
+    sheet: str,
+    header_row: int,
+) -> dict[int, int]:
+    """
+    Detect year-offset header cells by formula pattern analysis.
+
+    Scans a header row for cells whose formulas reference ProjectionYear
+    (directly or via +1/-1 chains) and returns a mapping of column index
+    to integer offset (0 = projection year, positive = future, negative = past).
+    """
+    max_col = ws_formulas.max_column or 1
+
+    formulas: dict[int, str] = {}
+    values: dict[int, int] = {}
+    for col in range(1, max_col + 1):
+        f = ws_formulas.cell(row=header_row, column=col).value
+        v = ws_values.cell(row=header_row, column=col).value
+        if isinstance(f, str) and f.startswith("="):
+            formulas[col] = f
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            values[col] = int(v)
+
+    offsets: dict[int, int] = {}
+
+    # Pass 1: find anchor cells (offset 0)
+    for col, f in formulas.items():
+        if _is_anchor_formula(f):
+            offsets[col] = values.get(col, 0)
+
+    # Pass 2: walk +1/-1 chains outward from known offsets.
+    # Repeat until no new cells are resolved.
+    changed = True
+    while changed:
+        changed = False
+        for col, f in formulas.items():
+            if col in offsets:
+                continue
+            m = _PLUS_ONE_RE.match(f)
+            if m:
+                ref_col_letter, ref_row_str = m.group(1), m.group(2)
+                if int(ref_row_str) == header_row:
+                    ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                    if ref_col in offsets:
+                        offsets[col] = offsets[ref_col] + 1
+                        changed = True
+                        continue
+            m = _MINUS_ONE_RE.match(f)
+            if m:
+                ref_col_letter, ref_row_str = m.group(1), m.group(2)
+                if int(ref_row_str) == header_row:
+                    ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                    if ref_col in offsets:
+                        offsets[col] = offsets[ref_col] - 1
+                        changed = True
+                        continue
+
+    # Pass 3: neighbor-consistency propagation. For any unresolved formula
+    # cell with an integer cached value, if a resolved neighbor (col ± 1)
+    # has an offset differing by exactly 1, adopt the cached value.
+    # This handles cross-sheet references (e.g. ='Macro-Debt_Data'!T5)
+    # and row-copy formulas (e.g. =+E50) without needing to pattern-match
+    # every formula variant.
+    if offsets:
+        changed = True
+        while changed:
+            changed = False
+            for col in sorted(formulas.keys()):
+                if col in offsets or col not in values:
+                    continue
+                v = values[col]
+                left = offsets.get(col - 1)
+                right = offsets.get(col + 1)
+                if left is not None and v == left + 1:
+                    offsets[col] = v
+                    changed = True
+                elif right is not None and v == right - 1:
+                    offsets[col] = v
+                    changed = True
+    else:
+        # No anchors found — check if ALL formula cells are row-copy
+        # references with integer cached values forming a contiguous sequence.
+        row_copy_candidates: dict[int, int] = {}
+        all_row_copy = True
+        for col, f in formulas.items():
+            m = _ROW_COPY_RE.match(f)
+            if m:
+                ref_col_letter, ref_row_str = m.group(1), m.group(2)
+                ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                ref_row = int(ref_row_str)
+                if ref_row != header_row and ref_col == col and col in values:
+                    row_copy_candidates[col] = values[col]
+                    continue
+            all_row_copy = False
+
+        if all_row_copy and row_copy_candidates:
+            sorted_cols = sorted(row_copy_candidates.keys())
+            vals = [row_copy_candidates[c] for c in sorted_cols]
+            if all(vals[i + 1] - vals[i] == 1 for i in range(len(vals) - 1)):
+                offsets = row_copy_candidates
+
+    return offsets
+
+
+_OFFSET_PREFIX = "offset:"
+
+
+def is_offset_label(label: str) -> bool:
+    """Return True if ``label`` is an offset label (e.g. ``"offset:0"``)."""
+    if not label.startswith(_OFFSET_PREFIX):
+        return False
+    rest = label[len(_OFFSET_PREFIX) :]
+    return rest.lstrip("-").isdigit()
+
+
+def parse_offset_label(label: str) -> int:
+    """Parse ``"offset:N"`` → ``N``.  Raises ValueError if not valid."""
+    if not label.startswith(_OFFSET_PREFIX):
+        raise ValueError(f"Not an offset label: {label!r}")
+    return int(label[len(_OFFSET_PREFIX) :])
+
+
 def is_year_like(value: int | float) -> bool:
     """
     Check if a numeric value looks like a year (1900-2100 range).
@@ -436,12 +581,18 @@ def get_labels_from_region_config(
     row: int,
     col: int,
     config: RegionConfig,
+    offset_maps: dict[int, dict[int, int]] | None = None,
 ) -> tuple[list[str], list[str]]:
     """
     Extract row and column labels using explicit region configuration.
+
+    ``offset_maps`` is an optional mapping of ``header_row → {col_idx → offset}``
+    produced by :func:`detect_year_offset_headers`.  When present, header cells
+    that are year-offset formulas emit ``"offset:<N>"`` labels.
     """
     row_labels: list[str] = []
     col_labels: list[str] = []
+    offset_maps = offset_maps or {}
 
     # Get row labels from specified label columns
     label_columns = config.get("label_columns", [])
@@ -460,6 +611,12 @@ def get_labels_from_region_config(
     # Get column labels from specified header rows
     header_rows = config.get("header_rows", [])
     for header_row in header_rows:
+        # Check precomputed offset map first
+        hr_offsets = offset_maps.get(header_row, {})
+        if col in hr_offsets:
+            col_labels.append(f"{_OFFSET_PREFIX}{hr_offsets[col]}")
+            continue
+
         cell_value = ws.cell(row=header_row, column=col).value
 
         if cell_value is not None:
@@ -562,11 +719,29 @@ def enrich_graph_with_labels(
     """
     Enrich all nodes in the graph with row and column labels.
     """
-    wb = openpyxl.load_workbook(wb_path, data_only=True, keep_vba=True)
+    wb_values = openpyxl.load_workbook(wb_path, data_only=True, keep_vba=True)
+    wb_formulas = openpyxl.load_workbook(wb_path, data_only=False, keep_vba=True)
 
     try:
         # Cache worksheets by name for efficiency
         worksheets: dict[str, Worksheet] = {}
+
+        # Precompute year-offset maps: sheet → header_row → {col → offset}
+        _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
+
+        def _get_offset_maps(sheet: str, config: RegionConfig) -> dict[int, dict[int, int]]:
+            if sheet not in _offset_cache:
+                _offset_cache[sheet] = {}
+            sheet_cache = _offset_cache[sheet]
+            for hr in config.get("header_rows", []):
+                if hr not in sheet_cache:
+                    ws_f = wb_formulas[sheet] if sheet in wb_formulas.sheetnames else None
+                    ws_v = wb_values[sheet] if sheet in wb_values.sheetnames else None
+                    if ws_f is not None and ws_v is not None:
+                        sheet_cache[hr] = detect_year_offset_headers(ws_f, ws_v, sheet, hr)
+                    else:
+                        sheet_cache[hr] = {}
+            return sheet_cache
 
         enrichment_results: dict[str, dict[str, Any]] = {}
 
@@ -577,8 +752,8 @@ def enrich_graph_with_labels(
 
             # Get or cache the worksheet
             if node.sheet not in worksheets:
-                if node.sheet in wb.sheetnames:
-                    worksheets[node.sheet] = wb[node.sheet]
+                if node.sheet in wb_values.sheetnames:
+                    worksheets[node.sheet] = wb_values[node.sheet]
                 else:
                     continue
 
@@ -591,9 +766,9 @@ def enrich_graph_with_labels(
             region_config = find_region_config(node.sheet, node.row, col_idx)
 
             if region_config is not None:
-                # Use explicit configuration
+                offset_maps = _get_offset_maps(node.sheet, region_config)
                 row_labels, col_labels = get_labels_from_region_config(
-                    ws, node.row, col_idx, region_config
+                    ws, node.row, col_idx, region_config, offset_maps
                 )
             else:
                 # Fall back to heuristic scanning
@@ -616,7 +791,8 @@ def enrich_graph_with_labels(
         return enrichment_results
 
     finally:
-        wb.close()
+        wb_values.close()
+        wb_formulas.close()
 
 
 def export_enrichment_audit(

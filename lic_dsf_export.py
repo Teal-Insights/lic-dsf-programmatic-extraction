@@ -25,12 +25,15 @@ from lic_dsf_labels import (
     INDICATOR_CONFIG,
     WORKBOOK_PATH,
     WORKBOOK_TEMPLATE_URL,
+    detect_year_offset_headers,
     discover_formula_cells_in_rows,
     ensure_workbook_available,
     find_region_config,
     get_column_labels,
     get_row_labels,
     get_labels_from_region_config,
+    is_offset_label,
+    parse_offset_label,
 )
 from lic_dsf_pipeline import (
     BLANK_CONSTANT_EXCLUDES,
@@ -152,54 +155,77 @@ def parse_year_label(label: str) -> int | None:
     return y if 1900 <= y <= 2100 else None
 
 
-def year_for_column(ws: Worksheet, row: int, col: int) -> int | None:
-    """
-    Determine the year label for a cell's column header context.
+def _parse_year_or_offset(label: str) -> int | None:
+    """Parse a label as either an offset label or an absolute year."""
+    if is_offset_label(label):
+        return parse_offset_label(label)
+    return parse_year_label(label)
 
-    Uses the same region-config-aware label extraction as enrichment.
-    Returns a single year if exactly one year label is found; otherwise None.
+
+def year_for_column(
+    ws: Worksheet,
+    row: int,
+    col: int,
+    offset_maps: dict[int, dict[int, int]] | None = None,
+) -> int | None:
+    """
+    Determine the year/offset label for a cell's column header context.
+
+    When ``offset_maps`` are provided, offset labels (``"offset:N"``) are
+    recognised in addition to absolute year labels.  Returns a single integer
+    if exactly one year-like or offset label is found; otherwise ``None``.
     """
     cfg = find_region_config(ws.title, row, col)
     if cfg is not None:
-        _row_labels, col_labels = get_labels_from_region_config(ws, row, col, cfg)
+        _row_labels, col_labels = get_labels_from_region_config(
+            ws, row, col, cfg, offset_maps
+        )
     else:
         col_labels = get_column_labels(ws, row, col)
 
-    years: list[int] = []
+    values: list[int] = []
     for lab in col_labels:
-        y = parse_year_label(lab)
-        if y is not None:
-            years.append(y)
+        v = _parse_year_or_offset(lab)
+        if v is not None:
+            values.append(v)
 
-    years = list(dict.fromkeys(years))
-    if len(years) != 1:
+    values = list(dict.fromkeys(values))
+    if len(values) != 1:
         return None
-    return years[0]
+    return values[0]
 
 
-def year_for_row(ws: Worksheet, row: int, col: int) -> int | None:
+def year_for_row(
+    ws: Worksheet,
+    row: int,
+    col: int,
+    offset_maps: dict[int, dict[int, int]] | None = None,
+) -> int | None:
     """
-    Determine the year label for a cell's row label context.
+    Determine the year/offset label for a cell's row label context.
 
-    Uses the same region-config-aware label extraction as enrichment.
-    Returns a single year if exactly one year label is found; otherwise None.
+    When ``offset_maps`` are provided, offset labels (``"offset:N"``) are
+    recognised in addition to absolute year labels.  Returns a single integer
+    if exactly one year-like or offset label is found; otherwise ``None``.
     """
     cfg = find_region_config(ws.title, row, col)
     if cfg is not None:
-        row_labels, _col_labels = get_labels_from_region_config(ws, row, col, cfg)
+        row_labels, _col_labels = get_labels_from_region_config(
+            ws, row, col, cfg, offset_maps
+        )
     else:
         row_labels = get_row_labels(ws, row, col)
 
-    years: list[int] = []
+    values: list[int] = []
     for lab in row_labels:
-        y = parse_year_label(lab)
-        if y is not None:
-            years.append(y)
+        v = _parse_year_or_offset(lab)
+        if v is not None:
+            values.append(v)
 
-    years = list(dict.fromkeys(years))
-    if len(years) != 1:
+    values = list(dict.fromkeys(values))
+    if len(values) != 1:
         return None
-    return years[0]
+    return values[0]
 
 
 def load_input_groups(path: Path = INPUT_GROUPS_PATH) -> list[dict]:
@@ -324,7 +350,25 @@ def generate_setters_module(
         return "from __future__ import annotations\n\n# No setters were generated.\n"
 
     wb = openpyxl.load_workbook(workbook, data_only=True, keep_vba=True)
+    wb_formulas = openpyxl.load_workbook(workbook, data_only=False, keep_vba=True)
     try:
+        # Precompute offset maps per (sheet, header_row)
+        _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
+
+        def _get_offset_maps(sheet_name: str) -> dict[int, dict[int, int]]:
+            if sheet_name in _offset_cache:
+                return _offset_cache[sheet_name]
+            cfg = find_region_config(sheet_name, 1, 1)
+            maps: dict[int, dict[int, int]] = {}
+            if cfg is not None:
+                for hr in cfg.get("header_rows", []):
+                    ws_f = wb_formulas[sheet_name] if sheet_name in wb_formulas.sheetnames else None
+                    ws_v = wb[sheet_name] if sheet_name in wb.sheetnames else None
+                    if ws_f and ws_v:
+                        maps[hr] = detect_year_offset_headers(ws_f, ws_v, sheet_name, hr)
+            _offset_cache[sheet_name] = maps
+            return maps
+
         year_specs: list[dict] = []
         tall_year_specs: list[dict] = []
         range_specs: list[dict] = []
@@ -351,15 +395,15 @@ def generate_setters_module(
                 return n
 
             ws = wb[sheet]
+            sheet_offset_maps = _get_offset_maps(sheet)
 
             # Tall-format year series (year axis is the row axis).
-            # These groups are often sparse (not rectangular) because only leaf inputs appear in `cells`.
             if mode == "ignore_row_axis_years":
                 cells = g.get("cells") or []
                 if not isinstance(cells, list) or not cells:
                     continue
 
-                year_to_addresses: dict[int, list[str]] = {}
+                offset_to_addresses: dict[int, list[str]] = {}
                 meta_addresses: list[str] = []
 
                 for addr in cells:
@@ -373,22 +417,22 @@ def generate_setters_module(
                     r = int(row_str)
                     c = openpyxl.utils.cell.column_index_from_string(col_letter)
 
-                    y = year_for_row(ws, r, c)
+                    y = year_for_row(ws, r, c, sheet_offset_maps)
                     if y is None:
                         meta_addresses.append(addr)
                         continue
-                    year_to_addresses.setdefault(int(y), []).append(addr)
+                    offset_to_addresses.setdefault(int(y), []).append(addr)
 
-                if year_to_addresses:
-                    years_sorted = sorted(year_to_addresses.keys())
-                    year_to_addresses_sorted = {
-                        y: tuple(sorted(year_to_addresses[y])) for y in years_sorted
+                if offset_to_addresses:
+                    offsets_sorted = sorted(offset_to_addresses.keys())
+                    offset_to_addresses_sorted = {
+                        o: tuple(sorted(offset_to_addresses[o])) for o in offsets_sorted
                     }
                     tall_year_specs.append(
                         {
                             "name": unique(f"{base_name}_by_year"),
-                            "years": years_sorted,
-                            "year_to_addresses": year_to_addresses_sorted,
+                            "offsets": offsets_sorted,
+                            "offset_to_addresses": offset_to_addresses_sorted,
                         }
                     )
 
@@ -425,48 +469,46 @@ def generate_setters_module(
 
             # Wide-format year series
             if mode == "ignore_column_axis_years" and rows == 1 and cols >= 1 and row == end_row:
-                year_by_col: dict[int, int | None] = {}
+                offset_by_col: dict[int, int | None] = {}
                 for col in range(start_col, end_col + 1):
-                    year_by_col[col] = year_for_column(ws, row, col)
+                    offset_by_col[col] = year_for_column(ws, row, col, sheet_offset_maps)
 
                 segments = split_columns_by_year_presence(
-                    start_col=start_col, end_col=end_col, year_by_col=year_by_col
+                    start_col=start_col, end_col=end_col, year_by_col=offset_by_col
                 )
 
-                # Create a year-series setter per contiguous year segment.
                 year_seg_index = 0
                 meta_seg_index = 0
                 for kind, seg_start, seg_end in segments:
                     if kind == "year":
                         year_seg_index += 1
-                        year_to_address: dict[int, str] = {}
-                        years: list[int] = []
+                        offset_to_address: dict[int, str] = {}
+                        offsets: list[int] = []
                         ok = True
                         for col in range(seg_start, seg_end + 1):
-                            y = year_by_col.get(col)
-                            if y is None:
+                            o = offset_by_col.get(col)
+                            if o is None:
                                 ok = False
                                 break
-                            if y in year_to_address:
+                            if o in offset_to_address:
                                 ok = False
                                 break
                             col_letter = openpyxl.utils.cell.get_column_letter(col)
                             addr = format_address(sheet, f"{col_letter}{row}")
-                            year_to_address[int(y)] = addr
-                            years.append(int(y))
-                        if not ok or not year_to_address:
+                            offset_to_address[int(o)] = addr
+                            offsets.append(int(o))
+                        if not ok or not offset_to_address:
                             continue
 
                         name = base_name if len(segments) == 1 else f"{base_name}_years_{year_seg_index}"
                         year_specs.append(
                             {
                                 "name": unique(name),
-                                "years": years,
-                                "year_to_address": year_to_address,
+                                "offsets": offsets,
+                                "offset_to_address": offset_to_address,
                             }
                         )
                     else:
-                        # Metadata segment: generate a simple 1D range setter.
                         meta_seg_index += 1
                         addresses: list[str] = []
                         for col in range(seg_start, seg_end + 1):
@@ -515,12 +557,15 @@ def generate_setters_module(
         lines.append("from .inputs import DEFAULT_INPUTS")
         lines.append("")
         lines.append("")
+        lines.append("BASE_YEAR_ADDRESS = \"'Input 1 - Basics'!C18\"")
+        lines.append("")
+        lines.append("")
         lines.append("RangeValue = CellValue | Sequence[CellValue] | Sequence[Sequence[CellValue]]")
         lines.append("")
         lines.append("")
         lines.append("@dataclass(frozen=True, slots=True)")
         lines.append("class YearSeriesAssignment:")
-        lines.append("    years: tuple[int, ...]")
+        lines.append("    offsets: tuple[int, ...]")
         lines.append("    applied: dict[int, str]")
         lines.append("    ignored: dict[int, CellValue]")
         lines.append("")
@@ -533,7 +578,7 @@ def generate_setters_module(
         lines.append("")
         lines.append("@dataclass(frozen=True, slots=True)")
         lines.append("class YearRowAssignment:")
-        lines.append("    years: tuple[int, ...]")
+        lines.append("    offsets: tuple[int, ...]")
         lines.append("    applied: dict[int, tuple[str, ...]]")
         lines.append("    ignored: dict[int, CellValue]")
         lines.append("")
@@ -565,6 +610,24 @@ def generate_setters_module(
         lines.append("    if not sheet or not a1:")
         lines.append("        raise ValueError(f\"Invalid address: {address}\")")
         lines.append("    return sheet, a1")
+        lines.append("")
+        lines.append("")
+        lines.append("def _get_base_year(ctx: EvalContext) -> int | None:")
+        lines.append("    v = ctx.inputs.get(BASE_YEAR_ADDRESS)")
+        lines.append("    if isinstance(v, (int, float)) and not isinstance(v, bool) and 1900 <= int(v) <= 2100:")
+        lines.append("        return int(v)")
+        lines.append("    return None")
+        lines.append("")
+        lines.append("")
+        lines.append("def _resolve_key(key: int, base_year: int | None) -> int:")
+        lines.append("    if 1900 <= key <= 2100:")
+        lines.append("        if base_year is None:")
+        lines.append("            raise ValueError(")
+        lines.append("                f\"Cannot resolve year {key} to an offset without a base year. \"")
+        lines.append("                \"Set the base year first via set_input_1_basics_first_year_of_projections().\"")
+        lines.append("            )")
+        lines.append("        return key - base_year")
+        lines.append("    return key")
         lines.append("")
         lines.append("")
         lines.append("def _read_inputs_from_workbook(workbook_path: str) -> dict[str, CellValue]:")
@@ -639,115 +702,123 @@ def generate_setters_module(
         lines.append("def _apply_year_row_mapping(")
         lines.append("    ctx: EvalContext,")
         lines.append("    *,")
-        lines.append("    years: tuple[int, ...],")
-        lines.append("    year_to_addresses: dict[int, tuple[str, ...]],")
-        lines.append("    values_by_year: Mapping[int, CellValue],")
+        lines.append("    offsets: tuple[int, ...],")
+        lines.append("    offset_to_addresses: dict[int, tuple[str, ...]],")
+        lines.append("    values_by_key: Mapping[int, CellValue],")
         lines.append("    strict: bool = True,")
         lines.append(") -> YearRowAssignment:")
+        lines.append("    base_year = _get_base_year(ctx)")
         lines.append("    applied: dict[int, tuple[str, ...]] = {}")
         lines.append("    ignored: dict[int, CellValue] = {}")
         lines.append("    updates: dict[str, CellValue] = {}")
-        lines.append("    for year, value in values_by_year.items():")
-        lines.append("        addrs = year_to_addresses.get(int(year))")
+        lines.append("    for key, value in values_by_key.items():")
+        lines.append("        offset = _resolve_key(int(key), base_year)")
+        lines.append("        addrs = offset_to_addresses.get(offset)")
         lines.append("        if addrs is None:")
         lines.append("            if strict:")
-        lines.append("                raise KeyError(f\"Year {year} is not in this table: {years}\")")
-        lines.append("            ignored[int(year)] = value")
+        lines.append("                raise KeyError(f\"Key {key} (offset {offset}) is not in this table: {offsets}\")")
+        lines.append("            ignored[int(key)] = value")
         lines.append("            continue")
         lines.append("        v = 0 if value is None else value")
         lines.append("        for addr in addrs:")
         lines.append("            updates[str(addr)] = v")
-        lines.append("        applied[int(year)] = tuple(addrs)")
+        lines.append("        applied[int(key)] = tuple(addrs)")
         lines.append("    if updates:")
         lines.append("        ctx.set_inputs(updates)")
-        lines.append("    return YearRowAssignment(years=years, applied=applied, ignored=ignored)")
+        lines.append("    return YearRowAssignment(offsets=offsets, applied=applied, ignored=ignored)")
         lines.append("")
         lines.append("")
         lines.append("def _apply_year_row_array(")
         lines.append("    ctx: EvalContext,")
         lines.append("    *,")
-        lines.append("    years: tuple[int, ...],")
-        lines.append("    year_to_addresses: dict[int, tuple[str, ...]],")
+        lines.append("    offsets: tuple[int, ...],")
+        lines.append("    offset_to_addresses: dict[int, tuple[str, ...]],")
         lines.append("    values: Sequence[CellValue],")
-        lines.append("    start_year: int,")
+        lines.append("    start_key: int,")
         lines.append("    strict: bool = True,")
         lines.append(") -> YearRowAssignment:")
-        lines.append("    if start_year not in year_to_addresses:")
-        lines.append("        raise KeyError(f\"start_year {start_year} is not in this table: {years}\")")
-        lines.append("    years_list = list(years)")
-        lines.append("    start_idx = years_list.index(start_year)")
-        lines.append("    remaining_years = years_list[start_idx:]")
-        lines.append("    if len(values) > len(remaining_years):")
+        lines.append("    base_year = _get_base_year(ctx)")
+        lines.append("    start_offset = _resolve_key(start_key, base_year)")
+        lines.append("    if start_offset not in offset_to_addresses:")
+        lines.append("        raise KeyError(f\"start_year {start_key} (offset {start_offset}) is not in this table: {offsets}\")")
+        lines.append("    offsets_list = list(offsets)")
+        lines.append("    start_idx = offsets_list.index(start_offset)")
+        lines.append("    remaining = offsets_list[start_idx:]")
+        lines.append("    if len(values) > len(remaining):")
         lines.append("        raise ValueError(")
-        lines.append("            f\"Too many values ({len(values)}) for table from {start_year}; \"")
-        lines.append("            f\"only {len(remaining_years)} years available\"")
+        lines.append("            f\"Too many values ({len(values)}) for table from offset {start_offset}; \"")
+        lines.append("            f\"only {len(remaining)} offsets available\"")
         lines.append("        )")
-        lines.append("    expected = list(range(start_year, start_year + len(remaining_years)))")
-        lines.append("    if remaining_years != expected:")
+        lines.append("    expected = list(range(start_offset, start_offset + len(remaining)))")
+        lines.append("    if remaining != expected:")
         lines.append("        raise ValueError(")
-        lines.append("            \"Non-contiguous years; array mapping is disallowed for this table. \"")
+        lines.append("            \"Non-contiguous offsets; array mapping is disallowed for this table. \"")
         lines.append("            \"Use dict-based mapping instead.\"")
         lines.append("        )")
-        lines.append("    values_by_year = {start_year + i: values[i] for i in range(len(values))}")
+        lines.append("    values_by_key = {start_offset + i: values[i] for i in range(len(values))}")
         lines.append("    return _apply_year_row_mapping(")
-        lines.append("        ctx, years=years, year_to_addresses=year_to_addresses, values_by_year=values_by_year, strict=strict")
+        lines.append("        ctx, offsets=offsets, offset_to_addresses=offset_to_addresses, values_by_key=values_by_key, strict=strict")
         lines.append("    )")
         lines.append("")
         lines.append("")
         lines.append("def _apply_year_series_mapping(")
         lines.append("    ctx: EvalContext,")
         lines.append("    *,")
-        lines.append("    years: tuple[int, ...],")
-        lines.append("    year_to_address: dict[int, str],")
-        lines.append("    values_by_year: Mapping[int, CellValue],")
+        lines.append("    offsets: tuple[int, ...],")
+        lines.append("    offset_to_address: dict[int, str],")
+        lines.append("    values_by_key: Mapping[int, CellValue],")
         lines.append("    strict: bool = True,")
         lines.append(") -> YearSeriesAssignment:")
+        lines.append("    base_year = _get_base_year(ctx)")
         lines.append("    applied: dict[int, str] = {}")
         lines.append("    ignored: dict[int, CellValue] = {}")
         lines.append("    updates: dict[str, CellValue] = {}")
-        lines.append("    for year, value in values_by_year.items():")
-        lines.append("        addr = year_to_address.get(int(year))")
+        lines.append("    for key, value in values_by_key.items():")
+        lines.append("        offset = _resolve_key(int(key), base_year)")
+        lines.append("        addr = offset_to_address.get(offset)")
         lines.append("        if addr is None:")
         lines.append("            if strict:")
-        lines.append("                raise KeyError(f\"Year {year} is not in this series: {years}\")")
-        lines.append("            ignored[int(year)] = value")
+        lines.append("                raise KeyError(f\"Key {key} (offset {offset}) is not in this series: {offsets}\")")
+        lines.append("            ignored[int(key)] = value")
         lines.append("            continue")
         lines.append("        v = 0 if value is None else value")
         lines.append("        updates[addr] = v")
-        lines.append("        applied[int(year)] = addr")
+        lines.append("        applied[int(key)] = addr")
         lines.append("    if updates:")
         lines.append("        ctx.set_inputs(updates)")
-        lines.append("    return YearSeriesAssignment(years=years, applied=applied, ignored=ignored)")
+        lines.append("    return YearSeriesAssignment(offsets=offsets, applied=applied, ignored=ignored)")
         lines.append("")
         lines.append("")
         lines.append("def _apply_year_series_array(")
         lines.append("    ctx: EvalContext,")
         lines.append("    *,")
-        lines.append("    years: tuple[int, ...],")
-        lines.append("    year_to_address: dict[int, str],")
+        lines.append("    offsets: tuple[int, ...],")
+        lines.append("    offset_to_address: dict[int, str],")
         lines.append("    values: Sequence[CellValue],")
-        lines.append("    start_year: int,")
+        lines.append("    start_key: int,")
         lines.append("    strict: bool = True,")
         lines.append(") -> YearSeriesAssignment:")
-        lines.append("    if start_year not in year_to_address:")
-        lines.append("        raise KeyError(f\"start_year {start_year} is not in this series: {years}\")")
-        lines.append("    years_list = list(years)")
-        lines.append("    start_idx = years_list.index(start_year)")
-        lines.append("    remaining_years = years_list[start_idx:]")
-        lines.append("    if len(values) > len(remaining_years):")
+        lines.append("    base_year = _get_base_year(ctx)")
+        lines.append("    start_offset = _resolve_key(start_key, base_year)")
+        lines.append("    if start_offset not in offset_to_address:")
+        lines.append("        raise KeyError(f\"start_year {start_key} (offset {start_offset}) is not in this series: {offsets}\")")
+        lines.append("    offsets_list = list(offsets)")
+        lines.append("    start_idx = offsets_list.index(start_offset)")
+        lines.append("    remaining = offsets_list[start_idx:]")
+        lines.append("    if len(values) > len(remaining):")
         lines.append("        raise ValueError(")
-        lines.append("            f\"Too many values ({len(values)}) for series from {start_year}; \"")
-        lines.append("            f\"only {len(remaining_years)} years available\"")
+        lines.append("            f\"Too many values ({len(values)}) for series from offset {start_offset}; \"")
+        lines.append("            f\"only {len(remaining)} offsets available\"")
         lines.append("        )")
-        lines.append("    expected = list(range(start_year, start_year + len(remaining_years)))")
-        lines.append("    if remaining_years != expected:")
+        lines.append("    expected = list(range(start_offset, start_offset + len(remaining)))")
+        lines.append("    if remaining != expected:")
         lines.append("        raise ValueError(")
-        lines.append("            \"Non-contiguous years; array mapping is disallowed for this series. \"")
+        lines.append("            \"Non-contiguous offsets; array mapping is disallowed for this series. \"")
         lines.append("            \"Use dict-based mapping instead.\"")
         lines.append("        )")
-        lines.append("    values_by_year = {start_year + i: values[i] for i in range(len(values))}")
+        lines.append("    values_by_key = {start_offset + i: values[i] for i in range(len(values))}")
         lines.append("    return _apply_year_series_mapping(")
-        lines.append("        ctx, years=years, year_to_address=year_to_address, values_by_year=values_by_year, strict=strict")
+        lines.append("        ctx, offsets=offsets, offset_to_address=offset_to_address, values_by_key=values_by_key, strict=strict")
         lines.append("    )")
         lines.append("")
         lines.append("")
@@ -763,8 +834,8 @@ def generate_setters_module(
 
         for spec in year_specs:
             name = spec["name"]
-            years = spec["years"]
-            year_to_address = spec["year_to_address"]
+            offsets = spec["offsets"]
+            offset_to_address = spec["offset_to_address"]
 
             lines.append(f"    def {name}(")
             lines.append("        self,")
@@ -775,16 +846,16 @@ def generate_setters_module(
             lines.append("    ) -> YearSeriesAssignment:")
             lines.append("        if isinstance(values, MappingABC):")
             lines.append("            return _apply_year_series_mapping(")
-            lines.append(f"                self, years={tuple(years)!r}, year_to_address={year_to_address!r},")
-            lines.append("                values_by_year=values, strict=strict,")
+            lines.append(f"                self, offsets={tuple(offsets)!r}, offset_to_address={offset_to_address!r},")
+            lines.append("                values_by_key=values, strict=strict,")
             lines.append("            )")
             lines.append("        if not isinstance(values, SequenceABC):")
             lines.append("            raise TypeError(\"Expected a mapping or sequence for year-series inputs\")")
             lines.append("        if start_year is None:")
             lines.append("            raise TypeError(\"start_year is required for sequence inputs\")")
             lines.append("        return _apply_year_series_array(")
-            lines.append(f"            self, years={tuple(years)!r}, year_to_address={year_to_address!r},")
-            lines.append("            values=values, start_year=start_year, strict=strict,")
+            lines.append(f"            self, offsets={tuple(offsets)!r}, offset_to_address={offset_to_address!r},")
+            lines.append("            values=values, start_key=start_year, strict=strict,")
             lines.append("        )")
             lines.append("")
 
@@ -803,8 +874,8 @@ def generate_setters_module(
 
         for spec in tall_year_specs:
             name = spec["name"]
-            years = spec["years"]
-            year_to_addresses = spec["year_to_addresses"]
+            offsets = spec["offsets"]
+            offset_to_addresses = spec["offset_to_addresses"]
             lines.append(f"    def {name}(")
             lines.append("        self,")
             lines.append("        values: Mapping[int, CellValue] | Sequence[CellValue],")
@@ -814,22 +885,23 @@ def generate_setters_module(
             lines.append("    ) -> YearRowAssignment:")
             lines.append("        if isinstance(values, MappingABC):")
             lines.append("            return _apply_year_row_mapping(")
-            lines.append(f"                self, years={tuple(years)!r}, year_to_addresses={year_to_addresses!r},")
-            lines.append("                values_by_year=values, strict=strict,")
+            lines.append(f"                self, offsets={tuple(offsets)!r}, offset_to_addresses={offset_to_addresses!r},")
+            lines.append("                values_by_key=values, strict=strict,")
             lines.append("            )")
             lines.append("        if not isinstance(values, SequenceABC):")
             lines.append("            raise TypeError(\"Expected a mapping or sequence for year-row inputs\")")
             lines.append("        if start_year is None:")
             lines.append("            raise TypeError(\"start_year is required for sequence inputs\")")
             lines.append("        return _apply_year_row_array(")
-            lines.append(f"            self, years={tuple(years)!r}, year_to_addresses={year_to_addresses!r},")
-            lines.append("            values=values, start_year=start_year, strict=strict,")
+            lines.append(f"            self, offsets={tuple(offsets)!r}, offset_to_addresses={offset_to_addresses!r},")
+            lines.append("            values=values, start_key=start_year, strict=strict,")
             lines.append("        )")
             lines.append("")
 
         return "\n".join(lines).rstrip() + "\n"
     finally:
         wb.close()
+        wb_formulas.close()
 
 
 def patch_entrypoint_for_setters(entrypoint_py: str) -> str:
