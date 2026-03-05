@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Classes for R Programmers</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Instrument+Serif&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --r-background-color: #ffffff;
+    --r-main-font: 'DM Sans', sans-serif;
+    --r-main-font-size: 32px;
+    --r-main-color: #1a1a1a;
+    --r-heading-font: 'Instrument Serif', serif;
+    --r-heading-color: #0a0a0a;
+    --r-heading-letter-spacing: -0.02em;
+    --r-heading-text-transform: none;
+    --r-link-color: #555;
+    --code-font: 'JetBrains Mono', monospace;
+    --accent: #d4380d;
+    --muted: #888;
+    --light-bg: #f7f7f5;
+  }
+
+  .reveal {
+    font-weight: 300;
+  }
+
+  .reveal h1 {
+    font-size: 3.2em;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.15em;
+  }
+
+  .reveal h2 {
+    font-size: 2em;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 0.6em;
+  }
+
+  .reveal h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 1.5em;
+  }
+
+  .reveal p {
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .reveal .subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.55em;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-top: 0.3em;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 1.4em 1.8em;
+    text-align: left;
+    font-family: var(--code-font);
+    font-size: 0.72em;
+    line-height: 1.9;
+    margin: 0.8em auto;
+    max-width: 680px;
+    position: relative;
+    border: 1px solid #e8e8e6;
+  }
+
+  .code-block .lang-tag {
+    position: absolute;
+    top: 0.6em;
+    right: 0.8em;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .code-block .comment {
+    color: #999;
+    font-style: italic;
+  }
+
+  .code-block .keyword {
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  .code-block .string {
+    color: #2a7d4f;
+  }
+
+  .code-block .func {
+    color: var(--accent);
+  }
+
+  .code-block .method {
+    color: var(--accent);
+  }
+
+  .code-block .output {
+    color: var(--muted);
+    border-top: 1px dashed #ddd;
+    padding-top: 0.5em;
+    margin-top: 0.5em;
+  }
+
+  /* Annotation callouts */
+  .annotation {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.6em;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 580px;
+    margin: 0.8em auto 0;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .annotation em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* Arrow / pointer */
+  .pointer {
+    font-size: 1.6em;
+    color: var(--accent);
+    margin: 0.3em 0;
+  }
+
+  /* Comparison layout */
+  .compare {
+    display: flex;
+    gap: 2.5em;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 0.5em;
+  }
+
+  .compare .side {
+    flex: 1;
+    max-width: 420px;
+  }
+
+  .compare .side-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.55em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 0.8em;
+  }
+
+  .compare .code-block {
+    font-size: 0.62em;
+    margin: 0;
+  }
+
+  /* Diagram styles */
+  .class-diagram {
+    background: var(--light-bg);
+    border-radius: 14px;
+    border: 1px solid #e8e8e6;
+    padding: 1.5em 2em;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
+    font-family: var(--code-font);
+    font-size: 0.65em;
+    line-height: 2;
+  }
+
+  .class-diagram .class-name {
+    font-weight: 600;
+    font-size: 1.15em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.4em;
+    margin-bottom: 0.4em;
+  }
+
+  .class-diagram .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 0.5em;
+  }
+
+  .class-diagram .method-name {
+    color: var(--accent);
+  }
+
+  /* Emphasis text */
+  .big-idea {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.4em;
+    line-height: 1.4;
+    max-width: 700px;
+    margin: 0 auto;
+    color: #1a1a1a;
+  }
+
+  .big-idea em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  /* Instance arrow */
+  .instance-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2em;
+    margin: 1em auto;
+    font-family: var(--code-font);
+    font-size: 0.7em;
+  }
+
+  .instance-flow .box {
+    background: var(--light-bg);
+    border: 1px solid #e8e8e6;
+    border-radius: 10px;
+    padding: 0.8em 1.2em;
+  }
+
+  .instance-flow .arrow {
+    font-size: 1.5em;
+    color: var(--muted);
+  }
+
+  /* Fragment transitions */
+  .reveal .slides section .fragment.fade-up {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.6s ease;
+  }
+
+  .reveal .slides section .fragment.fade-up.visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Slide transitions */
+  .reveal .slides > section {
+    transition: all 0.8s ease;
+  }
+
+  /* Speaker notes styling */
+  .reveal .speaker-notes {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Progress bar */
+  .reveal .progress {
+    color: var(--accent);
+    height: 3px;
+  }
+
+  /* Divider line */
+  .thin-rule {
+    width: 60px;
+    height: 1px;
+    background: #ddd;
+    margin: 1.2em auto;
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="reveal">
+<div class="slides">
+
+  <!-- ============ SLIDE 1: TITLE ============ -->
+  <section data-transition="fade-in zoom-out" data-transition-speed="slow">
+    <h1>Python Classes</h1>
+    <div class="subtitle">a primer for R programmers</div>
+    <aside class="notes">
+      Hey — so I wanted to put together a short walkthrough to help bridge some of the conceptual gap between R and Python. Specifically, I want to talk about classes and objects, because that's where a lot of the "why does Python do it that way?" confusion comes from. If you understand this one idea, a lot of Python will suddenly click.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 2: THE R WAY ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The R approach</h3>
+
+    <div class="code-block">
+      <span class="lang-tag">R</span>
+      <span class="comment"># load a library with string functions</span><br>
+      <span class="keyword">library</span>(stringr)<br>
+      <br>
+      <div class="fragment fade-up">
+        <span class="comment"># call a function, pass in your data</span><br>
+        result &lt;- <span class="func">str_to_upper</span>(<span class="string">"hello"</span>)<br>
+      </div>
+      <div class="fragment fade-up">
+        <div class="output">
+          <span class="comment"># → "HELLO"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation">
+        The function lives in a <em>library</em>. You hand it your data. It hands back a result.
+      </div>
+    </div>
+
+    <aside class="notes">
+      So in R, when you want to manipulate a string — say, make it uppercase — you import a library like stringr, and you call a function from that library. You pass your string in as an argument, and you get a new value back. The function lives in the library, separate from your data. Your data is just… data. It doesn't do anything on its own. The function acts on it from the outside.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 3: THE PYTHON WAY ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The Python approach</h3>
+
+    <div class="code-block">
+      <span class="lang-tag">Python</span>
+      <span class="comment"># no import needed</span><br>
+      greeting = <span class="string">"hello"</span><br>
+      <br>
+      <div class="fragment fade-up">
+        <span class="comment"># call a method that lives ON the string</span><br>
+        greeting.<span class="method">upper</span>()<br>
+      </div>
+      <div class="fragment fade-up">
+        <div class="output">
+          <span class="comment"># → "HELLO"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation">
+        No library import. The method lives <em>on the string itself</em>.
+      </div>
+    </div>
+
+    <aside class="notes">
+      Now here's the same thing in Python. We create a string variable, greeting, and we just call dot-upper on it. No import. No library. The uppercase method lives directly on the string. That dot is doing something important — it's saying "hey, string, YOU know how to make yourself uppercase." The capability is baked into the data itself.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 4: SIDE BY SIDE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Same result — different philosophy</h3>
+
+    <div class="compare">
+      <div class="side">
+        <div class="side-label">R</div>
+        <div class="code-block">
+          <span class="func">str_to_upper</span>(<span class="string">"hello"</span>)
+        </div>
+        <div class="fragment fade-up" style="margin-top:0.8em;">
+          <div class="annotation" style="text-align:left; margin:0;">
+            function acts <em>on</em> data
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label">Python</div>
+        <div class="code-block">
+          <span class="string">"hello"</span>.<span class="method">upper</span>()
+        </div>
+        <div class="fragment fade-up" style="margin-top:0.8em;">
+          <div class="annotation" style="text-align:left; margin:0;">
+            data <em>has</em> the function
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="notes">
+      Let's see them side by side. In R, the function acts on the data from outside. In Python, the data already has the function built in. Same result — totally different mental model. In R, functions and data are separate things. In Python, they're bundled together. And that bundling? That's what a class is.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 5: WHAT MAKES THIS POSSIBLE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>What makes this possible?</h3>
+
+    <div class="fragment fade-up">
+      <div class="instance-flow">
+        <div class="box"><span class="string">"hello"</span></div>
+        <div class="arrow">→</div>
+        <div class="box">an instance of class <span class="keyword">str</span></div>
+      </div>
+    </div>
+
+    <div class="fragment fade-up" style="margin-top: 1.2em;">
+      <div class="big-idea">
+        Every string in Python is an <em>object</em> —<br>
+        created from a <em>class</em> blueprint.
+      </div>
+    </div>
+
+    <aside class="notes">
+      So where does dot-upper come from? The answer is: every string you create in Python is actually an object — a specific instance of a class called str. Think of a class as a blueprint. The str class says: "every string that gets created will have these methods — upper, lower, replace, split, and so on." When you write "hello" in quotes, Python builds an object from that blueprint, and all those methods come along for free.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 6: THE CLASS BLUEPRINT ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The class blueprint</h3>
+
+    <div class="class-diagram">
+      <div class="class-name">class str</div>
+      <div class="section-label">state (data)</div>
+      <div><span class="string">"hello"</span></div>
+      <div class="fragment fade-up">
+        <div class="section-label">methods (behavior)</div>
+        <div><span class="method-name">.upper()</span></div>
+        <div><span class="method-name">.lower()</span></div>
+        <div><span class="method-name">.replace()</span></div>
+        <div><span class="method-name">.split()</span></div>
+        <div><span class="method-name">.strip()</span></div>
+        <div style="color: var(--muted);">…</div>
+      </div>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation">
+        A class bundles <em>state</em> (your data) with <em>methods</em> (what it can do).
+      </div>
+    </div>
+
+    <aside class="notes">
+      Here's what that blueprint looks like conceptually. A class has two parts: state, which is the actual data — in this case, the characters "hello" — and methods, which are functions that know how to operate on that state. Upper, lower, replace, split — these all live inside the class definition. So when you call greeting dot upper, you're saying: "use the upper method that's part of your own blueprint to transform your own state." That's the core idea of object-oriented programming. Data and behavior, bundled together.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 7: THE KEY INSIGHT ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <div class="big-idea" style="margin-top: 1em;">
+      In R, <em>functions</em> do things to data.<br>
+      <div class="fragment fade-up" style="margin-top: 0.4em;">
+        In Python, <em>objects</em> know how<br>to do things to themselves.
+      </div>
+    </div>
+
+    <hr class="thin-rule fragment fade-up">
+
+    <div class="fragment fade-up">
+      <div class="annotation" style="font-size: 0.55em; max-width: 500px;">
+        That's what a <em>class</em> is — a blueprint that gives objects<br>
+        both their data and their capabilities.
+      </div>
+    </div>
+
+    <aside class="notes">
+      So here's the one-sentence version. In R, functions do things to data. In Python, objects know how to do things to themselves. And a class is just the blueprint that makes that possible — it defines what data an object holds, and what it can do with that data. Once you see Python through this lens, a lot of things start making sense — why you see dots everywhere, why you don't need to import as many libraries, why everything feels like it has methods attached to it. It's because in Python, almost everything is an object, built from a class.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 8: CLOSING THE PRIMER ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h2 style="font-size: 1.4em; color: var(--muted);">That's the mental model.</h2>
+    <div class="fragment fade-up" style="margin-top: 0.6em;">
+      <div class="big-idea" style="font-size: 1.1em;">
+        When you see <em>object.method()</em> in Python,<br>
+        you're seeing a class at work.
+      </div>
+    </div>
+
+    <aside class="notes">
+      And that's really it. That's the mental model shift. Every time you see that dot notation in Python — something-dot-something — you're looking at an object using a method that its class gave it. Now let's see how we use this same idea in py-lic-dsf.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 9: APPLYING IT TO PY-LIC-DSF ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Applying it to <em>py-lic-dsf</em></h3>
+
+    <div class="fragment fade-up">
+      <div class="big-idea" style="font-size: 1.05em;">
+        We store all DSA inputs in a single <em>context</em> object.<br>
+        That object can <em>know</em> how to operate on itself<br>
+        and how to instruct users in its own usage.
+      </div>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation" style="margin-top: 1.2em;">
+        Same idea: data + behavior in one place. The context isn’t just a bag of values — it’s an object that understands its own shape.
+      </div>
+    </div>
+
+    <aside class="notes">
+      In py-lic-dsf we take that same idea and apply it to the DSA workflow. All inputs live in a context object. Because it's a class instance, we can design it so it knows how to operate on itself and how to guide users. It's not just a passive container — it has methods that make the library easier to use and harder to misuse.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 10: CONTEXT METHODS ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>What the context can do</h3>
+
+    <div class="class-diagram" style="max-width: 520px;">
+      <div class="class-name">context</div>
+      <div class="section-label">methods (examples)</div>
+      <div><span class="method-name">.list()</span> — list the six input buckets</div>
+      <div><span class="method-name">.next()</span> — which bucket to work on next (tracks completed)</div>
+      <div><span class="method-name">.load_from_excel(path)</span> — load all inputs from a filled template</div>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation">
+        The context <em>knows</em> the workflow (Input 1 → … → Output 7) and can direct the user. It also knows how to read the Excel template — that logic lives in the object, not scattered in scripts.
+      </div>
+    </div>
+
+    <aside class="notes">
+      So we might give the context a list method that returns the six input buckets — configuration, macro_debt_baseline, baseline_financing_terms, stress_tests_standard, stress_tests_tailored_and_custom, stress_financing_and_sdr. A next method can track which buckets are already filled and tell the user which one to work on next. And we can give it a method to load all inputs from a filled-out Excel template; the context already knows the sheet layout and cell mapping, so it just knows how to do that. All of that is possible because we have an object that understands its own shape.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 11: BUCKETS AS SUBCLASSES ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Each bucket is a class (or subclass)</h3>
+
+    <div class="code-block">
+      <span class="lang-tag">Concept</span>
+      <span class="comment"># Each bucket can have domain-specific behavior</span><br>
+      <br>
+      <span class="keyword">macro_debt_baseline</span>.<span class="method">set_historical_from_weo</span>(...)  <span class="comment"># IMF API</span><br>
+      <span class="keyword">baseline_financing_terms</span>.<span class="method">required_inputs</span>(config)  <span class="comment"># depends on debt def, etc.</span>
+    </div>
+
+    <div class="fragment fade-up">
+      <div class="annotation">
+        Subclasses can encapsulate <em>how</em> to get or set their data. One bucket might know how to pull WEO historical data via the IMF API; another might know which of its inputs are required given the current workbook configuration.
+      </div>
+    </div>
+
+    <aside class="notes">
+      Each of the six buckets is itself a class — or a subclass of a common input-bucket base. So macro_debt_baseline might have a method that sets historical data from the World Economic Outlook using the IMF API. And we can give every bucket a method that looks at the current workbook configuration — debt definition, residency vs currency, etc. — and returns which inputs in that bucket are required. So the object doesn't just hold values; it knows the rules that apply to its slice of the DSA.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 12: VALIDATION ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Objects that validate themselves</h3>
+
+    <div class="big-idea" style="font-size: 1em;">
+      Because each bucket knows its <em>shape</em> and <em>domain rules</em>,<br>
+      it can validate the inputs we pass to it.
+    </div>
+
+    <div class="fragment fade-up" style="margin-top: 1em;">
+      <div class="annotation">
+        e.g. residual financing must not be negative; interest rates nominal vs real by debt type. Validation lives with the data it validates.
+      </div>
+    </div>
+
+    <aside class="notes">
+      And finally, because these objects understand their own shape and the domain constraints — things we already document in the instruction sheet, like avoid negative residual financing, or nominal vs real rate conventions — we can have the objects validate the inputs we pass to them. So validation isn't a separate layer of functions; it's built into the buckets. Same idea again: the object knows how to operate on itself and how to keep itself sane.
+    </aside>
+  </section>
+
+  <!-- ============ SLIDE 13: WRAP-UP ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Why classes help <em>py-lic-dsf</em></h3>
+
+    <div class="big-idea" style="font-size: 0.95em;">
+      One <em>context</em> object: stores inputs, lists buckets, tracks progress,<br>
+      loads from Excel. Six <em>bucket</em> subclasses: each knows how to<br>
+      get/set its data, which inputs are required for the current config,<br>
+      and how to validate. All of that is possible because we have<br>
+      <em>objects that understand their own shape.</em>
+    </div>
+
+    <aside class="notes">
+      So to tie it together: we have one context object that holds all the inputs and knows how to list the buckets, tell you what's next, and load from a filled template. We have six bucket subclasses that each know how to populate themselves — including from external APIs where it makes sense — which of their inputs are required given the configuration, and how to validate. All of that comes from the same idea we started with: in Python, objects know how to do things to themselves. Here we're just designing those objects so that their "shape" and "rules" are first-class, which solves our library design problems in one place.
+    </aside>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    center: true,
+    controls: true,
+    controlsTutorial: false,
+    progress: true,
+    transition: 'zoom',
+    transitionSpeed: 'slow',
+    backgroundTransition: 'fade',
+    width: 1200,
+    height: 700,
+    margin: 0.1,
+    showNotes: false,  // set to true to preview speaker notes
+    // Keyboard shortcuts: 's' opens speaker view with notes
+  });
+</script>
+
+</body>
+</html>
