@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIC DSF pipeline — overview</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Instrument+Serif&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --r-background-color: #ffffff;
+    --r-main-font: 'DM Sans', sans-serif;
+    --r-main-font-size: 32px;
+    --r-main-color: #1a1a1a;
+    --r-heading-font: 'Instrument Serif', serif;
+    --r-heading-color: #0a0a0a;
+    --r-heading-letter-spacing: -0.02em;
+    --r-heading-text-transform: none;
+    --r-link-color: #555;
+    --code-font: 'JetBrains Mono', monospace;
+    --accent: #d4380d;
+    --muted: #888;
+    --light-bg: #f7f7f5;
+  }
+
+  .reveal {
+    font-weight: 300;
+  }
+
+  .reveal h1 {
+    font-size: 3.2em;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.15em;
+  }
+
+  .reveal h2 {
+    font-size: 2em;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 0.6em;
+  }
+
+  .reveal h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 1.5em;
+  }
+
+  .reveal p {
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .reveal .subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.55em;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-top: 0.3em;
+  }
+
+  .code-block {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 1.4em 1.8em;
+    text-align: left;
+    font-family: var(--code-font);
+    font-size: 0.72em;
+    line-height: 1.9;
+    margin: 0.8em auto;
+    max-width: 680px;
+    border: 1px solid #e8e8e6;
+  }
+
+  .code-block .lang-tag {
+    position: absolute;
+    top: 0.6em;
+    right: 0.8em;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .annotation {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.6em;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 580px;
+    margin: 0.8em auto 0;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .annotation em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  .big-idea {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.4em;
+    line-height: 1.4;
+    max-width: 700px;
+    margin: 0 auto;
+    color: #1a1a1a;
+  }
+
+  .big-idea em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .reveal .slides section .fragment.fade-up {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.6s ease;
+  }
+
+  .reveal .slides section .fragment.fade-up.visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .reveal .progress {
+    color: var(--accent);
+    height: 3px;
+  }
+
+  .thin-rule {
+    width: 60px;
+    height: 1px;
+    background: #ddd;
+    margin: 1.2em auto;
+    border: none;
+  }
+
+  .mermaid-wrap {
+    background: var(--light-bg);
+    border-radius: 14px;
+    border: 1px solid #e8e8e6;
+    padding: 1.2em;
+    margin: 0.8em auto;
+    max-width: 900px;
+    overflow: visible;
+  }
+
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  .mermaid-wrap .mermaid svg {
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .mermaid-wrap .mermaid text {
+    fill: #1a1a1a !important;
+    font-size: 16px !important;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .mermaid-wrap.mermaid-three-layers .mermaid {
+    min-height: 320px;
+  }
+
+  .mermaid-wrap.mermaid-three-layers .mermaid .node rect,
+  .mermaid-wrap.mermaid-three-layers .mermaid .node polygon {
+    rx: 12;
+    ry: 12;
+    stroke-width: 2px;
+    stroke: var(--accent);
+  }
+
+  .mermaid-wrap.mermaid-three-layers .mermaid .edgePath path {
+    stroke: var(--muted);
+  }
+
+  .one-thing {
+    font-size: 1.15em;
+    line-height: 1.5;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="reveal">
+<div class="slides">
+
+  <!-- ============ TITLE ============ -->
+  <section data-transition="fade-in zoom-out" data-transition-speed="slow">
+    <h1>LIC DSF pipeline</h1>
+    <div class="subtitle">a short visual overview</div>
+    <aside class="notes">
+      A short visual walkthrough of how the Excel reverse-engineering pipeline works, how we run or export formulas, and where we are in the work plan. One idea per slide.
+    </aside>
+  </section>
+
+  <!-- ============ THE PROBLEM ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <div class="big-idea fragment fade-up">
+      Excel workbooks are powerful — but the logic is <em>inside the spreadsheet</em>. We want the <em>same logic</em> in Python so economists can run scenarios without opening Excel.
+    </div>
+    <aside class="notes">
+      The LIC DSF template is a big Excel workbook. To use it you have to open it, change cells, and look at the results. We want that same "change inputs, get outputs" behavior as a Python library.
+    </aside>
+  </section>
+
+  <!-- ============ THE SOLUTION IN ONE SENTENCE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The solution in one sentence</h3>
+    <div class="big-idea fragment fade-up">
+      We <em>trace</em> what each cell depends on, <em>translate</em> the formulas to Python, and <em>ship a library</em> that runs the same math.
+    </div>
+    <aside class="notes">
+      Trace dependencies, translate formulas, ship a library. That's the whole pipeline in one line.
+    </aside>
+  </section>
+
+  <!-- ============ THREE LAYERS (Mermaid) ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Three layers</h3>
+    <div class="mermaid-wrap mermaid-three-layers">
+      <div class="mermaid">
+flowchart TB
+  EG@{ shape: lin-cyl, label: "excel-grapher\ntrace + translate" }
+  LIC@{ shape: lin-cyl, label: "lic-dsf-programmatic-extraction\nconfigure + shape" }
+  PY@{ shape: lin-cyl, label: "py-lic-dsf\nthe library" }
+  EG --> LIC --> PY
+      </div>
+    </div>
+    <div class="annotation fragment fade-up">
+      Stacked layers: each has one job. We only draw the picture once; then we build it.
+    </div>
+    <aside class="notes">
+      Excel goes into excel-grapher, which traces and translates. That goes into lic-dsf-programmatic-extraction, which configures and shapes it for the LIC DSF. Out comes py-lic-dsf, the library economists use.
+    </aside>
+  </section>
+
+  <!-- ============ LAYER 1: DEPENDENCY GRAPH ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Layer 1: What does this cell need?</h3>
+    <div class="one-thing fragment fade-up">
+      For any cell we care about (e.g. a stress-test result), we ask: <em>which other cells does its formula use?</em> We repeat until we hit numbers or text. That gives us a <em>dependency graph</em>.
+    </div>
+    <aside class="notes">
+      excel-grapher's main job is target-driven dependency tracing. Give it a target cell; it follows the formula references until it reaches leaves. The result is a graph of nodes (cells) and edges (depends-on).
+    </aside>
+  </section>
+
+  <!-- ============ TWO-CELL DEPENDENCY (Mermaid) ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Smallest example: the two-cell demo</h3>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+  A1["A1 = 10"]
+  B1["B1 = A1 × 2"]
+  A1 --> B1
+      </div>
+    </div>
+    <div class="annotation fragment fade-up">
+      B1 depends on A1. The graph is two nodes and one edge.
+    </div>
+    <aside class="notes">
+      In the two-cell demo we have A1 equals 10 and B1 equals A1 times 2. So B1 depends on A1. The dependency graph is just two nodes and one edge.
+    </aside>
+  </section>
+
+  <!-- ============ TWO WAYS TO RUN IT ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Two ways to run it</h3>
+    <div class="one-thing fragment fade-up">
+      <strong>FormulaEvaluator</strong>: keep the graph in memory and <em>evaluate</em> formulas on it (like a tiny Excel engine).
+    </div>
+    <div class="one-thing fragment fade-up" style="margin-top: 0.8em;">
+      <strong>CodeGenerator</strong>: <em>write Python code</em> that does the same math, so we can ship that code and no engine.
+    </div>
+    <aside class="notes">
+      We have two execution paths. The FormulaEvaluator interprets the graph at runtime. The CodeGenerator emits Python source. Both must give the same answers—we enforce that with tests.
+    </aside>
+  </section>
+
+  <!-- ============ SAME ANSWER ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Same answer</h3>
+    <div class="code-block" style="position: relative;">
+      <span class="lang-tag">Two-cell demo</span>
+      Evaluator: run graph → B1 = <strong>20</strong><br>
+      Generated code: run Python → B1 = <strong>20</strong>
+    </div>
+    <div class="annotation fragment fade-up">
+      We test that both paths match. That's our <em>parity contract</em>.
+    </div>
+    <aside class="notes">
+      For the two-cell workbook, both the evaluator and the generated code produce 20. We require that for every cell we care about—parity between the two paths.
+    </aside>
+  </section>
+
+  <!-- ============ LAYER 2: SHAPE IT ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Layer 2: Shape it for economists</h3>
+    <div class="one-thing fragment fade-up">
+      Raw export is <em>Excel-shaped</em> (cell addresses, one function per cell). This repo adds <em>labels</em> (e.g. "Real GDP Growth"), <em>grouped inputs</em> into setters, and <em>annotations</em> from the LIC DSF Guidance Note.
+    </div>
+    <aside class="notes">
+      lic-dsf-programmatic-extraction discovers targets, enriches the graph with human-readable labels, uses RAG to annotate logic from the guidance note, and groups inputs into setters so users don't deal with raw cell addresses.
+    </aside>
+  </section>
+
+  <!-- ============ LAYER 3: THE LIBRARY ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Layer 3: The library</h3>
+    <div class="one-thing fragment fade-up">
+      <strong>py-lic-dsf</strong> is what economists use: a <em>context</em> with setters for inputs and <em>compute_*</em> functions for the stress tests and risk rating. No Excel, no pipeline code—just Python.
+    </div>
+    <aside class="notes">
+      The public library is entirely generated. We don't hand-edit it. Setters live on the context; you call compute_* to get results. Self-contained and dependency-clean.
+    </aside>
+  </section>
+
+  <!-- ============ WORK PLAN: TWO PHASES (Mermaid) ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Where we are: two phases</h3>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+  P1["Phase 1\nExcel extraction\n(nearly done)"]
+  P2["Phase 2\nEconomist-friendly library\n(we are here)"]
+  P1 --> P2
+      </div>
+    </div>
+    <div class="annotation fragment fade-up">
+      Phase 1 built the trace-and-translate pipeline. Phase 2 is making the library usable and understandable.
+    </div>
+    <aside class="notes">
+      Phase 1 was building the extraction and translation tooling. We're now in Phase 2: shaping the output into an ergonomic, well-documented library for economists.
+    </aside>
+  </section>
+
+  <!-- ============ PHASE 2 IN ONE SLIDE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Phase 2 in one slide</h3>
+    <div class="one-thing fragment fade-up">
+      Scale to all stress tabs and the risk rating · Organize ~200 setters (e.g. namespaced subclasses) · Document which inputs are needed for which outputs · Golden-master verification · Shorter, more readable generated code (graph compression, segmentation)
+    </div>
+    <aside class="notes">
+      Key Phase 2 deliverables: full coverage of tabs, better API organization, input-output documentation, verification framework, and conciseness strategies like graph compression and segmentation.
+    </aside>
+  </section>
+
+  <!-- ============ ONE THING TO REMEMBER ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h2 style="font-size: 1.4em; color: var(--muted);">One thing to remember</h2>
+    <div class="fragment fade-up" style="margin-top: 0.6em;">
+      <div class="big-idea" style="font-size: 1.1em;">
+        We turn Excel's <em>dependency graph</em> into Python and shape it into a <em>library</em>. The rest is detail.
+      </div>
+    </div>
+    <hr class="thin-rule fragment fade-up">
+    <div class="fragment fade-up">
+      <div class="annotation" style="font-size: 0.55em;">
+        Trace → translate → configure → ship. One idea per layer.
+      </div>
+    </div>
+    <aside class="notes">
+      The mental model: dependency graph to Python, then shape for the user. Everything else—evaluator vs codegen, labels, RAG, setters—is how we do that one thing well.
+    </aside>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    center: true,
+    controls: true,
+    controlsTutorial: false,
+    progress: true,
+    transition: 'zoom',
+    transitionSpeed: 'slow',
+    backgroundTransition: 'fade',
+    width: 1200,
+    height: 700,
+    margin: 0.1,
+    showNotes: false,
+  });
+
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'neutral',
+    themeVariables: {
+      fontSize: '16px',
+      fontFamily: 'DM Sans, sans-serif',
+    },
+    flowchart: {
+      useMaxWidth: false,
+      htmlLabels: false,
+      nodeSpacing: 60,
+      rankSpacing: 50,
+      padding: 20,
+    },
+    securityLevel: 'loose',
+  });
+
+  function renderMermaidInSlide(slide) {
+    if (!slide) return;
+    var containers = slide.querySelectorAll('.mermaid');
+    containers.forEach(function (el) {
+      if (el.getAttribute('data-processed')) return;
+      var code = (el.textContent || el.innerText || '').trim();
+      if (!code) return;
+      try {
+        mermaid.run({
+          nodes: [el],
+          suppressErrors: true,
+        });
+      } catch (e) {
+        console.warn('Mermaid render failed:', e);
+      }
+    });
+  }
+
+  Reveal.on('ready', function () {
+    renderMermaidInSlide(Reveal.getCurrentSlide());
+  });
+  Reveal.on('slidechanged', function () {
+    renderMermaidInSlide(Reveal.getCurrentSlide());
+  });
+</script>
+
+</body>
+</html>
