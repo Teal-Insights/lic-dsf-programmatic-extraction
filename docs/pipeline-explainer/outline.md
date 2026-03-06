@@ -118,24 +118,19 @@ B1 depends on A1. The graph is *two nodes* and *one edge*. If B1 is our *target*
 flowchart LR
   A1["A1 = 10"]
   B1["B1 = A1 × 2"]
-  A1 --> B1
+  B1 --> A1
 ```
 
 BADO + evaluator is the first layer of excel-grapher. *It already works today.* We can run the workbook this way and get results.
 
 ```mermaid
-flowchart TB
-  subgraph excel_grapher["excel-grapher"]
-    subgraph layer1["Layer 1"]
-      grapher["grapher"]
-      evaluator["evaluator"]
+flowchart LR
+    excel_grapher["excel-grapher"]
+    subgraph layer1["Layer 1: BADO + engine"]
+        grapher["grapher"]
+        evaluator["evaluator"]
     end
-    subgraph layer2["Layer 2"]
-      exporter[]
-    end
-  end
-  grapher --> evaluator
-  evaluator --> exporter
+    excel_grapher --- layer1
 ```
 
 Limitations of the first layer:
@@ -147,18 +142,17 @@ What we want in a Python library: the *data layer* holds constants and inputs; *
 That brings us to the second layer: the *exporter* module.
 
 ```mermaid
-flowchart TB
-  subgraph excel_grapher["excel-grapher"]
-    subgraph layer1["Layer 1"]
-      grapher["grapher"]
-      evaluator["evaluator"]
+flowchart LR
+    excel_grapher["excel-grapher"]
+    subgraph layer1["Layer 1: BADO + engine"]
+        grapher["grapher"]
+        evaluator["evaluator"]
     end
     subgraph layer2["Layer 2"]
-      exporter["exporter"]
+        exporter
     end
-  end
-  grapher --> evaluator
-  evaluator --> exporter
+    excel_grapher --- layer1
+    excel_grapher --- layer2
 ```
 
 The exporter turns formula cells into *Python functions* and outputs them, along with relevant parts of the engine, as a standalone Python library. Non-formula cells stay as a Python dictionary. That gives us a clear split: *data* in the dictionary, *logic* in code.

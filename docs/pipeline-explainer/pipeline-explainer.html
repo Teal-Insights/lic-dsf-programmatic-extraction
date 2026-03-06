@@ -58,6 +58,12 @@
     font-weight: 300;
   }
 
+  .reveal em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 500;
+  }
+
   .reveal .subtitle {
     font-family: 'DM Sans', sans-serif;
     font-size: 0.55em;
@@ -176,6 +182,15 @@
     font-family: 'DM Sans', sans-serif;
   }
 
+  .mermaid-wrap .nodeLabel,
+  .mermaid-wrap .edgeLabel,
+  .mermaid-wrap .label {
+    color: #1a1a1a;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
   .mermaid-wrap.mermaid-three-layers .mermaid {
     min-height: 320px;
   }
@@ -198,6 +213,21 @@
     max-width: 640px;
     margin: 0 auto;
   }
+
+  .code-block pre {
+    margin: 0;
+    white-space: pre;
+  }
+
+  .reveal table {
+    border-collapse: collapse;
+  }
+
+  .reveal table th,
+  .reveal table td {
+    border: 1px solid #e8e8e6;
+    padding: 0.35em 0.8em;
+  }
 </style>
 </head>
 <body>
@@ -210,7 +240,7 @@
     <h1>LIC DSF pipeline</h1>
     <div class="subtitle">a short visual overview</div>
     <aside class="notes">
-      A short visual walkthrough of how the Excel reverse-engineering pipeline works, how we run or export formulas, and where we are in the work plan. One idea per slide.
+      A short visual walkthrough of how the Excel reverse-engineering pipeline works and how we mechanically trace and translate formulas to Python.
     </aside>
   </section>
 
@@ -218,10 +248,20 @@
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>The problem</h3>
     <div class="big-idea fragment fade-up">
-      Excel workbooks are powerful — but the logic is <em>inside the spreadsheet</em>. We want the <em>same logic</em> in Python so economists can run scenarios without opening Excel.
+      Excel workbooks are powerful — but the logic runs <em>inside the application</em>. We want the <em>same logic</em> in Python so economists can run scenarios without opening Excel.
     </div>
     <aside class="notes">
-      The LIC DSF template is a big Excel workbook. To use it you have to open it, change cells, and look at the results. We want that same "change inputs, get outputs" behavior as a Python library.
+      The LIC DSF template is a big Excel workbook. To use it you have to open it, change cells, and look at the results. We want that same behavior as a Python library.
+    </aside>
+  </section>
+
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <div class="one-thing fragment fade-up">
+      Manual Excel work is <em>laborious</em>, <em>time-consuming</em>, and <em>error-prone</em>. Workflows cannot be <em>typed</em>, <em>tested</em>, or even <em>audited</em>. It can't be <em>automated</em> or done <em>at scale</em>.
+    </div>
+    <aside class="notes">
+      Manual work in Excel doesn't scale and is hard to verify. We need a programmatic path.
     </aside>
   </section>
 
@@ -236,38 +276,255 @@
     </aside>
   </section>
 
-  <!-- ============ THREE LAYERS (Mermaid) ============ -->
+  <!-- ============ BUT THAT'S A BIG CHALLENGE ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Three layers</h3>
-    <div class="mermaid-wrap mermaid-three-layers">
-      <div class="mermaid">
-flowchart TB
-  EG@{ shape: lin-cyl, label: "excel-grapher\ntrace + translate" }
-  LIC@{ shape: lin-cyl, label: "lic-dsf-programmatic-extraction\nconfigure + shape" }
-  PY@{ shape: lin-cyl, label: "py-lic-dsf\nthe library" }
-  EG --> LIC --> PY
-      </div>
-    </div>
-    <div class="annotation fragment fade-up">
-      Stacked layers: each has one job. We only draw the picture once; then we build it.
-    </div>
+    <h3>But that's a big challenge</h3>
+    <p class="fragment fade-up">The LIC DSF:</p>
+    <ul style="margin-top: 0.5em; text-align: left; max-width: 640px; margin-left: auto; margin-right: auto;">
+      <li class="fragment fade-up">has over <em>800,000 cells</em>, including <em>200,000 formula cells</em></li>
+      <li class="fragment fade-up">calls <em>55 unique functions</em>, nested up to <em>7 levels</em> deep</li>
+      <li class="fragment fade-up">uses lookups and offsets <em>tightly coupled to Excel's data model</em></li>
+    </ul>
     <aside class="notes">
-      Excel goes into excel-grapher, which traces and translates. That goes into lic-dsf-programmatic-extraction, which configures and shapes it for the LIC DSF. Out comes py-lic-dsf, the library economists use.
+      The LIC DSF template is huge: hundreds of thousands of cells and formulas, with deep nesting and Excel-specific constructs.
     </aside>
   </section>
 
-  <!-- ============ LAYER 1: DEPENDENCY GRAPH ============ -->
+  <!-- ============ OPTION 1 ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Layer 1: What does this cell need?</h3>
+    <h3>Option 1</h3>
+    <div class="one-thing fragment fade-up">
+      <em>Drive Excel from Python.</em> Pros: modest speedup, familiar tooling, correctness guarantees. Cons: most of the limitations of Excel still apply.
+    </div>
+    <aside class="notes">
+      Automating Excel from Python keeps correctness but doesn't escape Excel's limits.
+    </aside>
+  </section>
+
+  <!-- ============ OPTION 2 ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Option 2</h3>
+    <div class="one-thing fragment fade-up">
+      <em>Have AI agents translate to Python.</em> Pros: leverages the "bitter lesson," improves as AI models do. Cons: unpredictable output shape, no correctness guarantees, unreproducible for new template versions.
+    </div>
+    <aside class="notes">
+      Pure AI translation is flexible but unreliable and not reproducible across template versions.
+    </aside>
+  </section>
+
+  <!-- ============ OPTION 3 ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Option 3</h3>
+    <div class="one-thing fragment fade-up">
+      <em>Translate to Python mechanically.</em> Pros: predictable output shape, correctness guarantees, reproducible for new template versions. Cons: hard to get right, output is still Excel-shaped.
+    </div>
+    <aside class="notes">
+      Mechanical translation gives us predictability and correctness; we can post-process to make it more Python-shaped.
+    </aside>
+  </section>
+
+  <!-- ============ AI AGENTS HELP ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Making Option 3 tractable</h3>
+    <div class="big-idea fragment fade-up">
+      AI agents help make Option 3 tractable. And we can <em>post-process the output to make it more Python-shaped</em>.
+    </div>
+    <aside class="notes">
+      We use AI to build the mechanical pipeline; then we shape the output into a proper library.
+    </aside>
+  </section>
+
+  <!-- ============ THE LESSON ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The lesson</h3>
+    <div class="big-idea fragment fade-up">
+      For interpretability, reproducibility, and correctness guarantees, <em>don't AI-generate the code</em>. <em>AI-generate the code that generates the code</em>.
+    </div>
+    <aside class="notes">
+      The code economists use is generated by our pipeline, not by an AI directly. That gives us control and verification.
+    </aside>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Architecture</h3>
+    <div class="mermaid-wrap mermaid-three-layers">
+      <div class="mermaid">
+flowchart TB
+  A@{ shape: brace-r, label: "Core engine to trace and\ntranslate Excel\nto Python" }
+  EG@{ shape: lin-cyl, label: "excel-grapher" }
+  B@{ shape: brace-r, label: "Configuration and\npost-processing to make\noutput Python-shaped" }
+  LIC@{ shape: lin-cyl, label: "lic-dsf-\nprogrammatic-\nextraction" }
+  C@{ shape: brace-r, label: "The user-facing library\n(our deliverable)" }
+  PY@{ shape: rectangle, label: "py-lic-dsf" }
+  A ~~~ B ~~~ C
+  EG --> LIC --> PY
+      </div>
+    </div>
+    <aside class="notes">
+      Three conceptual layers: core engine (excel-grapher), configuration and shaping (this repo), and the deliverable library (py-lic-dsf).
+    </aside>
+  </section>
+
+  <!-- ============ CORE ENGINE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Let's start with the core engine</h3>
+    <p class="fragment fade-up">How do we mechanically trace &amp; translate Excel to Python?</p>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+  A@{ shape: brace-r, label: "Core engine to trace and\ntranslate Excel to Python" }
+  EG@{ shape: lin-cyl, label: "excel-grapher" }
+  A ~~~ EG
+      </div>
+    </div>
+    <aside class="notes">
+      excel-grapher is the core: it traces and translates.
+    </aside>
+  </section>
+
+  <!-- ============ BADO ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>BADO + engine</h3>
+    <div class="one-thing fragment fade-up">
+      The Excel template is architected as a big-ass data object (BADO) plus a stable engine that knows how to interpret and compute that object.
+    </div>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+  A@{ img: "excel-xlsm-icon.svg", label: "Excel workbook", h: 80, constraint: "on" }
+  B@{ img: "excel-app-icon.svg", label: "Excel application", h: 80, constraint: "on" }
+  A ~~~ B
+      </div>
+    </div>
+    <aside class="notes">
+      Workbook is data; application is the engine. We replicate that split in Python.
+    </aside>
+  </section>
+
+  <!-- ============ REPLICATE IN PYTHON ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Replicate in Python</h3>
+    <div class="one-thing fragment fade-up">
+      It's mostly a solved problem to replicate this BADO + engine approach in Python.
+    </div>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart TB
+  A@{ img: "excel-xlsm-icon.svg", label: "Excel workbook", h: 80, constraint: "on" }
+  B@{ img: "excel-app-icon.svg", label: "Excel application", h: 80, constraint: "on" }
+  C@{ shape: cyl, label: "Python dictionary" }
+  D@{ shape: lin-rect, label: "Excel emulator" }
+  A --> C
+  B --> D
+      </div>
+    </div>
+    <aside class="notes">
+      Workbook becomes a dictionary; application becomes an emulator that evaluates over that dictionary.
+    </aside>
+  </section>
+
+  <!-- ============ WORKBOOK = DICTIONARY ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Workbook → Python dictionary</h3>
+    <div class="one-thing fragment fade-up">
+      Every <em>cell</em> is an entry with its <em>formula</em> and <em>value</em> keyed to the <em>address</em> of the cell.
+    </div>
+    <div class="code-block fragment fade-up" style="position: relative;">
+      <span class="lang-tag">Python</span>
+      <pre>xlsm_contents = {
+    "Sheet1!A1": {
+        "formula": "=B1+C1",
+        "value": 5
+    }
+}</pre>
+    </div>
+    <aside class="notes">
+      The in-memory representation is a dict from cell address to formula and value.
+    </aside>
+  </section>
+
+  <!-- ============ AST PARSER ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The engine: AST parser</h3>
+    <div class="one-thing fragment fade-up">
+      The engine is an <em>abstract syntax tree</em> (AST) parser: it breaks down an Excel formula into a branching tree of operations and translates each into a Python equivalent. We build on the <em>formulas</em> library.
+    </div>
+    <aside class="notes">
+      Parsing and evaluating formulas is done via an AST; we reuse existing work where possible.
+    </aside>
+  </section>
+
+  <!-- ============ SIMPLE AST EXAMPLE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Simple example AST</h3>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart TB
+  A1["A1"]
+  Add["+"]
+  ref_B1["B1"]
+  ref_C1["C1"]
+  ref_B1 --> Add
+  ref_C1 --> Add
+  Add --> A1
+      </div>
+    </div>
+    <aside class="notes">
+      B1 and C1 feed into Add; result goes to cell A1.
+    </aside>
+  </section>
+
+  <!-- ============ HARD PARTS ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Hard parts</h3>
+    <ul style="text-align: left; max-width: 640px; margin: 0 auto;">
+      <li class="fragment fade-up">If we only want particular output cells, how do we limit extraction to only the relevant inputs?</li>
+      <li class="fragment fade-up">What sequence do we compute the cells in?</li>
+    </ul>
+    <div class="one-thing fragment fade-up" style="margin-top: 0.8em;">
+      We solve these by building a <em>graph</em> of relationships between cells.
+    </div>
+    <aside class="notes">
+      Dependency graph gives us both scope and order.
+    </aside>
+  </section>
+
+  <!-- ============ DEPENDENCY GRAPH ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Dependency graph</h3>
     <div class="one-thing fragment fade-up">
       For any cell we care about (e.g. a stress-test result), we ask: <em>which other cells does its formula use?</em> We repeat until we hit numbers or text. That gives us a <em>dependency graph</em>.
     </div>
     <aside class="notes">
-      excel-grapher's main job is target-driven dependency tracing. Give it a target cell; it follows the formula references until it reaches leaves. The result is a graph of nodes (cells) and edges (depends-on).
+      Target-driven: start from outputs and follow references to leaves.
     </aside>
   </section>
 
-  <!-- ============ TWO-CELL DEPENDENCY (Mermaid) ============ -->
+  <!-- ============ TARGET-DRIVEN TRACING ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Target-driven dependency tracing</h3>
+    <div class="one-thing fragment fade-up">
+      Give <code>excel-grapher</code> a target cell; it follows formula references until it reaches leaves. The result is a graph of <em>nodes (cells)</em> and <em>edges (depends-on)</em>.
+    </div>
+    <aside class="notes">
+      We only extract what's needed for the targets we specify.
+    </aside>
+  </section>
+
+  <!-- ============ TWO-CELL DEMO (1/3) ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Smallest example: the two-cell demo</h3>
+    <table class="fragment fade-up" style="margin: 0.6em auto; font-size: 0.9em;">
+      <thead><tr><th>A1</th><th>B1</th></tr></thead>
+      <tbody><tr><td>10</td><td>=A1 × 2</td></tr></tbody>
+    </table>
+    <aside class="notes">
+      First, just the spreadsheet view: A1 equals 10, B1 equals A1 times 2.
+    </aside>
+  </section>
+
+  <!-- ============ TWO-CELL DEMO (2/3) ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>Smallest example: the two-cell demo</h3>
     <div class="mermaid-wrap">
@@ -275,96 +532,130 @@ flowchart TB
 flowchart LR
   A1["A1 = 10"]
   B1["B1 = A1 × 2"]
-  A1 --> B1
+  B1 --> A1
       </div>
     </div>
-    <div class="annotation fragment fade-up">
-      B1 depends on A1. The graph is two nodes and one edge.
-    </div>
     <aside class="notes">
-      In the two-cell demo we have A1 equals 10 and B1 equals A1 times 2. So B1 depends on A1. The dependency graph is just two nodes and one edge.
+      Finally, show it as a dependency graph: two nodes and one edge.
     </aside>
   </section>
 
-  <!-- ============ TWO WAYS TO RUN IT ============ -->
+  <!-- ============ TWO-CELL DEMO (3/3) ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Two ways to run it</h3>
+    <h3>Smallest example: the two-cell demo</h3>
     <div class="one-thing fragment fade-up">
-      <strong>FormulaEvaluator</strong>: keep the graph in memory and <em>evaluate</em> formulas on it (like a tiny Excel engine).
-    </div>
-    <div class="one-thing fragment fade-up" style="margin-top: 0.8em;">
-      <strong>CodeGenerator</strong>: <em>write Python code</em> that does the same math, so we can ship that code and no engine.
+      B1 depends on A1. The graph is <em>two nodes</em> and <em>one edge</em>. If B1 is our <em>target</em>, A1 is the <em>leaf</em>. We need to extract A1 to compute B1, but we don't need C1 (or any other cells).
     </div>
     <aside class="notes">
-      We have two execution paths. The FormulaEvaluator interprets the graph at runtime. The CodeGenerator emits Python source. Both must give the same answers—we enforce that with tests.
+      Now state the dependency in words: B1 depends on A1; minimal graph.
     </aside>
   </section>
 
-  <!-- ============ SAME ANSWER ============ -->
+  <!-- ============ FIRST LAYER: BADO + EVALUATOR ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Same answer</h3>
-    <div class="code-block" style="position: relative;">
-      <span class="lang-tag">Two-cell demo</span>
-      Evaluator: run graph → B1 = <strong>20</strong><br>
-      Generated code: run Python → B1 = <strong>20</strong>
-    </div>
-    <div class="annotation fragment fade-up">
-      We test that both paths match. That's our <em>parity contract</em>.
-    </div>
-    <aside class="notes">
-      For the two-cell workbook, both the evaluator and the generated code produce 20. We require that for every cell we care about—parity between the two paths.
-    </aside>
-  </section>
-
-  <!-- ============ LAYER 2: SHAPE IT ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Layer 2: Shape it for economists</h3>
+    <h3>First layer: BADO + evaluator</h3>
     <div class="one-thing fragment fade-up">
-      Raw export is <em>Excel-shaped</em> (cell addresses, one function per cell). This repo adds <em>labels</em> (e.g. "Real GDP Growth"), <em>grouped inputs</em> into setters, and <em>annotations</em> from the LIC DSF Guidance Note.
+      <em>It already works today.</em> We can run the workbook this way and get results.
     </div>
-    <aside class="notes">
-      lic-dsf-programmatic-extraction discovers targets, enriches the graph with human-readable labels, uses RAG to annotate logic from the guidance note, and groups inputs into setters so users don't deal with raw cell addresses.
-    </aside>
-  </section>
-
-  <!-- ============ LAYER 3: THE LIBRARY ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Layer 3: The library</h3>
-    <div class="one-thing fragment fade-up">
-      <strong>py-lic-dsf</strong> is what economists use: a <em>context</em> with setters for inputs and <em>compute_*</em> functions for the stress tests and risk rating. No Excel, no pipeline code—just Python.
-    </div>
-    <aside class="notes">
-      The public library is entirely generated. We don't hand-edit it. Setters live on the context; you call compute_* to get results. Self-contained and dependency-clean.
-    </aside>
-  </section>
-
-  <!-- ============ WORK PLAN: TWO PHASES (Mermaid) ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Where we are: two phases</h3>
     <div class="mermaid-wrap">
       <div class="mermaid">
 flowchart LR
-  P1["Phase 1\nExcel extraction\n(nearly done)"]
-  P2["Phase 2\nEconomist-friendly library\n(we are here)"]
-  P1 --> P2
+  excel_grapher["excel-grapher"]
+  subgraph layer1["Layer 1: BADO + engine"]
+      grapher["grapher"]
+      evaluator["evaluator"]
+  end
+  excel_grapher --- layer1
       </div>
     </div>
-    <div class="annotation fragment fade-up">
-      Phase 1 built the trace-and-translate pipeline. Phase 2 is making the library usable and understandable.
-    </div>
     <aside class="notes">
-      Phase 1 was building the extraction and translation tooling. We're now in Phase 2: shaping the output into an ergonomic, well-documented library for economists.
+      excel-grapher has two layers: grapher + evaluator (run the graph), and exporter (emit code).
     </aside>
   </section>
 
-  <!-- ============ PHASE 2 IN ONE SLIDE ============ -->
+  <!-- ============ LIMITATIONS ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Phase 2 in one slide</h3>
-    <div class="one-thing fragment fade-up">
-      Scale to all stress tabs and the risk rating · Organize ~200 setters (e.g. namespaced subclasses) · Document which inputs are needed for which outputs · Golden-master verification · Shorter, more readable generated code (graph compression, segmentation)
+    <h3>Limitations of the first layer</h3>
+    <ul style="text-align: left; max-width: 640px; margin: 0 auto;">
+      <li class="fragment fade-up"><em>Poor separation of concerns</em> — formulas live in the data layer, so data and economic logic are mixed.</li>
+      <li class="fragment fade-up"><em>Non-transparent economic logic</em> — the model is 200,000 atomic operations; neither readable nor maintainable.</li>
+    </ul>
+    <div class="one-thing fragment fade-up" style="margin-top: 0.8em;">
+      What we want: the <em>data layer</em> holds constants and inputs; <em>computational logic</em> lives as code.
     </div>
     <aside class="notes">
-      Key Phase 2 deliverables: full coverage of tabs, better API organization, input-output documentation, verification framework, and conciseness strategies like graph compression and segmentation.
+      Layer 1 runs but doesn't give us a clean library shape.
+    </aside>
+  </section>
+
+  <!-- ============ SECOND LAYER: EXPORTER ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Second layer: the exporter</h3>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+  excel_grapher["excel-grapher"]
+  subgraph layer1["Layer 1: BADO + engine"]
+      grapher["grapher"]
+      evaluator["evaluator"]
+  end
+  subgraph layer2["Layer 2"]
+      exporter
+  end
+  excel_grapher --- layer1
+  excel_grapher --- layer2
+      </div>
+    </div>
+    <aside class="notes">
+      The exporter turns the graph into static code and data.
+    </aside>
+  </section>
+
+  <!-- ============ WHAT THE EXPORTER DOES ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>What the exporter does</h3>
+    <div class="one-thing fragment fade-up">
+      The exporter turns formula cells into <em>Python functions</em> and outputs them, along with relevant parts of the engine, as a standalone Python library. Non-formula cells stay as a Python dictionary. That gives us a clear split: <em>data</em> in the dictionary, <em>logic</em> in code.
+    </div>
+    <aside class="notes">
+      Data vs logic separation is achieved by the exporter.
+    </aside>
+  </section>
+
+  <!-- ============ EXPORTER CONFIGURABLE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The exporter is configurable</h3>
+    <ul style="text-align: left; max-width: 640px; margin: 0 auto;">
+      <li class="fragment fade-up">Specify <em>targets</em> (which outputs you want) → it generates functions that produce those outputs.</li>
+      <li class="fragment fade-up">Specify how to <em>group inputs</em> → it generates setters for those groups.</li>
+      <li class="fragment fade-up">Mark cells as <em>constants</em> (used in the computation but not user-settable) so they stay out of the public API.</li>
+    </ul>
+    <aside class="notes">
+      Configuration drives the shape of the generated library.
+    </aside>
+  </section>
+
+  <!-- ============ CONFIGURATION = DOMAIN KNOWLEDGE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Configuration = domain knowledge</h3>
+    <div class="one-thing fragment fade-up">
+      Which cells are inputs, which are outputs, which are internal constants — that's where <em>domain knowledge</em> belongs. For the LIC DSF template, that configuration lives in the <code>lic-dsf-programmatic-extraction</code> repository.
+    </div>
+    <aside class="notes">
+      This repo encodes what we know about the LIC DSF workbook: inputs, outputs, and constants.
+    </aside>
+  </section>
+
+  <!-- ============ WHERE WE'RE HEADED ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>Where we're headed</h3>
+    <ul style="text-align: left; max-width: 640px; margin: 0 auto;">
+      <li class="fragment fade-up">Today we still have <em>one function per formula cell</em>.</li>
+      <li class="fragment fade-up">Goal: <em>one function per economic model concept</em>.</li>
+      <li class="fragment fade-up">We'll use <em>static analysis</em> and <em>graph analysis</em> to find groups of functions that should be collapsed. Most of that post-processing will live in <code>lic-dsf-programmatic-extraction</code>; some may be reusable in <code>excel-grapher</code>.</li>
+    </ul>
+    <aside class="notes">
+      Next step is collapsing the 200k operations into human-meaningful concepts.
     </aside>
   </section>
 
@@ -373,17 +664,17 @@ flowchart LR
     <h2 style="font-size: 1.4em; color: var(--muted);">One thing to remember</h2>
     <div class="fragment fade-up" style="margin-top: 0.6em;">
       <div class="big-idea" style="font-size: 1.1em;">
-        We turn Excel's <em>dependency graph</em> into Python and shape it into a <em>library</em>. The rest is detail.
+        We <em>trace</em> dependencies, <em>translate</em> formulas, <em>configure</em> and shape the output, and <em>ship</em> a library. The rest is detail.
       </div>
     </div>
     <hr class="thin-rule fragment fade-up">
     <div class="fragment fade-up">
       <div class="annotation" style="font-size: 0.55em;">
-        Trace → translate → configure → ship. One idea per layer.
+        Don't AI-generate the code. AI-generate the code that generates the code.
       </div>
     </div>
     <aside class="notes">
-      The mental model: dependency graph to Python, then shape for the user. Everything else—evaluator vs codegen, labels, RAG, setters—is how we do that one thing well.
+      Mechanical pipeline plus configuration gives us a reproducible, verifiable library.
     </aside>
   </section>
 
@@ -416,8 +707,9 @@ flowchart LR
       fontFamily: 'DM Sans, sans-serif',
     },
     flowchart: {
-      useMaxWidth: false,
+      useMaxWidth: true,
       htmlLabels: false,
+      wrappingWidth: 240,
       nodeSpacing: 60,
       rankSpacing: 50,
       padding: 20,
