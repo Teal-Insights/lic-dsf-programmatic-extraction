@@ -29,7 +29,8 @@ import openpyxl
 import openpyxl.utils.cell
 import sqlite_utils
 
-from excel_grapher import DependencyGraph, create_dependency_graph
+from excel_grapher.grapher import DependencyGraph, create_dependency_graph
+from lic_dsf_constraints import get_dynamic_ref_config
 from lic_dsf_labels import (
     INDICATOR_CONFIG,
     WORKBOOK_PATH,
@@ -610,6 +611,8 @@ def main() -> None:
         all_targets,
         load_values=False,
         max_depth=50,
+        dynamic_refs=get_dynamic_ref_config(),
+        use_cached_dynamic_refs=False,
     )
     print(f"   Nodes in graph: {len(graph)}")
 

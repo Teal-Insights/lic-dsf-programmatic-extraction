@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Iterable, Literal
 
 import openpyxl.utils.cell
-from excel_grapher import DependencyGraph
+from excel_grapher.grapher import DependencyGraph
 
 from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available, is_offset_label
 from lic_dsf_pipeline import (

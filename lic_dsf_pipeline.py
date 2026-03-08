@@ -10,8 +10,10 @@ import re
 
 import openpyxl
 import openpyxl.utils.cell
-from excel_grapher import DependencyGraph, create_dependency_graph
-from excel_formula_expander.codegen import CodeGenerator
+from excel_grapher.exporter import CodeGenerator
+from excel_grapher.grapher import DependencyGraph, create_dependency_graph
+
+from lic_dsf_constraints import get_dynamic_ref_config
 from openpyxl.worksheet.worksheet import Worksheet
 
 STRING_CONSTANT_EXCLUDES = {
@@ -69,7 +71,14 @@ def discover_targets(workbook: Path) -> list[str]:
 
 
 def build_graph(workbook: Path, targets: list[str], max_depth: int) -> DependencyGraph:
-    return create_dependency_graph(workbook, targets, load_values=False, max_depth=max_depth)
+    return create_dependency_graph(
+        workbook,
+        targets,
+        load_values=False,
+        max_depth=max_depth,
+        dynamic_refs=get_dynamic_ref_config(),
+        use_cached_dynamic_refs=False,
+    )
 
 
 def populate_leaf_values(graph: DependencyGraph, workbook: Path) -> None:

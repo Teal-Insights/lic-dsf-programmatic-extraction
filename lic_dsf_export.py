@@ -3,7 +3,7 @@
 Export LIC-DSF workbook formulas as standalone Python code.
 
 This script discovers formula targets from `lic_dsf_labels.INDICATOR_CONFIG`,
-builds a dependency graph, and uses `excel-formula-expander`'s `CodeGenerator` to
+builds a dependency graph, and uses excel-grapher's CodeGenerator (exporter) to
 emit a small Python package under `export/`.
 """
 
@@ -18,8 +18,8 @@ import re
 import openpyxl
 import openpyxl.utils.cell
 from openpyxl.worksheet.worksheet import Worksheet
-from excel_grapher import get_calc_settings
-from excel_formula_expander.codegen import CodeGenerator
+from excel_grapher.exporter import CodeGenerator
+from excel_grapher.grapher import get_calc_settings
 
 from lic_dsf_labels import (
     INDICATOR_CONFIG,

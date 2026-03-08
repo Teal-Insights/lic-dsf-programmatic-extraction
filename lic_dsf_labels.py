@@ -15,7 +15,7 @@ from urllib.request import urlopen
 
 import openpyxl
 import openpyxl.utils.cell
-from excel_grapher import DependencyGraph
+from excel_grapher.grapher import DependencyGraph
 from openpyxl.worksheet.worksheet import Worksheet
 
 
