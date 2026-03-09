@@ -13,7 +13,7 @@ import openpyxl.utils.cell
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import DependencyGraph, create_dependency_graph
 
-from lic_dsf_constraints import get_dynamic_ref_config
+from lic_dsf_config import get_dynamic_ref_config
 from openpyxl.worksheet.worksheet import Worksheet
 
 STRING_CONSTANT_EXCLUDES = {
@@ -59,15 +59,16 @@ def _is_blank_value(value: object) -> bool:
 
 
 def discover_targets(workbook: Path) -> list[str]:
-    from lic_dsf_labels import INDICATOR_CONFIG, discover_formula_cells_in_rows
+    """
+    Discover graph targets from explicit range specifications.
 
-    all_targets: list[str] = []
-    for config in INDICATOR_CONFIG:
-        sheet = config["sheet"]
-        rows = config["indicator_rows"]
-        all_targets.extend(discover_formula_cells_in_rows(workbook, sheet, rows))
-    # Preserve order while de-duping.
-    return list(dict.fromkeys(all_targets))
+    Targets are derived from `lic_dsf_labels.EXPORT_RANGES` and expanded via
+    sheet-qualified A1 ranges. The `workbook` argument is accepted for API
+    compatibility but is not required for discovery.
+    """
+    from lic_dsf_config import discover_targets_from_ranges
+
+    return discover_targets_from_ranges(workbook)
 
 
 def build_graph(workbook: Path, targets: list[str], max_depth: int) -> DependencyGraph:

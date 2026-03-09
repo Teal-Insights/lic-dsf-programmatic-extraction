@@ -26,7 +26,8 @@ from typing import Any, Iterable, Literal
 import openpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
 
-from lic_dsf_labels import WORKBOOK_PATH, ensure_workbook_available, is_offset_label
+from lic_dsf_config import WORKBOOK_PATH, ensure_workbook_available
+from lic_dsf_labels import is_offset_label
 from lic_dsf_pipeline import (
     BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,

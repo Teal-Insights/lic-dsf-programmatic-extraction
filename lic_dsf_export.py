@@ -21,13 +21,16 @@ from openpyxl.worksheet.worksheet import Worksheet
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import get_calc_settings
 
-from lic_dsf_labels import (
-    INDICATOR_CONFIG,
+from lic_dsf_config import (
     WORKBOOK_PATH,
     WORKBOOK_TEMPLATE_URL,
-    detect_year_offset_headers,
-    discover_formula_cells_in_rows,
+    EXPORT_RANGES,
     ensure_workbook_available,
+    parse_range_spec,
+    cells_in_range,
+)
+from lic_dsf_labels import (
+    detect_year_offset_headers,
     find_region_config,
     get_column_labels,
     get_row_labels,
@@ -55,15 +58,12 @@ MAX_DEPTH = 50
 
 
 def discover_targets_by_indicator_row(workbook: Path) -> dict[tuple[str, int], list[str]]:
-    targets_by_row: dict[tuple[str, int], list[str]] = {}
-    for config in INDICATOR_CONFIG:
-        sheet = config["sheet"]
-        rows = config["indicator_rows"]
-        for row in rows:
-            targets = discover_formula_cells_in_rows(workbook, sheet, [row])
-            if targets:
-                targets_by_row[(sheet, row)] = list(dict.fromkeys(targets))
-    return targets_by_row
+    """
+    Legacy helper retained for backwards compatibility; no longer used.
+
+    Row-based discovery has been superseded by explicit range-based targets.
+    """
+    return {}
 
 
 def normalize_entrypoint_name(name: str) -> str:
@@ -105,12 +105,36 @@ def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]
 
 
 def build_entrypoints(
-    targets_by_row: dict[tuple[str, int], list[str]],
+    targets: list[str],
     audit_path: Path = ENRICHMENT_AUDIT_PATH,
 ) -> dict[str, list[str]]:
     labels_by_row = load_enrichment_audit_labels(audit_path)
     entrypoints: dict[str, list[str]] = {}
-    for (sheet, row), targets in targets_by_row.items():
+
+    # Precompute per-cell targets from configured ranges.
+    per_cell_targets: set[str] = set()
+    for cfg in EXPORT_RANGES:
+        if cfg.get("entrypoint_mode") != "per_cell":
+            continue
+        sheet_name, range_a1 = parse_range_spec(cfg["range_spec"])
+        per_cell_targets.update(cells_in_range(sheet_name, range_a1))
+
+    # Partition targets into row-grouped vs per-cell.
+    targets_by_row: dict[tuple[str, int], list[str]] = {}
+    per_cell_list: list[str] = []
+    for addr in targets:
+        if addr in per_cell_targets:
+            per_cell_list.append(addr)
+            continue
+        m = re.match(r"^(.+)!([A-Z]+)(\d+)$", addr)
+        if not m:
+            continue
+        sheet, _col, row_str = m.group(1), m.group(2), m.group(3)
+        row = int(row_str)
+        targets_by_row.setdefault((sheet, row), []).append(addr)
+
+    # Row-grouped entrypoints (one per row).
+    for (sheet, row), row_targets in targets_by_row.items():
         prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
         sheet_prefix = normalize_entrypoint_name(prefix_match.group(1) if prefix_match else sheet)
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
@@ -123,7 +147,29 @@ def build_entrypoints(
         while name in entrypoints:
             name = f"{base}_{suffix}"
             suffix += 1
-        entrypoints[name] = targets
+        entrypoints[name] = row_targets
+
+    # Per-cell entrypoints (one per cell; avoid grouping D/I cells on same row).
+    for addr in per_cell_list:
+        m = re.match(r"^(.+)!([A-Z]+)(\d+)$", addr)
+        if not m:
+            continue
+        sheet, col_letter, row_str = m.group(1), m.group(2), m.group(3)
+        row = int(row_str)
+        prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
+        sheet_prefix = normalize_entrypoint_name(prefix_match.group(1) if prefix_match else sheet)
+        label = next(iter(labels_by_row.get((sheet, row), [])), "")
+        base_row = normalize_entrypoint_name(label or f"{sheet} {row}")
+        base = f"{base_row}_{col_letter.lower()}"
+        if not base.startswith(f"{sheet_prefix}_") and base != sheet_prefix:
+            name = f"{sheet_prefix}_{base}"
+        else:
+            name = base
+        suffix = 2
+        while name in entrypoints:
+            name = f"{base}_{suffix}"
+            suffix += 1
+        entrypoints[name] = [addr]
     return entrypoints
 
 
@@ -1030,11 +1076,9 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Error: Workbook not found at {args.workbook}")
         return
 
-    targets_by_row = discover_targets_by_indicator_row(args.workbook)
-    targets: list[str] = []
-    for row_targets in targets_by_row.values():
-        targets.extend(row_targets)
-    targets = list(dict.fromkeys(targets))
+    from lic_dsf_pipeline import discover_targets
+
+    targets = discover_targets(args.workbook)
     if not targets:
         print("No targets found. Nothing to export.")
         return
@@ -1043,7 +1087,7 @@ def main(argv: list[str] | None = None) -> None:
     print("LIC-DSF Workbook Export (standalone Python code)")
     print("=" * 70)
     print(f"Workbook: {args.workbook}")
-    print(f"Targets:  {len(targets)}")
+    print(f"Target cells: {len(targets)}")
 
     print("\nBuilding dependency graph...")
     graph = build_graph(args.workbook, targets, max_depth=args.max_depth)
@@ -1156,7 +1200,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.audit_only:
         return
 
-    entrypoints = build_entrypoints(targets_by_row, audit_path=args.audit_path)
+    entrypoints = build_entrypoints(targets, audit_path=args.audit_path)
     print(f"Entrypoints: {len(entrypoints)}")
 
     print("Generating Python package...")

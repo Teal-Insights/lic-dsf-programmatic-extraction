@@ -30,15 +30,13 @@ import openpyxl.utils.cell
 import sqlite_utils
 
 from excel_grapher.grapher import DependencyGraph, create_dependency_graph
-from lic_dsf_constraints import get_dynamic_ref_config
-from lic_dsf_labels import (
-    INDICATOR_CONFIG,
+from lic_dsf_config import (
     WORKBOOK_PATH,
     ensure_workbook_available,
-    enrich_graph_with_labels,
-    find_region_config,
-    discover_formula_cells_in_rows,
+    discover_targets_from_ranges,
+    get_dynamic_ref_config,
 )
+from lic_dsf_labels import enrich_graph_with_labels, find_region_config
 
 
 # Load environment variables from a local .env file (if present).
@@ -592,17 +590,12 @@ def main() -> None:
         print(f"Error: Workbook not available at {WORKBOOK_PATH}")
         return
 
-    print("\n1. Discovering formula cells in indicator rows...")
-    all_targets: list[str] = []
-    for config in INDICATOR_CONFIG:
-        sheet = config["sheet"]
-        rows = config["indicator_rows"]
-        targets = discover_formula_cells_in_rows(WORKBOOK_PATH, sheet, rows)
-        all_targets.extend(targets)
+    print("\n1. Collecting target cells from configured ranges...")
+    all_targets = discover_targets_from_ranges(WORKBOOK_PATH)
 
     print(f"   Total targets: {len(all_targets)}")
     if not all_targets:
-        print("No formula cells found. Exiting.")
+        print("No target cells found. Exiting.")
         return
 
     print("\n2. Building dependency graph...")

@@ -5,13 +5,11 @@ Label extraction and workbook configuration helpers for LIC-DSF workflows.
 
 from __future__ import annotations
 
+import re as _re
 import json
 from collections import defaultdict
 from pathlib import Path
-import shutil
-import tempfile
 from typing import Any, Literal, TypedDict
-from urllib.request import urlopen
 
 import openpyxl
 import openpyxl.utils.cell
@@ -19,55 +17,7 @@ from excel_grapher.grapher import DependencyGraph
 from openpyxl.worksheet.worksheet import Worksheet
 
 
-# Configuration: sheets and indicator rows to trace
-class IndicatorConfig(TypedDict):
-    sheet: str
-    indicator_rows: list[int]
-
-
-INDICATOR_CONFIG: list[IndicatorConfig] = [
-    {"sheet": "B1_GDP_ext", "indicator_rows": [35, 36, 39, 40]},
-    {"sheet": "B3_Exports_ext", "indicator_rows": [35, 36, 39, 40]},
-    {"sheet": "B4_other flows_ext", "indicator_rows": [35, 36, 39, 40]},
-]
-
-# Default workbook used for dependency mapping / enrichment.
-WORKBOOK_PATH = Path("workbooks/lic-dsf-template-2026-01-31.xlsm")
-WORKBOOK_TEMPLATE_URL = (
-    "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/new-lic-dsf-template"
-)
-
-
-def ensure_workbook_available(
-    path: Path = WORKBOOK_PATH, url: str | None = None
-) -> bool:
-    """
-    Ensure the default LIC-DSF template workbook exists locally.
-
-    If the workbook is missing, downloads it from `url` (or `WORKBOOK_TEMPLATE_URL`) into `path`.
-    """
-    if path.exists() and path.stat().st_size > 0:
-        return True
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        source_url = url or WORKBOOK_TEMPLATE_URL
-        with urlopen(source_url, timeout=60) as resp:
-            with tempfile.NamedTemporaryFile(
-                prefix=f".{path.name}.", suffix=".download", dir=str(path.parent), delete=False
-            ) as tmp:
-                shutil.copyfileobj(resp, tmp)
-                tmp_path = Path(tmp.name)
-
-        if tmp_path.stat().st_size == 0:
-            tmp_path.unlink(missing_ok=True)
-            return False
-
-        tmp_path.replace(path)
-        return True
-    except Exception:
-        return False
+from lic_dsf_config import WORKBOOK_PATH
 
 
 # Region-based label configuration
@@ -370,9 +320,6 @@ def is_valid_label(text: str) -> bool:
         return False
 
     return True
-
-
-import re as _re
 
 # Patterns that identify a header cell as the ProjectionYear anchor (offset 0).
 _ANCHOR_PATTERNS: list[_re.Pattern[str]] = [

@@ -60,19 +60,19 @@ DEEPSEEK_API_KEY=...
 
 ## Script 1: Dependency mapping + enrichment audit
 
-Runs dependency discovery for the configured indicator rows, builds a dependency graph, enriches
+Runs dependency discovery for the configured export ranges, builds a dependency graph, enriches
 nodes with row/column labels, and writes an audit JSON.
 
 ### Run
 
 ```bash
-uv run python lic_dsf_export.py --audit-only
+uv run lic_dsf_export.py --audit-only
 ```
 
 ### Inputs
 
-- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH`)
-- Indicator-row configuration in `INDICATOR_CONFIG` inside `lic_dsf_labels.py`
+- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH` in `lic_dsf_config.py`)
+- Export-range configuration in `EXPORT_RANGES` inside `lic_dsf_config.py`
 - Label extraction configuration in `REGION_CONFIG` inside `lic_dsf_labels.py`
 
 ### Output
@@ -88,7 +88,7 @@ uv run python lic_dsf_export.py --audit-only
 
 This script:
 
-- Finds formula cells in the configured indicator rows
+- Finds target cells in the configured export ranges
 - Builds a dependency graph
 - Enriches nodes with row/column labels (re-uses mapping logic)
 - Retrieves relevant guidance-note context using an embeddings collection
@@ -102,7 +102,7 @@ uv run python lic_dsf_annotate.py
 
 ### Inputs
 
-- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (imported from `lic_dsf_labels.WORKBOOK_PATH`)
+- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (imported from `lic_dsf_config.WORKBOOK_PATH`)
 - Guidance note text: `guidance_note/lic-dsf-guidance-note.txt`
 - DeepSeek API key: `DEEPSEEK_API_KEY`
 
@@ -145,27 +145,27 @@ uv run llm collections delete lic-dsf-guidance
 Then rerun:
 
 ```bash
-uv run python lic_dsf_annotate.py
+uv run lic_dsf_annotate.py
 ```
 
 ## Script 3: Export formulas to standalone Python code
 
 This script:
 
-- Discovers formula targets from `INDICATOR_CONFIG`
+- Discovers targets from `EXPORT_RANGES`
 - Builds a dependency graph
 - Uses `excel-formula-expander`'s `CodeGenerator` to emit a small Python package
 
 ### Run
 
 ```bash
-uv run python lic_dsf_export.py
+uv run lic_dsf_export.py
 ```
 
 ### Audit-only mode
 
 ```bash
-uv run python lic_dsf_export.py --audit-only
+uv run lic_dsf_export.py --audit-only
 ```
 
 ### Output
@@ -204,7 +204,7 @@ ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2026-01-31.xlsm")
 
 This script:
 
-- Discovers formula targets from `INDICATOR_CONFIG`
+- Discovers targets from `EXPORT_RANGES`
 - Builds a dependency graph
 - Populates leaf values and classifies constants vs inputs
 - Enriches input cells with row/column labels
