@@ -139,8 +139,8 @@ def test_b1_gdp_ext_row8_offsets() -> None:
     """B1_GDP_ext header row 8 should yield offsets from -1 through 20."""
     import openpyxl
 
-    wb_f = openpyxl.load_workbook(WORKBOOK_PATH, data_only=False, keep_vba=True)
-    wb_v = openpyxl.load_workbook(WORKBOOK_PATH, data_only=True, keep_vba=True)
+    wb_f = openpyxl.load_workbook(WORKBOOK_PATH)
+    wb_v = openpyxl.load_workbook(WORKBOOK_PATH, data_only=True)
     try:
         result = detect_year_offset_headers(
             wb_f["B1_GDP_ext"], wb_v["B1_GDP_ext"], "B1_GDP_ext", 8

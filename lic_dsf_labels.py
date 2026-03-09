@@ -666,8 +666,8 @@ def enrich_graph_with_labels(
     """
     Enrich all nodes in the graph with row and column labels.
     """
-    wb_values = openpyxl.load_workbook(wb_path, data_only=True, keep_vba=True)
-    wb_formulas = openpyxl.load_workbook(wb_path, data_only=False, keep_vba=True)
+    wb_values = openpyxl.load_workbook(wb_path, data_only=True)
+    wb_formulas = openpyxl.load_workbook(wb_path)
 
     try:
         # Cache worksheets by name for efficiency
@@ -825,7 +825,7 @@ def discover_formula_cells_in_rows(
     values are not required to be numeric, so discovery works when the template
     has no pre-filled data (e.g. base year empty, formulas evaluate to errors).
     """
-    wb_formulas = openpyxl.load_workbook(wb_path, data_only=False, keep_vba=True)
+    wb_formulas = openpyxl.load_workbook(wb_path)
     try:
         if sheet_name not in wb_formulas.sheetnames:
             print(f"  Warning: Sheet '{sheet_name}' not found")

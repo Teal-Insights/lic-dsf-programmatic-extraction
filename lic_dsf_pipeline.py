@@ -89,7 +89,7 @@ def populate_leaf_values(graph: DependencyGraph, workbook: Path) -> None:
     Code generation only needs `node.value` for leaf cells; formulas are emitted
     from `node.formula`.
     """
-    wb = openpyxl.load_workbook(workbook, data_only=True, keep_vba=True)
+    wb = openpyxl.load_workbook(workbook, data_only=True)
     try:
         worksheets: dict[str, Worksheet] = {}
         for key in graph:

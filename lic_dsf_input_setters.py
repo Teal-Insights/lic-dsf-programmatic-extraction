@@ -134,8 +134,8 @@ def build_wide_year_series_spec(
     from pathlib import Path
 
     wb_path = Path(workbook_path)
-    wb_values = openpyxl.load_workbook(wb_path, data_only=True, keep_vba=True)
-    wb_formulas = openpyxl.load_workbook(wb_path, data_only=False, keep_vba=True)
+    wb_values = openpyxl.load_workbook(wb_path, data_only=True)
+    wb_formulas = openpyxl.load_workbook(wb_path)
     try:
         ws_v = wb_values[sheet]
 

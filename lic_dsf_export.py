@@ -395,8 +395,8 @@ def generate_setters_module(
     if not groups:
         return "from __future__ import annotations\n\n# No setters were generated.\n"
 
-    wb = openpyxl.load_workbook(workbook, data_only=True, keep_vba=True)
-    wb_formulas = openpyxl.load_workbook(workbook, data_only=False, keep_vba=True)
+    wb = openpyxl.load_workbook(workbook, data_only=True)
+    wb_formulas = openpyxl.load_workbook(workbook)
     try:
         # Precompute offset maps per (sheet, header_row)
         _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
@@ -683,7 +683,7 @@ def generate_setters_module(
         lines.append(
             "        raise ImportError(\"openpyxl is required to read inputs from a workbook\") from exc"
         )
-        lines.append("    wb = openpyxl.load_workbook(workbook_path, data_only=True, keep_vba=True)")
+        lines.append("    wb = openpyxl.load_workbook(workbook_path, data_only=True)")
         lines.append("    try:")
         lines.append("        updates: dict[str, CellValue] = {}")
         lines.append("        ws_cache: dict[str, object] = {}")
