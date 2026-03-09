@@ -6,6 +6,14 @@ This module owns:
 - Workbook paths / download URL
 - Explicit export/annotation target ranges
 - Helpers for expanding configured ranges into dependency-graph targets
+
+Dynamic refs (OFFSET/INDIRECT) are resolved via a constraint-based config.
+Iterative workflow: run the export script; if DynamicRefError is raised, the
+message includes the formula cell that needs a constraint. Inspect that cell
+and the row/column headers in the workbook to decide plausible input domains,
+add the address to LicDsfConstraints (with Annotated[int, Between(lo, hi)] or
+Literal[...]), then re-run until the graph
+builds.
 """
 
 from __future__ import annotations
@@ -13,13 +21,13 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Annotated, Literal, TypedDict
 from urllib.request import urlopen
 
-import openpyxl
 import openpyxl.utils.cell
 from excel_grapher import format_cell_key
 from excel_grapher.grapher import DynamicRefConfig
+from excel_grapher.grapher.dynamic_refs import FromWorkbook
 
 
 class ExportRangeConfig(TypedDict):
@@ -229,21 +237,21 @@ class LicDsfConstraints(TypedDict, total=False):
 
     pass
 
+# PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965.
+# These are fixed constants derived from their current workbook values.
+LicDsfConstraints.__annotations__["PV_Base!A917"] = Annotated[int, FromWorkbook()]
+LicDsfConstraints.__annotations__["PV_Base!A941"] = Annotated[int, FromWorkbook()]
+LicDsfConstraints.__annotations__["PV_Base!A965"] = Annotated[int, FromWorkbook()]
 
-# PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965 (fixed).
-LicDsfConstraints.__annotations__["PV_Base!A917"] = Literal[64]
-LicDsfConstraints.__annotations__["PV_Base!A941"] = Literal[90]
-LicDsfConstraints.__annotations__["PV_Base!A965"] = Literal[115]
 # A918:A938, A942:A962, A966:A986 each has a single cached letter D, E, …, X.
+# Treat these as constants derived from their current workbook values.
 for _start, _end in [(918, 939), (942, 963), (966, 987)]:
     for _row in range(_start, _end):
-        LicDsfConstraints.__annotations__[f"PV_Base!A{_row}"] = str
-# B9xx holds the resulting ref string (e.g. "$D$64") consumed by INDIRECT.
-for _start, _end, _anchor in [(918, 939, 64), (942, 963, 90), (966, 987, 115)]:
-    for _row in range(_start, _end):
-        _col_letter = chr(ord("D") + _row - _start)
-        _ref_str = f"${_col_letter}${_anchor}"
-        LicDsfConstraints.__annotations__[f"PV_Base!B{_row}"] = Literal[_ref_str]
+        LicDsfConstraints.__annotations__[f"PV_Base!A{_row}"] = Annotated[str, FromWorkbook()]
+
+# Country-name lookup table cells are treated as constants resolved from the workbook.
+for _row in range(4, 74):  # lookup!C4:C73
+    LicDsfConstraints.__annotations__[f"lookup!C{_row}"] = Annotated[str, FromWorkbook()]
 
 # Language selector and lookup table (feed INDIRECT/VLOOKUP for language-dependent refs).
 # START!L10 = VLOOKUP(K10, lookup!BB4:BC7, 2); evaluator does not support VLOOKUP, so L10 is constrained.
@@ -258,30 +266,10 @@ for _r in range(4, 8):
         LicDsfConstraints.__annotations__[f"lookup!{_c}{_r}"] = _LANG_LOOKUP
 
 
-LIC_DSF_CONSTRAINTS_DATA: dict[str, int | str | float] = {
-    "PV_Base!A917": 64,
-    "PV_Base!A941": 90,
-    "PV_Base!A965": 115,
-    **{
-        f"PV_Base!A{r}": chr(ord("D") + r - _start)
-        for _start, _end in [(918, 939), (942, 963), (966, 987)]
-        for r in range(_start, _end)
-    },
-    **{
-        f"PV_Base!B{r}": f"${chr(ord('D') + r - _start)}${_anchor}"
-        for _start, _end, _anchor in [(918, 939, 64), (942, 963, 90), (966, 987, 115)]
-        for r in range(_start, _end)
-    },
-    "START!L10": "English",
-    "START!K10": "English",
-    **{f"lookup!{c}{r}": "English" for r in range(4, 8) for c in ("BB", "BC")},
-}
-
-
 def get_dynamic_ref_config() -> DynamicRefConfig:
     """Return a DynamicRefConfig for constraint-based resolution of OFFSET/INDIRECT."""
-    return DynamicRefConfig.from_constraints(
-        LicDsfConstraints, LIC_DSF_CONSTRAINTS_DATA
+    return DynamicRefConfig.from_constraints_and_workbook(
+        LicDsfConstraints, WORKBOOK_PATH
     )
 
 
