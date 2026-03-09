@@ -95,7 +95,7 @@ wheels = [
 [[package]]
 name = "excel-grapher"
 version = "0.1.0"
-source = { git = "https://github.com/Teal-Insights/excel-grapher#5f7ab37426830d684b79ce0c02a1f8f5c5eae12f" }
+source = { git = "https://github.com/Teal-Insights/excel-grapher#5d95f96df12a9119b2ea0fc6142e63eeb33afece" }
 dependencies = [
     { name = "numpy" },
     { name = "openpyxl" },
