@@ -1076,9 +1076,13 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Error: Workbook not found at {args.workbook}")
         return
 
+    import time as _time
+
     from lic_dsf_pipeline import discover_targets
 
+    _t0 = _time.monotonic()
     targets = discover_targets(args.workbook)
+    print(f"[TIMING] discover_targets: {_time.monotonic() - _t0:.2f}s")
     if not targets:
         print("No targets found. Nothing to export.")
         return
@@ -1090,7 +1094,9 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Target cells: {len(targets)}")
 
     print("\nBuilding dependency graph...")
+    _t0 = _time.monotonic()
     graph = build_graph(args.workbook, targets, max_depth=args.max_depth)
+    print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s")
 
     print(f"   Nodes in graph: {len(graph)}")
     print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
@@ -1106,7 +1112,9 @@ def main(argv: list[str] | None = None) -> None:
         print(f"      {sheet_name}: {sheets[sheet_name]}")
 
     print("\nPopulating leaf values from cached workbook values...")
+    _t0 = _time.monotonic()
     populate_leaf_values(graph, args.workbook)
+    print(f"[TIMING] populate_leaf_values: {_time.monotonic() - _t0:.2f}s")
 
     constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
     input_addresses = classify_input_addresses(
@@ -1119,7 +1127,9 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     print("\nEnriching nodes with row/column labels...")
+    _t0 = _time.monotonic()
     enrichment_results = enrich_graph(graph, args.workbook)
+    print(f"[TIMING] enrich_graph: {_time.monotonic() - _t0:.2f}s")
     total_nodes = len(enrichment_results)
     nodes_with_row_labels = sum(1 for r in enrichment_results.values() if r["row_labels"])
     nodes_with_col_labels = sum(1 for r in enrichment_results.values() if r["column_labels"])
@@ -1204,17 +1214,21 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Entrypoints: {len(entrypoints)}")
 
     print("Generating Python package...")
+    _t0 = _time.monotonic()
     generator = CodeGenerator(graph)
     modules = generator.generate_modules(
         targets,
         package_name=args.package_name,
         entrypoints=entrypoints if entrypoints else None,
     )
+    print(f"[TIMING] generate_modules: {_time.monotonic() - _t0:.2f}s")
 
     # Generate year-aware input setters from canonical input groups.
     if args.input_groups_path.exists():
+        _t0 = _time.monotonic()
         groups = load_input_groups(args.input_groups_path)
         setters_py = generate_setters_module(workbook=args.workbook, groups=groups)
+        print(f"[TIMING] generate_setters_module: {_time.monotonic() - _t0:.2f}s")
         modules[f"{args.package_name}/setters.py"] = setters_py
         entrypoint_path = f"{args.package_name}/entrypoint.py"
         init_path = f"{args.package_name}/__init__.py"

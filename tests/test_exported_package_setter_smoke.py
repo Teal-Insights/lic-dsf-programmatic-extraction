@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from lic_dsf_export import generate_setter_method_name, load_input_groups
-from lic_dsf_input_setters import BASE_YEAR_ADDRESS, build_wide_year_series_spec
+from lic_dsf_input_setters import build_wide_year_series_spec
 
 
 def _pick_wide_year_series(groups: list[dict]) -> dict:

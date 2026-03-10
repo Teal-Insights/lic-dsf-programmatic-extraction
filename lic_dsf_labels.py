@@ -17,7 +17,6 @@ from excel_grapher.grapher import DependencyGraph
 from openpyxl.worksheet.worksheet import Worksheet
 
 
-from lic_dsf_config import WORKBOOK_PATH
 
 
 # Region-based label configuration
