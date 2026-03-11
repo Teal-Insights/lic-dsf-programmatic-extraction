@@ -5,7 +5,7 @@ Group hardcoded (non-formula) input cells into semantically labeled clusters.
 This script:
 - Discovers formula targets in configured indicator rows (see `INDICATOR_CONFIG`)
 - Builds a dependency graph from those targets
-- Extracts leaf, non-formula cells (the same concept as `export/lic_dsf/inputs.py`)
+- Extracts leaf, non-formula cells (the same concept as `dist/lic_dsf/inputs.py`)
 - Enriches those cells with row/column labels
 - Groups inputs by (sheet, labels), ignoring any axis that contains year labels
 
@@ -26,9 +26,9 @@ from typing import Any, Iterable, Literal
 import openpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
 
-from lic_dsf_config import WORKBOOK_PATH, ensure_workbook_available
-from lic_dsf_labels import is_offset_label
-from lic_dsf_pipeline import (
+from .lic_dsf_config import WORKBOOK_PATH, ensure_workbook_available
+from .lic_dsf_labels import is_offset_label
+from .lic_dsf_pipeline import (
     BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,
     build_graph,
@@ -129,7 +129,7 @@ class InputCell:
 
 def _load_export_default_input_addresses(path: Path) -> set[str]:
     """
-    Load `DEFAULT_INPUTS` keys from a generated `export/.../inputs.py` module.
+    Load `DEFAULT_INPUTS` keys from a generated `dist/.../inputs.py` module.
 
     This is useful when you want grouping to match the currently-generated
     runtime package exactly.
@@ -355,8 +355,8 @@ def main() -> None:
     parser.add_argument(
         "--export-inputs-path",
         type=Path,
-        default=Path("export/lic_dsf/inputs.py"),
-        help="Path to generated inputs module (default: export/lic_dsf/inputs.py)",
+        default=Path("dist/lic_dsf/inputs.py"),
+        help="Path to generated inputs module (default: dist/lic_dsf/inputs.py)",
     )
     args = parser.parse_args()
 
@@ -433,9 +433,11 @@ def main() -> None:
 
     print("\n6. Wrote grouped inputs:")
     print(f"   {args.output}")
+    payload_groups = output_payload.get("groups")
+    if not isinstance(payload_groups, list):
+        payload_groups = []
     print(f"   Groups: {len(payload_groups)}")
 
 
 if __name__ == "__main__":
     main()
-

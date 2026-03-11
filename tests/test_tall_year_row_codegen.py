@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
+from src.lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
 
 
 def _pick_tall_year_group(groups: list[dict]) -> dict:

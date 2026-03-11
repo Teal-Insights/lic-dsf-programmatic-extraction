@@ -5,8 +5,9 @@ from typing import Any, Mapping, Protocol, Sequence, TypeAlias
 
 import openpyxl
 import openpyxl.utils.cell
+from openpyxl.worksheet.worksheet import Worksheet
 
-from lic_dsf_labels import (
+from .lic_dsf_labels import (
     detect_year_offset_headers,
     find_region_config,
     get_column_labels,
@@ -67,7 +68,7 @@ def _dedupe_preserve_order(values: Sequence[int]) -> list[int]:
 
 
 def _year_labels_for_cell(
-    ws: openpyxl.worksheet.worksheet.Worksheet,
+    ws: Worksheet,
     row: int,
     col: int,
     offset_maps: dict[int, dict[int, int]] | None = None,

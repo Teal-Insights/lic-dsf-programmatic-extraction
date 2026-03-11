@@ -309,7 +309,7 @@ While `excel-formula-expander` can turn any Excel workbook into Python, the resu
 
 ### Implementation
 
-### 1. Label Extraction & Enrichment (`lic_dsf_labels.py`)
+### 1. Label Extraction & Enrichment (`src/lic_dsf_labels.py`)
 
 The “economic meaning” of a cell will be partly indicated by the sheet name and any row label or column label available for that cell. To capture this, we use a combination of heuristic scanning and region-based configuration:
 
@@ -320,7 +320,7 @@ This enrichment process attaches metadata to every node in the dependency graph,
 
 **Open question**: Should we move the reusable parts of this logic (heuristic scanning and the core abstractions for region-based configuration) to `excel-formula-expander`?
 
-### 2. RAG-based Annotation (`lic_dsf_annotate.py`)
+### 2. RAG-based Annotation (`src/lic_dsf_annotate.py`)
 
 To help users understand *why* a certain calculation exists, we use a RAG pipeline:
 
@@ -330,7 +330,7 @@ To help users understand *why* a certain calculation exists, we use a RAG pipeli
 
 These annotations are stored in `annotations.json` and are intended to be injected into the final library’s docstrings (and used to inform its documentation).
 
-### 3. Input Grouping & Setter Generation (`lic_dsf_group_inputs.py` & `lic_dsf_export.py`)
+### 3. Input Grouping & Setter Generation (`src/lic_dsf_group_inputs.py` & `src/lic_dsf_export.py`)
 
 We classify “leaf” nodes (cells with no dependencies) into two categories:
 

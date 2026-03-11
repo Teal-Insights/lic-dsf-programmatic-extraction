@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
+from src.lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
 
 
 def _pick_wide_year_series(groups: list[dict]) -> dict:

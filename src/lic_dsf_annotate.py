@@ -30,13 +30,13 @@ import openpyxl.utils.cell
 import sqlite_utils
 
 from excel_grapher.grapher import DependencyGraph, create_dependency_graph
-from lic_dsf_config import (
+from .lic_dsf_config import (
     WORKBOOK_PATH,
     ensure_workbook_available,
     discover_targets_from_ranges,
     get_dynamic_ref_config,
 )
-from lic_dsf_labels import enrich_graph_with_labels, find_region_config
+from .lic_dsf_labels import enrich_graph_with_labels, find_region_config
 
 
 # Load environment variables from a local .env file (if present).

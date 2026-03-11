@@ -17,8 +17,6 @@ from excel_grapher.grapher import DependencyGraph
 from openpyxl.worksheet.worksheet import Worksheet
 
 
-
-
 # Region-based label configuration
 class RegionConfig(TypedDict, total=False):
     """
@@ -320,6 +318,7 @@ def is_valid_label(text: str) -> bool:
 
     return True
 
+
 # Patterns that identify a header cell as the ProjectionYear anchor (offset 0).
 _ANCHOR_PATTERNS: list[_re.Pattern[str]] = [
     _re.compile(r"^=\+?ProjectionYear$", _re.IGNORECASE),
@@ -352,11 +351,26 @@ def detect_year_offset_headers(
     (directly or via +1/-1 chains) and returns a mapping of column index
     to integer offset (0 = projection year, positive = future, negative = past).
     """
-    max_col = ws_formulas.max_column or 1
+    # Gather columns with populated cells for this row.
+    # We use internal _cells if available for a massive performance win on wide sheets.
+    # If the row is empty in _cells, fall back to scanning up to max_column to preserve
+    # behavior for intentionally blank header rows.
+    if hasattr(ws_formulas, "_cells") or hasattr(ws_values, "_cells"):
+        relevant_cols: set[int] = set()
+        if hasattr(ws_formulas, "_cells"):
+            relevant_cols.update(c for r, c in ws_formulas._cells if r == header_row)
+        if hasattr(ws_values, "_cells"):
+            relevant_cols.update(c for r, c in ws_values._cells if r == header_row)
+        if not relevant_cols:
+            max_col = max(ws_formulas.max_column or 1, ws_values.max_column or 1)
+            relevant_cols = set(range(1, max_col + 1))
+    else:
+        max_col = ws_formulas.max_column or 1
+        relevant_cols = set(range(1, max_col + 1))
 
     formulas: dict[int, str] = {}
     values: dict[int, int] = {}
-    for col in range(1, max_col + 1):
+    for col in sorted(relevant_cols):
         f = ws_formulas.cell(row=header_row, column=col).value
         v = ws_values.cell(row=header_row, column=col).value
         if isinstance(f, str) and f.startswith("="):
@@ -383,7 +397,9 @@ def detect_year_offset_headers(
             if m:
                 ref_col_letter, ref_row_str = m.group(1), m.group(2)
                 if int(ref_row_str) == header_row:
-                    ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                    ref_col = openpyxl.utils.cell.column_index_from_string(
+                        ref_col_letter
+                    )
                     if ref_col in offsets:
                         offsets[col] = offsets[ref_col] + 1
                         changed = True
@@ -392,7 +408,9 @@ def detect_year_offset_headers(
             if m:
                 ref_col_letter, ref_row_str = m.group(1), m.group(2)
                 if int(ref_row_str) == header_row:
-                    ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                    ref_col = openpyxl.utils.cell.column_index_from_string(
+                        ref_col_letter
+                    )
                     if ref_col in offsets:
                         offsets[col] = offsets[ref_col] - 1
                         changed = True
@@ -589,7 +607,9 @@ def get_row_labels(ws: Worksheet, row: int, col: int) -> list[str]:
         cell_value = ws.cell(row=row, column=current_col).value
 
         # Stop if we hit a blank cell
-        if cell_value is None or (isinstance(cell_value, str) and cell_value.strip() == ""):
+        if cell_value is None or (
+            isinstance(cell_value, str) and cell_value.strip() == ""
+        ):
             break
 
         # Collect text values
@@ -630,7 +650,9 @@ def get_column_labels(ws: Worksheet, row: int, col: int) -> list[str]:
         cell_value = ws.cell(row=current_row, column=col).value
 
         # Stop if we hit a blank cell
-        if cell_value is None or (isinstance(cell_value, str) and cell_value.strip() == ""):
+        if cell_value is None or (
+            isinstance(cell_value, str) and cell_value.strip() == ""
+        ):
             break
 
         # Collect text values
@@ -661,13 +683,15 @@ def get_column_labels(ws: Worksheet, row: int, col: int) -> list[str]:
 def enrich_graph_with_labels(
     graph: DependencyGraph,
     wb_path: Path,
+    *,
+    wb_values: openpyxl.Workbook | None = None,
+    wb_formulas: openpyxl.Workbook | None = None,
 ) -> dict[str, dict[str, Any]]:
     """
-    Enrich all nodes in the graph with row and column labels.
+    Enrich nodes in the graph with row and column labels.
     """
-    wb_values = openpyxl.load_workbook(wb_path, data_only=True)
-    wb_formulas = openpyxl.load_workbook(wb_path)
-
+    values_wb = wb_values or openpyxl.load_workbook(wb_path, data_only=True)
+    formulas_wb = wb_formulas or openpyxl.load_workbook(wb_path)
     try:
         # Cache worksheets by name for efficiency
         worksheets: dict[str, Worksheet] = {}
@@ -675,16 +699,22 @@ def enrich_graph_with_labels(
         # Precompute year-offset maps: sheet → header_row → {col → offset}
         _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
 
-        def _get_offset_maps(sheet: str, config: RegionConfig) -> dict[int, dict[int, int]]:
+        def _get_offset_maps(
+            sheet: str, config: RegionConfig
+        ) -> dict[int, dict[int, int]]:
             if sheet not in _offset_cache:
                 _offset_cache[sheet] = {}
             sheet_cache = _offset_cache[sheet]
             for hr in config.get("header_rows", []):
                 if hr not in sheet_cache:
-                    ws_f = wb_formulas[sheet] if sheet in wb_formulas.sheetnames else None
-                    ws_v = wb_values[sheet] if sheet in wb_values.sheetnames else None
+                    ws_f = (
+                        formulas_wb[sheet] if sheet in formulas_wb.sheetnames else None
+                    )
+                    ws_v = values_wb[sheet] if sheet in values_wb.sheetnames else None
                     if ws_f is not None and ws_v is not None:
-                        sheet_cache[hr] = detect_year_offset_headers(ws_f, ws_v, sheet, hr)
+                        sheet_cache[hr] = detect_year_offset_headers(
+                            ws_f, ws_v, sheet, hr
+                        )
                     else:
                         sheet_cache[hr] = {}
             return sheet_cache
@@ -698,8 +728,8 @@ def enrich_graph_with_labels(
 
             # Get or cache the worksheet
             if node.sheet not in worksheets:
-                if node.sheet in wb_values.sheetnames:
-                    worksheets[node.sheet] = wb_values[node.sheet]
+                if node.sheet in values_wb.sheetnames:
+                    worksheets[node.sheet] = values_wb[node.sheet]
                 else:
                     continue
 
@@ -737,8 +767,10 @@ def enrich_graph_with_labels(
         return enrichment_results
 
     finally:
-        wb_values.close()
-        wb_formulas.close()
+        if wb_values is None:
+            values_wb.close()
+        if wb_formulas is None:
+            formulas_wb.close()
 
 
 def export_enrichment_audit(
@@ -797,7 +829,9 @@ def export_enrichment_audit(
             "nodes_with_any_label": nodes_with_any,
             "nodes_without_labels": total_nodes - nodes_with_any,
             "nodes_with_row_labels": sum(s["with_row"] for s in sheet_stats.values()),
-            "nodes_with_column_labels": sum(s["with_col"] for s in sheet_stats.values()),
+            "nodes_with_column_labels": sum(
+                s["with_col"] for s in sheet_stats.values()
+            ),
         },
         "by_sheet": {
             sheet: {
@@ -834,10 +868,17 @@ def discover_formula_cells_in_rows(
         targets: list[str] = []
 
         for row in rows:
-            max_col = ws_formulas.max_column or 1
-            for col_idx in range(1, max_col + 1):
+            if hasattr(ws_formulas, "_cells"):
+                relevant_cols = sorted(c for r, c in ws_formulas._cells if r == row)
+            else:
+                max_col = ws_formulas.max_column or 1
+                relevant_cols = range(1, max_col + 1)
+
+            for col_idx in relevant_cols:
                 cell_formula = ws_formulas.cell(row=row, column=col_idx)
-                if isinstance(cell_formula.value, str) and cell_formula.value.startswith("="):
+                if isinstance(
+                    cell_formula.value, str
+                ) and cell_formula.value.startswith("="):
                     col_letter = openpyxl.utils.cell.get_column_letter(col_idx)
                     targets.append(f"{sheet_name}!{col_letter}{row}")
 

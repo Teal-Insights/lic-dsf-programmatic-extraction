@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
-import lic_dsf_pipeline as pipeline
+from excel_grapher.grapher import DependencyGraph
+
+import src.lic_dsf_pipeline as pipeline
 
 
 @dataclass(frozen=True)
@@ -44,7 +47,7 @@ def test_classify_input_addresses_returns_set(monkeypatch) -> None:
     monkeypatch.setattr(pipeline, "CodeGenerator", _DummyGenerator)
 
     inputs = pipeline.classify_input_addresses(
-        _DummyGraph(),
+        cast(DependencyGraph, _DummyGraph()),
         ["Sheet1!Z9"],
         constant_ranges=["Sheet1!X1:X2"],
         constant_blanks=True,
@@ -63,7 +66,7 @@ def test_classify_input_addresses_readds_blank_excludes(monkeypatch) -> None:
     monkeypatch.setattr(pipeline, "CodeGenerator", _DummyGenerator)
 
     inputs = pipeline.classify_input_addresses(
-        graph,
+        cast(DependencyGraph, graph),
         ["Sheet1!Z9"],
         constant_blanks=True,
         blank_excludes={"'Input 6(optional)-Standard Test'!D8"},

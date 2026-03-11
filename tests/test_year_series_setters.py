@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 import openpyxl.utils.cell
 
-from lic_dsf_input_setters import (
+from src.lic_dsf_input_setters import (
     BASE_YEAR_ADDRESS,
     WideYearSeriesSpec,
     apply_year_series_array,

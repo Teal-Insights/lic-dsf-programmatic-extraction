@@ -4,7 +4,7 @@ Export LIC-DSF workbook formulas as standalone Python code.
 
 This script discovers formula targets from `lic_dsf_labels.INDICATOR_CONFIG`,
 builds a dependency graph, and uses excel-grapher's CodeGenerator (exporter) to
-emit a small Python package under `export/`.
+emit a small Python package under `dist/`.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ import argparse
 import ast
 import json
 import re
+from typing import Mapping
 
 import openpyxl
 import openpyxl.utils.cell
@@ -21,7 +22,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import get_calc_settings
 
-from lic_dsf_config import (
+from .lic_dsf_config import (
     WORKBOOK_PATH,
     WORKBOOK_TEMPLATE_URL,
     EXPORT_RANGES,
@@ -29,7 +30,7 @@ from lic_dsf_config import (
     parse_range_spec,
     cells_in_range,
 )
-from lic_dsf_labels import (
+from .lic_dsf_labels import (
     detect_year_offset_headers,
     find_region_config,
     get_column_labels,
@@ -38,7 +39,7 @@ from lic_dsf_labels import (
     is_offset_label,
     parse_offset_label,
 )
-from lic_dsf_pipeline import (
+from .lic_dsf_pipeline import (
     BLANK_CONSTANT_EXCLUDES,
     STRING_CONSTANT_EXCLUDES,
     build_graph,
@@ -48,7 +49,7 @@ from lic_dsf_pipeline import (
     iter_string_constant_addresses,
     populate_leaf_values,
 )
-from lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
+from .lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
 
 
 EXPORT_DIR = Path("export")
@@ -311,7 +312,7 @@ def split_columns_by_year_presence(
     *,
     start_col: int,
     end_col: int,
-    year_by_col: dict[int, int | None],
+    year_by_col: Mapping[int, int | None],
 ) -> list[tuple[str, int, int]]:
     """
     Split a contiguous column span into segments of year vs non-year columns.
@@ -332,12 +333,14 @@ def split_columns_by_year_presence(
         if kind == current_kind:
             continue
         # close previous segment
-        segments.append((current_kind, int(seg_start), col - 1))
+        if seg_start is None:
+            raise RuntimeError("Missing segment start while splitting columns")
+        segments.append((current_kind, seg_start, col - 1))
         current_kind = kind
         seg_start = col
 
     if current_kind is not None and seg_start is not None:
-        segments.append((current_kind, int(seg_start), end_col))
+        segments.append((current_kind, seg_start, end_col))
 
     return segments
 
@@ -346,7 +349,7 @@ def split_rows_by_year_presence(
     *,
     start_row: int,
     end_row: int,
-    year_by_row: dict[int, int | None],
+    year_by_row: Mapping[int, int | None],
 ) -> list[tuple[str, int, int]]:
     """
     Split a contiguous row span into segments of year vs non-year rows.
@@ -366,12 +369,14 @@ def split_rows_by_year_presence(
             continue
         if kind == current_kind:
             continue
-        segments.append((current_kind, int(seg_start), row - 1))
+        if seg_start is None:
+            raise RuntimeError("Missing segment start while splitting rows")
+        segments.append((current_kind, seg_start, row - 1))
         current_kind = kind
         seg_start = row
 
     if current_kind is not None and seg_start is not None:
-        segments.append((current_kind, int(seg_start), end_row))
+        segments.append((current_kind, seg_start, end_row))
 
     return segments
 
@@ -380,6 +385,8 @@ def generate_setters_module(
     *,
     workbook: Path,
     groups: list[dict],
+    wb_values: openpyxl.Workbook | None = None,
+    wb_formulas: openpyxl.Workbook | None = None,
 ) -> str:
     """
     Generate a `setters.py` module for the exported package.
@@ -395,8 +402,8 @@ def generate_setters_module(
     if not groups:
         return "from __future__ import annotations\n\n# No setters were generated.\n"
 
-    wb = openpyxl.load_workbook(workbook, data_only=True)
-    wb_formulas = openpyxl.load_workbook(workbook)
+    wb = wb_values or openpyxl.load_workbook(workbook, data_only=True)
+    wb_formulas = wb_formulas or openpyxl.load_workbook(workbook)
     try:
         # Precompute offset maps per (sheet, header_row)
         _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
@@ -505,13 +512,21 @@ def generate_setters_module(
             start_col = bbox.get("start_col")
             end_col = bbox.get("end_col")
             end_row = bbox.get("end_row")
-            if not all(isinstance(x, int) for x in (row, start_col, end_col, end_row)):
+            if not isinstance(row, int):
+                continue
+            if not isinstance(start_col, int):
+                continue
+            if not isinstance(end_col, int):
+                continue
+            if not isinstance(end_row, int):
                 continue
 
             rows = shape.get("rows")
             cols = shape.get("cols")
             if not (isinstance(rows, int) and isinstance(cols, int)):
                 continue
+            rows = int(rows)
+            cols = int(cols)
 
             # Wide-format year series
             if mode == "ignore_column_axis_years" and rows == 1 and cols >= 1 and row == end_row:
@@ -946,8 +961,10 @@ def generate_setters_module(
 
         return "\n".join(lines).rstrip() + "\n"
     finally:
-        wb.close()
-        wb_formulas.close()
+        if wb_values is None:
+            wb.close()
+        if wb_formulas is None:
+            wb_formulas.close()
 
 
 def patch_entrypoint_for_setters(entrypoint_py: str) -> str:
@@ -1093,164 +1110,198 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Workbook: {args.workbook}")
     print(f"Target cells: {len(targets)}")
 
-    print("\nBuilding dependency graph...")
-    _t0 = _time.monotonic()
-    graph = build_graph(args.workbook, targets, max_depth=args.max_depth)
-    print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s")
+    wb_values: openpyxl.Workbook | None = None
+    wb_formulas: openpyxl.Workbook | None = None
+    keep_vba = args.workbook.suffix.lower() == ".xlsm"
+    try:
+        wb_formulas = openpyxl.load_workbook(args.workbook, data_only=False, keep_vba=keep_vba)
+        wb_values = openpyxl.load_workbook(args.workbook, data_only=True, keep_vba=keep_vba)
 
-    print(f"   Nodes in graph: {len(graph)}")
-    print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
-    print(f"   Formula nodes: {len(graph) - sum(1 for _ in graph.leaves())}")
-
-    sheets: dict[str, int] = {}
-    for key in graph:
-        node = graph.get_node(key)
-        if node:
-            sheets[node.sheet] = sheets.get(node.sheet, 0) + 1
-    print("\n   Nodes by sheet:")
-    for sheet_name in sorted(sheets.keys()):
-        print(f"      {sheet_name}: {sheets[sheet_name]}")
-
-    print("\nPopulating leaf values from cached workbook values...")
-    _t0 = _time.monotonic()
-    populate_leaf_values(graph, args.workbook)
-    print(f"[TIMING] populate_leaf_values: {_time.monotonic() - _t0:.2f}s")
-
-    constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
-    input_addresses = classify_input_addresses(
-        graph,
-        targets,
-        constant_ranges=constant_ranges,
-        constant_blanks=True,
-        blank_excludes=BLANK_CONSTANT_EXCLUDES,
-        attach_to_graph=True,
-    )
-
-    print("\nEnriching nodes with row/column labels...")
-    _t0 = _time.monotonic()
-    enrichment_results = enrich_graph(graph, args.workbook)
-    print(f"[TIMING] enrich_graph: {_time.monotonic() - _t0:.2f}s")
-    total_nodes = len(enrichment_results)
-    nodes_with_row_labels = sum(1 for r in enrichment_results.values() if r["row_labels"])
-    nodes_with_col_labels = sum(1 for r in enrichment_results.values() if r["column_labels"])
-    nodes_with_any_label = sum(
-        1 for r in enrichment_results.values() if r["row_labels"] or r["column_labels"]
-    )
-    nodes_without_labels = total_nodes - nodes_with_any_label
-    print(f"   Nodes with any label: {nodes_with_any_label}")
-    print(f"   Nodes with row labels: {nodes_with_row_labels}")
-    print(f"   Nodes with column labels: {nodes_with_col_labels}")
-    print(f"   Nodes without labels: {nodes_without_labels}")
-
-    input_with_row = 0
-    input_with_col = 0
-    input_with_any = 0
-    input_without = 0
-    for data in enrichment_results.values():
-        address = format_address(data["sheet"], data["address"])
-        if address not in input_addresses:
-            continue
-        has_row = bool(data["row_labels"])
-        has_col = bool(data["column_labels"])
-        if has_row:
-            input_with_row += 1
-        if has_col:
-            input_with_col += 1
-        if has_row or has_col:
-            input_with_any += 1
-        else:
-            input_without += 1
-
-    print("\n   Input nodes (constants excluded):")
-    print(f"      Inputs with any label: {input_with_any}")
-    print(f"      Inputs with row labels: {input_with_row}")
-    print(f"      Inputs with column labels: {input_with_col}")
-    print(f"      Inputs without labels: {input_without}")
-
-    print("\n   Sample enriched nodes:")
-    sample_count = 0
-    for key, data in enrichment_results.items():
-        if sample_count >= 5:
-            break
-        if not data["row_labels"] and not data["column_labels"]:
-            continue
-        row_str = ", ".join(data["row_labels"]) if data["row_labels"] else "(none)"
-        col_str = ", ".join(data["column_labels"]) if data["column_labels"] else "(none)"
-        print(f"      {key}:")
-        print(f"         Row labels: {row_str}")
-        print(f"         Col labels: {col_str}")
-        sample_count += 1
-
-    print(f"\nExporting audit file to {args.audit_path}...")
-    export_enrichment_audit(graph, enrichment_results, args.audit_path)
-    print(f"   Done. Review {args.audit_path} for sheet-by-sheet details.")
-
-    print(f"\nExporting input groups to {args.input_groups_audit_path}...")
-    input_cells = iter_input_cells(graph, enrichment_results)
-    input_cells = [c for c in input_cells if c.address in input_addresses]
-    input_groups_payload = build_input_groups_payload(
-        targets=targets,
-        graph=graph,
-        input_cells=input_cells,
-        restricted_to_export_default_inputs=False,
-        export_default_inputs_count=None,
-    )
-    args.input_groups_audit_path.write_text(
-        json.dumps(input_groups_payload, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    print(f"   Done. Review {args.input_groups_audit_path} for group details.")
-
-    print("\nWorkbook calculation settings...")
-    settings = get_calc_settings(args.workbook)
-    print(f"   Iterate enabled: {settings.iterate_enabled}")
-    print(f"   Iterate count:   {settings.iterate_count}")
-    print(f"   Iterate delta:   {settings.iterate_delta}")
-
-    if args.audit_only:
-        return
-
-    entrypoints = build_entrypoints(targets, audit_path=args.audit_path)
-    print(f"Entrypoints: {len(entrypoints)}")
-
-    print("Generating Python package...")
-    _t0 = _time.monotonic()
-    generator = CodeGenerator(graph)
-    modules = generator.generate_modules(
-        targets,
-        package_name=args.package_name,
-        entrypoints=entrypoints if entrypoints else None,
-    )
-    print(f"[TIMING] generate_modules: {_time.monotonic() - _t0:.2f}s")
-
-    # Generate year-aware input setters from canonical input groups.
-    if args.input_groups_path.exists():
+        print("\nBuilding dependency graph...")
         _t0 = _time.monotonic()
-        groups = load_input_groups(args.input_groups_path)
-        setters_py = generate_setters_module(workbook=args.workbook, groups=groups)
-        print(f"[TIMING] generate_setters_module: {_time.monotonic() - _t0:.2f}s")
-        modules[f"{args.package_name}/setters.py"] = setters_py
-        entrypoint_path = f"{args.package_name}/entrypoint.py"
-        init_path = f"{args.package_name}/__init__.py"
-        if entrypoint_path in modules:
-            modules[entrypoint_path] = patch_entrypoint_for_setters(modules[entrypoint_path])
-        if init_path in modules:
-            modules[init_path] = patch_init_for_setters(modules[init_path])
-    else:
-        print(
-            f"Warning: {args.input_groups_path} not found; skipping input setter generation."
+        graph = build_graph(
+            args.workbook,
+            targets,
+            max_depth=args.max_depth,
+            wb_formulas=wb_formulas,
+        )
+        print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s")
+
+        print(f"   Nodes in graph: {len(graph)}")
+        print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
+        print(f"   Formula nodes: {len(graph) - sum(1 for _ in graph.leaves())}")
+
+        sheets: dict[str, int] = {}
+        for key in graph:
+            node = graph.get_node(key)
+            if node:
+                sheets[node.sheet] = sheets.get(node.sheet, 0) + 1
+        print("\n   Nodes by sheet:")
+        for sheet_name in sorted(sheets.keys()):
+            print(f"      {sheet_name}: {sheets[sheet_name]}")
+
+        print("\nPopulating leaf values from cached workbook values...")
+        _t0 = _time.monotonic()
+        populate_leaf_values(graph, args.workbook, wb_values=wb_values)
+        print(f"[TIMING] populate_leaf_values: {_time.monotonic() - _t0:.2f}s")
+
+        constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
+        input_addresses = classify_input_addresses(
+            graph,
+            targets,
+            constant_ranges=constant_ranges,
+            constant_blanks=True,
+            blank_excludes=BLANK_CONSTANT_EXCLUDES,
+            attach_to_graph=True,
         )
 
-    args.export_dir.mkdir(parents=True, exist_ok=True)
-    for rel, content in modules.items():
-        dst = args.export_dir / rel
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_text(content, encoding="utf-8")
+        print("\nEnriching nodes with row/column labels...")
+        _t0 = _time.monotonic()
+        enrichment_results = enrich_graph(
+            graph,
+            args.workbook,
+            wb_values=wb_values,
+            wb_formulas=wb_formulas,
+        )
+        print(f"[TIMING] enrich_graph: {_time.monotonic() - _t0:.2f}s")
+        total_nodes = len(enrichment_results)
+        nodes_with_row_labels = sum(1 for r in enrichment_results.values() if r["row_labels"])
+        nodes_with_col_labels = sum(1 for r in enrichment_results.values() if r["column_labels"])
+        nodes_with_any_label = sum(
+            1 for r in enrichment_results.values() if r["row_labels"] or r["column_labels"]
+        )
+        nodes_without_labels = total_nodes - nodes_with_any_label
+        print(f"   Nodes with any label: {nodes_with_any_label}")
+        print(f"   Nodes with row labels: {nodes_with_row_labels}")
+        print(f"   Nodes with column labels: {nodes_with_col_labels}")
+        print(f"   Nodes without labels: {nodes_without_labels}")
 
-    pkg_prefix = Path(next(iter(modules.keys()))).parts[0] if modules else "(unknown)"
-    print(f"\nWrote {len(modules)} files under {args.export_dir / pkg_prefix}")
+        input_with_row = 0
+        input_with_col = 0
+        input_with_any = 0
+        input_without = 0
+        for data in enrichment_results.values():
+            sheet = data.get("sheet")
+            a1 = data.get("address")
+            if not isinstance(sheet, str) or not isinstance(a1, str):
+                continue
+            address = format_address(sheet, a1)
+            if address not in input_addresses:
+                continue
+            has_row = bool(data["row_labels"])
+            has_col = bool(data["column_labels"])
+            if has_row:
+                input_with_row += 1
+            if has_col:
+                input_with_col += 1
+            if has_row or has_col:
+                input_with_any += 1
+            else:
+                input_without += 1
+
+        print("\n   Input nodes (constants excluded):")
+        print(f"      Inputs with any label: {input_with_any}")
+        print(f"      Inputs with row labels: {input_with_row}")
+        print(f"      Inputs with column labels: {input_with_col}")
+        print(f"      Inputs without labels: {input_without}")
+
+        print("\n   Sample enriched nodes:")
+        sample_count = 0
+        for key, data in enrichment_results.items():
+            if sample_count >= 5:
+                break
+            row_labels = data.get("row_labels")
+            col_labels = data.get("column_labels")
+            if not isinstance(row_labels, list) or not isinstance(col_labels, list):
+                continue
+            if not row_labels and not col_labels:
+                continue
+            row_str = ", ".join(str(label) for label in row_labels) if row_labels else "(none)"
+            col_str = ", ".join(str(label) for label in col_labels) if col_labels else "(none)"
+            print(f"      {key}:")
+            print(f"         Row labels: {row_str}")
+            print(f"         Col labels: {col_str}")
+            sample_count += 1
+
+        print(f"\nExporting audit file to {args.audit_path}...")
+        export_enrichment_audit(graph, enrichment_results, args.audit_path)
+        print(f"   Done. Review {args.audit_path} for sheet-by-sheet details.")
+
+        print(f"\nExporting input groups to {args.input_groups_audit_path}...")
+        input_cells = iter_input_cells(graph, enrichment_results)
+        input_cells = [c for c in input_cells if c.address in input_addresses]
+        input_groups_payload = build_input_groups_payload(
+            targets=targets,
+            graph=graph,
+            input_cells=input_cells,
+            restricted_to_export_default_inputs=False,
+            export_default_inputs_count=None,
+        )
+        args.input_groups_audit_path.write_text(
+            json.dumps(input_groups_payload, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"   Done. Review {args.input_groups_audit_path} for group details.")
+
+        print("\nWorkbook calculation settings...")
+        settings = get_calc_settings(args.workbook)
+        print(f"   Iterate enabled: {settings.iterate_enabled}")
+        print(f"   Iterate count:   {settings.iterate_count}")
+        print(f"   Iterate delta:   {settings.iterate_delta}")
+
+        if args.audit_only:
+            return
+
+        entrypoints = build_entrypoints(targets, audit_path=args.audit_path)
+        print(f"Entrypoints: {len(entrypoints)}")
+
+        print("Generating Python package...")
+        _t0 = _time.monotonic()
+        generator = CodeGenerator(graph)
+        modules = generator.generate_modules(
+            targets,
+            package_name=args.package_name,
+            entrypoints=entrypoints if entrypoints else None,
+        )
+        print(f"[TIMING] generate_modules: {_time.monotonic() - _t0:.2f}s")
+
+        # Generate year-aware input setters from canonical input groups.
+        if args.input_groups_path.exists():
+            _t0 = _time.monotonic()
+            groups = load_input_groups(args.input_groups_path)
+            setters_py = generate_setters_module(
+                workbook=args.workbook,
+                groups=groups,
+                wb_values=wb_values,
+                wb_formulas=wb_formulas,
+            )
+            print(f"[TIMING] generate_setters_module: {_time.monotonic() - _t0:.2f}s")
+            modules[f"{args.package_name}/setters.py"] = setters_py
+            entrypoint_path = f"{args.package_name}/entrypoint.py"
+            init_path = f"{args.package_name}/__init__.py"
+            if entrypoint_path in modules:
+                modules[entrypoint_path] = patch_entrypoint_for_setters(modules[entrypoint_path])
+            if init_path in modules:
+                modules[init_path] = patch_init_for_setters(modules[init_path])
+        else:
+            print(
+                f"Warning: {args.input_groups_path} not found; skipping input setter generation."
+            )
+
+        args.export_dir.mkdir(parents=True, exist_ok=True)
+        for rel, content in modules.items():
+            dst = args.export_dir / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_text(content, encoding="utf-8")
+
+        pkg_prefix = Path(next(iter(modules.keys()))).parts[0] if modules else "(unknown)"
+        print(f"\nWrote {len(modules)} files under {args.export_dir / pkg_prefix}")
+    finally:
+        if wb_values is not None:
+            wb_values.close()
+        if wb_formulas is not None:
+            wb_formulas.close()
 
 
 if __name__ == "__main__":
     main()
-

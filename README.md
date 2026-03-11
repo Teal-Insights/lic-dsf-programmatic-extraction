@@ -21,15 +21,15 @@ workflow lives in a dedicated entrypoint.
   - `lic-dsf-guidance-note.txt`: plaintext guidance note used for semantic search
 - `lic-dsf-chunks/`
   - Local chunk files used to build the embeddings store (created only if missing)
-- `lic_dsf_annotate.py`
+- `src/lic_dsf_annotate.py`
   - DeepSeek annotations + `annotations.json` export
-- `lic_dsf_pipeline.py`
+- `src/lic_dsf_pipeline.py`
   - Shared graph + classification utilities used by export and input grouping
-- `lic_dsf_labels.py`
+- `src/lic_dsf_labels.py`
   - Workbook configuration and label extraction helpers
-- `lic_dsf_group_inputs.py`
+- `src/lic_dsf_group_inputs.py`
   - Input grouping + `input_groups.json` export (inputs only, constants filtered)
-- `lic_dsf_input_setters.py`
+- `src/lic_dsf_input_setters.py`
   - Shared setter helpers used by generated export package
 
 ## Prerequisites
@@ -46,13 +46,13 @@ Create a virtual environment and install deps:
 uv sync
 ```
 
-Set your DeepSeek key (used by `lic_dsf_annotate.py`):
+Set your DeepSeek key (used by `src/lic_dsf_annotate.py`):
 
 ```bash
 export DEEPSEEK_API_KEY="..."
 ```
 
-Optionally, store it in a `.env` file (loaded by `lic_dsf_annotate.py`):
+Optionally, store it in a `.env` file (loaded by `src/lic_dsf_annotate.py`):
 
 ```bash
 DEEPSEEK_API_KEY=...
@@ -66,14 +66,14 @@ nodes with row/column labels, and writes an audit JSON.
 ### Run
 
 ```bash
-uv run lic_dsf_export.py --audit-only
+uv run python -m src.lic_dsf_export --audit-only
 ```
 
 ### Inputs
 
-- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH` in `lic_dsf_config.py`)
-- Export-range configuration in `EXPORT_RANGES` inside `lic_dsf_config.py`
-- Label extraction configuration in `REGION_CONFIG` inside `lic_dsf_labels.py`
+- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH` in `src/lic_dsf_config.py`)
+- Export-range configuration in `EXPORT_RANGES` inside `src/lic_dsf_config.py`
+- Label extraction configuration in `REGION_CONFIG` inside `src/lic_dsf_labels.py`
 
 ### Output
 
@@ -97,12 +97,12 @@ This script:
 ### Run
 
 ```bash
-uv run python lic_dsf_annotate.py
+uv run python -m src.lic_dsf_annotate
 ```
 
 ### Inputs
 
-- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (imported from `lic_dsf_config.WORKBOOK_PATH`)
+- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (from `src.lic_dsf_config.WORKBOOK_PATH`)
 - Guidance note text: `guidance_note/lic-dsf-guidance-note.txt`
 - DeepSeek API key: `DEEPSEEK_API_KEY`
 
@@ -117,7 +117,7 @@ uv run python lic_dsf_annotate.py
 - `annotations.json` is **overwritten** on every run.
 - The embeddings collection is **not** rebuilt on every run:
   - If the collection exists, it is reused.
-  - If missing, `lic_dsf_annotate.py` will bootstrap it from the guidance note.
+  - If missing, `src/lic_dsf_annotate.py` will bootstrap it from the guidance note.
 
 ## Embeddings store (how it works)
 
@@ -127,7 +127,7 @@ Semantic search uses the [`llm`](https://llm.datasette.io/) library’s embeddin
 - Collection name: `lic-dsf-guidance`
 - Embedding model: `text-embedding-3-small`
 
-When bootstrapping, `lic_dsf_annotate.py`:
+When bootstrapping, `src/lic_dsf_annotate.py`:
 
 - Splits the guidance note text into ~1500-character chunks
 - Stores embeddings for those chunks in the `lic-dsf-guidance` collection
@@ -145,7 +145,7 @@ uv run llm collections delete lic-dsf-guidance
 Then rerun:
 
 ```bash
-uv run lic_dsf_annotate.py
+uv run python -m src.lic_dsf_annotate
 ```
 
 ## Script 3: Export formulas to standalone Python code
@@ -159,18 +159,18 @@ This script:
 ### Run
 
 ```bash
-uv run lic_dsf_export.py
+uv run python -m src.lic_dsf_export
 ```
 
 ### Audit-only mode
 
 ```bash
-uv run lic_dsf_export.py --audit-only
+uv run python -m src.lic_dsf_export --audit-only
 ```
 
 ### Output
 
-- `export/<normalized-workbook-stem>/` (overwritten on every run)
+- `dist/<normalized-workbook-stem>/` (overwritten on every run)
 
 ### Using generated input setters
 
@@ -213,7 +213,7 @@ This script:
 ### Run
 
 ```bash
-uv run python lic_dsf_group_inputs.py
+uv run python -m src.lic_dsf_group_inputs
 ```
 
 ### Output
@@ -222,12 +222,12 @@ uv run python lic_dsf_group_inputs.py
 
 ### Export integration
 
-If you copy or rename the output to `input_groups_export.json`, `lic_dsf_export.py` will
+If you copy or rename the output to `input_groups_export.json`, `src/lic_dsf_export.py` will
 generate setters in the exported package using those groups.
 
 ## Recommended sequence
 
-1. `lic_dsf_export.py --audit-only` (optional, if you want updated `enrichment_audit.json`)
-2. `lic_dsf_group_inputs.py` (optional, if you want updated input groups for setters)
-3. `lic_dsf_annotate.py` (optional today; planned to inform export docstrings)
-4. `lic_dsf_export.py` (core export step)
+1. `python -m src.lic_dsf_export --audit-only` (optional, if you want updated `enrichment_audit.json`)
+2. `python -m src.lic_dsf_group_inputs` (optional, if you want updated input groups for setters)
+3. `python -m src.lic_dsf_annotate` (optional today; planned to inform export docstrings)
+4. `python -m src.lic_dsf_export` (core export step)

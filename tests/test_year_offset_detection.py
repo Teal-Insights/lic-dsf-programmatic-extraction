@@ -2,22 +2,25 @@
 
 from __future__ import annotations
 
+from typing import Mapping
 from unittest.mock import MagicMock
 
-from lic_dsf_labels import (
-    WORKBOOK_PATH,
+from src.lic_dsf_config import WORKBOOK_PATH
+from src.lic_dsf_labels import (
     detect_year_offset_headers,
 )
 
 
 def _mock_ws(
-    formulas: dict[tuple[int, int], str | None],
-    values: dict[tuple[int, int], object] | None = None,
+    formulas: Mapping[tuple[int, int], str | None],
+    values: Mapping[tuple[int, int], object] | None = None,
+    *,
+    force_empty_cells: bool = False,
 ) -> tuple[MagicMock, MagicMock]:
     """Build a (ws_formulas, ws_values) mock pair."""
     values = values or {}
 
-    def _make(cell_map: dict[tuple[int, int], object]) -> MagicMock:
+    def _make(cell_map: Mapping[tuple[int, int], object]) -> MagicMock:
         ws = MagicMock()
 
         def cell(row: int, column: int) -> MagicMock:
@@ -27,6 +30,7 @@ def _mock_ws(
 
         ws.cell = cell
         ws.max_column = max((c for r, c in cell_map), default=1)
+        ws._cells = {} if force_empty_cells else dict(cell_map)
         return ws
 
     return _make(formulas), _make(values)
@@ -130,6 +134,17 @@ def test_empty_row_returns_empty() -> None:
     ws_f, ws_v = _mock_ws(formulas={}, values={})
     result = detect_year_offset_headers(ws_f, ws_v, "TestSheet", 8)
     assert result == {}
+
+
+def test_empty_cells_fall_back_to_max_column_scan() -> None:
+    ws_f, ws_v = _mock_ws(
+        formulas={(8, 4): "=ProjectionYear", (8, 5): "=D8+1"},
+        values={(8, 4): 0, (8, 5): 1},
+        force_empty_cells=True,
+    )
+    result = detect_year_offset_headers(ws_f, ws_v, "TestSheet", 8)
+    assert result[4] == 0
+    assert result[5] == 1
 
 
 # --- integration with real workbook ---

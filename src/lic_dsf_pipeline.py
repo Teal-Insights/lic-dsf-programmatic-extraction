@@ -11,9 +11,10 @@ import re
 import openpyxl
 import openpyxl.utils.cell
 from excel_grapher.exporter import CodeGenerator
-from excel_grapher.grapher import DependencyGraph, create_dependency_graph
+from excel_grapher.grapher import DependencyGraph, Node, create_dependency_graph
+from openpyxl import Workbook
 
-from lic_dsf_config import get_dynamic_ref_config
+from .lic_dsf_config import get_dynamic_ref_config
 from openpyxl.worksheet.worksheet import Worksheet
 
 STRING_CONSTANT_EXCLUDES = {
@@ -71,9 +72,16 @@ def discover_targets(workbook: Path) -> list[str]:
     return discover_targets_from_ranges(workbook)
 
 
-def build_graph(workbook: Path, targets: list[str], max_depth: int) -> DependencyGraph:
+def build_graph(
+    workbook: Path,
+    targets: list[str],
+    max_depth: int,
+    *,
+    wb_formulas: Workbook | None = None,
+) -> DependencyGraph:
+    source = wb_formulas if wb_formulas is not None else workbook
     return create_dependency_graph(
-        workbook,
+        source,
         targets,
         load_values=False,
         max_depth=max_depth,
@@ -82,14 +90,19 @@ def build_graph(workbook: Path, targets: list[str], max_depth: int) -> Dependenc
     )
 
 
-def populate_leaf_values(graph: DependencyGraph, workbook: Path) -> None:
+def populate_leaf_values(
+    graph: DependencyGraph,
+    workbook: Path,
+    *,
+    wb_values: Workbook | None = None,
+) -> None:
     """
     Populate values for leaf (non-formula) nodes from cached workbook values.
 
     Code generation only needs `node.value` for leaf cells; formulas are emitted
     from `node.formula`.
     """
-    wb = openpyxl.load_workbook(workbook, data_only=True)
+    wb = wb_values or openpyxl.load_workbook(workbook, data_only=True)
     try:
         worksheets: dict[str, Worksheet] = {}
         for key in graph:
@@ -104,7 +117,8 @@ def populate_leaf_values(graph: DependencyGraph, workbook: Path) -> None:
             col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
             node.value = ws.cell(row=node.row, column=col_idx).value
     finally:
-        wb.close()
+        if wb_values is None:
+            wb.close()
 
 
 def iter_string_constant_addresses(
@@ -146,7 +160,7 @@ def classify_input_addresses(
     if not blank_excludes:
         return input_addresses
 
-    address_to_node: dict[str, object] = {}
+    address_to_node: dict[str, Node] = {}
     for key in graph:
         node = graph.get_node(key)
         if node is None:
@@ -166,10 +180,21 @@ def classify_input_addresses(
     return input_addresses
 
 
-def enrich_graph(graph: DependencyGraph, workbook: Path) -> dict[str, dict[str, object]]:
+def enrich_graph(
+    graph: DependencyGraph,
+    workbook: Path,
+    *,
+    wb_values: Workbook | None = None,
+    wb_formulas: Workbook | None = None,
+) -> dict[str, dict[str, object]]:
     from lic_dsf_labels import enrich_graph_with_labels
 
-    return enrich_graph_with_labels(graph, workbook)
+    return enrich_graph_with_labels(
+        graph,
+        workbook,
+        wb_values=wb_values,
+        wb_formulas=wb_formulas,
+    )
 
 
 def export_enrichment_audit(

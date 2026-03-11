@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
-from lic_dsf_pipeline import iter_string_constant_addresses
+from excel_grapher.grapher import DependencyGraph
+
+from src.lic_dsf_pipeline import iter_string_constant_addresses
 
 
 @dataclass(frozen=True)
@@ -36,7 +39,7 @@ def test_iter_string_constant_addresses_excludes_and_quotes() -> None:
     graph = _DummyGraph(nodes)
 
     ranges = iter_string_constant_addresses(
-        graph,
+        cast(DependencyGraph, graph),
         {
             "Sheet1!A1",
             "'Input 6(optional)-Standard Test'!C4",
