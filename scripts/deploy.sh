@@ -39,19 +39,16 @@ REMOTE_URL="https://x-access-token:${DEPLOY_TOKEN}@github.com/${REPO_ORG}/${REPO
 
 echo "==> Deploying lic-dsf-${TEMPLATE_DATE} to ${REPO_ORG}/${REPO_NAME}"
 
-# Clone (or init if empty) the target repo
-if git ls-remote "$REMOTE_URL" HEAD &>/dev/null; then
-    echo "==> Cloning target repo (shallow)..."
-    git clone --depth 1 "$REMOTE_URL" "$WORK_DIR/repo" 2>/dev/null || {
-        # Empty repo — initialize fresh
-        echo "==> Target repo is empty, initializing..."
-        git init "$WORK_DIR/repo"
-        git -C "$WORK_DIR/repo" remote add origin "$REMOTE_URL"
-        git -C "$WORK_DIR/repo" checkout -b main
-    }
+# Clone the target repo, or init fresh if it's empty
+echo "==> Cloning target repo..."
+if git clone --depth 1 "$REMOTE_URL" "$WORK_DIR/repo" 2>/dev/null; then
+    echo "==> Cloned existing repo."
 else
-    echo "ERROR: Cannot reach ${REPO_ORG}/${REPO_NAME}"
-    exit 1
+    echo "==> Clone failed (repo is likely empty), initializing fresh..."
+    mkdir -p "$WORK_DIR/repo"
+    git init "$WORK_DIR/repo"
+    git -C "$WORK_DIR/repo" remote add origin "$REMOTE_URL"
+    git -C "$WORK_DIR/repo" checkout -b main
 fi
 
 cd "$WORK_DIR/repo"

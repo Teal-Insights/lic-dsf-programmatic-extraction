@@ -55,6 +55,14 @@ def ensure_workbook_available(
 
     try:
         with urlopen(url, timeout=60) as resp:
+            content_type = resp.headers.get("Content-Type", "")
+            if "text/html" in content_type:
+                raise ValueError(
+                    f"URL returned HTML instead of a binary file "
+                    f"(Content-Type: {content_type}). "
+                    f"The download link may be broken: {url}"
+                )
+
             with tempfile.NamedTemporaryFile(
                 prefix=f".{path.name}.", suffix=".download", dir=str(path.parent), delete=False
             ) as tmp:
