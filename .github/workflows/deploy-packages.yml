@@ -48,6 +48,10 @@ jobs:
         if: steps.filter.outputs.skip != 'true'
         run: uv python install
 
+      - name: Configure git credentials for private deps
+        if: steps.filter.outputs.skip != 'true'
+        run: git config --global url."https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Install dependencies
         if: steps.filter.outputs.skip != 'true'
         run: uv sync
