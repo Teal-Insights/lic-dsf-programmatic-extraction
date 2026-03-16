@@ -11,11 +11,22 @@ from __future__ import annotations
 
 import shutil
 import tempfile
+import warnings
+import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
 from typing import Literal, TypedDict
 
 import openpyxl.utils.cell
 from excel_grapher import format_cell_key
+
+
+class WorkbookMetadata(TypedDict, total=False):
+    """Expected OPC core metadata for a workbook template."""
+
+    creator: str
+    created: str
+    modified: str
 
 
 class ExportRangeConfig(TypedDict):
@@ -77,6 +88,73 @@ def ensure_workbook_available(
         return True
     except Exception:
         return False
+
+
+# OPC core-properties XML namespace map
+_CORE_NS = {
+    "cp": "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+}
+
+
+def _read_workbook_metadata(path: Path) -> WorkbookMetadata:
+    """Read OPC core metadata from a workbook's ``docProps/core.xml``."""
+    result: WorkbookMetadata = {}
+    try:
+        with zipfile.ZipFile(path) as z:
+            with z.open("docProps/core.xml") as f:
+                root = ET.parse(f).getroot()
+    except (zipfile.BadZipFile, KeyError, ET.ParseError):
+        return result
+
+    creator_el = root.find("dc:creator", _CORE_NS)
+    if creator_el is not None and creator_el.text:
+        result["creator"] = creator_el.text.strip()
+
+    created_el = root.find("dcterms:created", _CORE_NS)
+    if created_el is not None and created_el.text:
+        result["created"] = created_el.text.strip()
+
+    modified_el = root.find("dcterms:modified", _CORE_NS)
+    if modified_el is not None and modified_el.text:
+        result["modified"] = modified_el.text.strip()
+
+    return result
+
+
+def validate_workbook_metadata(
+    path: Path,
+    expected: WorkbookMetadata,
+) -> None:
+    """Warn if the workbook's OPC metadata does not match *expected*.
+
+    Each key present in *expected* is compared against the actual value read
+    from ``docProps/core.xml``.  Missing or mismatched fields emit a
+    :class:`UserWarning` so developers notice potential version mismatches
+    without aborting the pipeline.
+    """
+    if not expected:
+        return
+    actual = _read_workbook_metadata(path)
+    for field in ("creator", "created", "modified"):
+        exp = expected.get(field)  # type: ignore[literal-required]
+        if exp is None:
+            continue
+        act = actual.get(field)  # type: ignore[literal-required]
+        if act is None:
+            warnings.warn(
+                f"Workbook metadata field {field!r} not found in {path}; "
+                f"expected {exp!r}. Possible template version mismatch.",
+                stacklevel=2,
+            )
+        elif not act.startswith(exp):
+            warnings.warn(
+                f"Workbook metadata mismatch for {field!r} in {path}: "
+                f"expected {exp!r}, got {act!r}. "
+                f"Possible template version mismatch.",
+                stacklevel=2,
+            )
 
 
 def parse_range_spec(spec: str) -> tuple[str, str]:

@@ -26,7 +26,7 @@ from typing import Any, Iterable, Literal
 import openpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
 
-from .lic_dsf_config import ensure_workbook_available
+from .lic_dsf_config import ensure_workbook_available, validate_workbook_metadata
 from .lic_dsf_labels import is_offset_label
 from .lic_dsf_pipeline import (
     build_graph,
@@ -379,6 +379,10 @@ def main() -> None:
     if not ensure_workbook_available(workbook, getattr(cfg, "WORKBOOK_TEMPLATE_URL", None)):
         if not workbook.exists():
             raise SystemExit(f"Workbook not available at {workbook}")
+
+    expected_meta = getattr(cfg, "WORKBOOK_METADATA", None)
+    if expected_meta:
+        validate_workbook_metadata(workbook, expected_meta)
 
     dynamic_refs = cfg.get_dynamic_ref_config()
     region_config = cfg.REGION_CONFIG

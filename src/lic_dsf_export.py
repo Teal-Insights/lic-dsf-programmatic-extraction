@@ -24,6 +24,7 @@ from excel_grapher.grapher import get_calc_settings
 
 from .lic_dsf_config import (
     ensure_workbook_available,
+    validate_workbook_metadata,
     parse_range_spec,
     cells_in_range,
 )
@@ -1103,6 +1104,10 @@ def main(argv: list[str] | None = None) -> None:
         if not workbook.exists():
             print(f"Error: Workbook not available at {workbook}")
             return
+
+    expected_meta = getattr(cfg, "WORKBOOK_METADATA", None)
+    if expected_meta:
+        validate_workbook_metadata(workbook, expected_meta)
 
     import time as _time
 

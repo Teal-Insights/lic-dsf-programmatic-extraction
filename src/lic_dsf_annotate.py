@@ -32,6 +32,7 @@ import sqlite_utils
 from excel_grapher.grapher import DependencyGraph, create_dependency_graph
 from .lic_dsf_config import (
     ensure_workbook_available,
+    validate_workbook_metadata,
     discover_targets_from_ranges,
 )
 from .lic_dsf_labels import enrich_graph_with_labels, find_region_config
@@ -612,6 +613,10 @@ def main() -> None:
         if not workbook_path.exists():
             print(f"Error: Workbook not available at {workbook_path}")
             return
+
+    expected_meta = getattr(cfg, "WORKBOOK_METADATA", None)
+    if expected_meta:
+        validate_workbook_metadata(workbook_path, expected_meta)
 
     print("\n1. Collecting target cells from configured ranges...")
     all_targets = discover_targets_from_ranges(cfg.EXPORT_RANGES)

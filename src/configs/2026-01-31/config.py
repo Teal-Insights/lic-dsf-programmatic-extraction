@@ -12,7 +12,7 @@ from typing import Any, Literal, cast, TypedDict
 
 from excel_grapher.grapher import DynamicRefConfig
 
-from ...lic_dsf_config import ExportRangeConfig
+from ...lic_dsf_config import ExportRangeConfig, WorkbookMetadata
 from ...lic_dsf_labels import RegionConfig
 
 
@@ -24,6 +24,11 @@ WORKBOOK_PATH = Path("workbooks/lic-dsf-template-2026-01-31.xlsm")
 WORKBOOK_TEMPLATE_URL = (
     "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/original/LIC-DSF-IDA21-Template-08-12-2025-vf.xlsm"
 )
+WORKBOOK_METADATA: WorkbookMetadata = {
+    "creator": "spalazzo",
+    "created": "2002-02-01",
+    "modified": "2026-03-04T21:43:08",
+}
 
 # ---------------------------------------------------------------------------
 # Export package
