@@ -1,0 +1,12 @@
+[project]
+name = "lic-dsf-{{TEMPLATE_DATE}}"
+version = "{{VERSION}}"
+description = "Python library duplicating the {{TEMPLATE_DATE}} version of the IMF's LIC DSF template"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
