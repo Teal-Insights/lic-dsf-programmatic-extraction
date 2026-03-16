@@ -31,12 +31,11 @@ import sqlite_utils
 
 from excel_grapher.grapher import DependencyGraph, create_dependency_graph
 from .lic_dsf_config import (
-    WORKBOOK_PATH,
     ensure_workbook_available,
     discover_targets_from_ranges,
-    get_dynamic_ref_config,
 )
 from .lic_dsf_labels import enrich_graph_with_labels, find_region_config
+from .configs import available_templates, load_template_config
 
 
 # Load environment variables from a local .env file (if present).
@@ -576,8 +575,31 @@ async def annotate_graph_async(
 
 
 def main() -> None:
+    import argparse
+
+    templates = available_templates()
+    parser = argparse.ArgumentParser(
+        description="Generate RAG-based annotations for LIC-DSF indicator calculations."
+    )
+    parser.add_argument(
+        "--template",
+        type=str,
+        required=True,
+        choices=templates,
+        help=f"Template version to use (available: {', '.join(templates)})",
+    )
+    args = parser.parse_args()
+
+    # Load template-specific configuration
+    cfg = load_template_config(args.template)
+    config_dir = Path(__file__).parent / "configs" / args.template
+    annotations_output_path = config_dir / "annotations.json"
+
+    workbook_path = cfg.WORKBOOK_PATH
+    workbook_url = getattr(cfg, "WORKBOOK_TEMPLATE_URL", None)
+
     print("=" * 70)
-    print("LIC-DSF Indicator Annotation (RAG + DeepSeek)")
+    print(f"LIC-DSF Indicator Annotation (template: {args.template})")
     print("=" * 70)
 
     if not ensure_guidance_note_available() and not GUIDANCE_NOTE_TXT_PATH.exists():
@@ -586,12 +608,13 @@ def main() -> None:
         print(f"Expected text at: {GUIDANCE_NOTE_TXT_PATH}")
         return
 
-    if not ensure_workbook_available(WORKBOOK_PATH):
-        print(f"Error: Workbook not available at {WORKBOOK_PATH}")
-        return
+    if not ensure_workbook_available(workbook_path, workbook_url):
+        if not workbook_path.exists():
+            print(f"Error: Workbook not available at {workbook_path}")
+            return
 
     print("\n1. Collecting target cells from configured ranges...")
-    all_targets = discover_targets_from_ranges(WORKBOOK_PATH)
+    all_targets = discover_targets_from_ranges(cfg.EXPORT_RANGES)
 
     print(f"   Total targets: {len(all_targets)}")
     if not all_targets:
@@ -599,18 +622,21 @@ def main() -> None:
         return
 
     print("\n2. Building dependency graph...")
+    dynamic_refs = cfg.get_dynamic_ref_config()
     graph = create_dependency_graph(
-        WORKBOOK_PATH,
+        workbook_path,
         all_targets,
         load_values=False,
         max_depth=50,
-        dynamic_refs=get_dynamic_ref_config(),
+        dynamic_refs=dynamic_refs,
         use_cached_dynamic_refs=False,
     )
     print(f"   Nodes in graph: {len(graph)}")
 
     print("\n3. Enriching nodes with row/column labels...")
-    enrichment_results = enrich_graph_with_labels(graph, WORKBOOK_PATH)
+    enrichment_results = enrich_graph_with_labels(
+        graph, workbook_path, region_config=cfg.REGION_CONFIG
+    )
     print(f"   Enriched nodes: {len(enrichment_results)}")
 
     print("\n4. Annotating node groups...")
@@ -625,16 +651,16 @@ def main() -> None:
     )
 
     payload = {
-        "workbook": str(WORKBOOK_PATH),
+        "workbook": str(workbook_path),
         "collection": GUIDANCE_COLLECTION_NAME,
         "model": "deepseek-chat",
         "annotations": annotations,
     }
-    ANNOTATIONS_OUTPUT_PATH.write_text(
+    annotations_output_path.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    print(f"\n5. Wrote {len(annotations)} annotations to {ANNOTATIONS_OUTPUT_PATH}")
+    print(f"\n5. Wrote {len(annotations)} annotations to {annotations_output_path}")
 
 
 if __name__ == "__main__":

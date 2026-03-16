@@ -26,11 +26,9 @@ from typing import Any, Iterable, Literal
 import openpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
 
-from .lic_dsf_config import WORKBOOK_PATH, ensure_workbook_available
+from .lic_dsf_config import ensure_workbook_available
 from .lic_dsf_labels import is_offset_label
 from .lic_dsf_pipeline import (
-    BLANK_CONSTANT_EXCLUDES,
-    STRING_CONSTANT_EXCLUDES,
     build_graph,
     classify_input_addresses,
     discover_targets,
@@ -38,6 +36,7 @@ from .lic_dsf_pipeline import (
     iter_string_constant_addresses,
     populate_leaf_values,
 )
+from .configs import available_templates, load_template_config
 
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
 
@@ -191,6 +190,7 @@ def build_input_groups_payload(
     input_cells: list[InputCell],
     restricted_to_export_default_inputs: bool = False,
     export_default_inputs_count: int | None = None,
+    workbook_path: str = "",
 ) -> dict[str, Any]:
     groups: dict[GroupKey, list[InputCell]] = {}
     for cell in input_cells:
@@ -257,7 +257,7 @@ def build_input_groups_payload(
     }
 
     return {
-        "workbook": str(WORKBOOK_PATH),
+        "workbook": workbook_path,
         "summary": summary,
         "groups": payload_groups,
     }
@@ -331,20 +331,28 @@ def _rectangular_range(cells: list[InputCell]) -> tuple[dict[str, int], str, tup
 
 
 def main() -> None:
+    templates = available_templates()
     parser = argparse.ArgumentParser(
         description="Group LIC-DSF template hardcoded input cells into labeled clusters."
     )
     parser.add_argument(
+        "--template",
+        type=str,
+        required=True,
+        choices=templates,
+        help=f"Template version to use (available: {', '.join(templates)})",
+    )
+    parser.add_argument(
         "--workbook",
         type=Path,
-        default=WORKBOOK_PATH,
-        help="Path to workbook (default: workbooks/lic-dsf-template-2026-01-31.xlsm)",
+        default=None,
+        help="Override path to workbook (default: from template config)",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("input_groups.json"),
-        help="Output JSON path (default: input_groups.json)",
+        default=None,
+        help="Output JSON path (default: in config dir)",
     )
     parser.add_argument("--max-depth", type=int, default=50, help="Dependency graph max depth")
     parser.add_argument(
@@ -355,37 +363,48 @@ def main() -> None:
     parser.add_argument(
         "--export-inputs-path",
         type=Path,
-        default=Path("dist/lic_dsf/inputs.py"),
-        help="Path to generated inputs module (default: dist/lic_dsf/inputs.py)",
+        default=None,
+        help="Path to generated inputs module (default: from template config)",
     )
     args = parser.parse_args()
 
-    workbook: Path = args.workbook
-    if workbook == WORKBOOK_PATH and not ensure_workbook_available(WORKBOOK_PATH):
-        raise SystemExit(f"Workbook not available at {WORKBOOK_PATH}")
-    if not workbook.exists():
-        raise SystemExit(f"Workbook not found: {workbook}")
+    # Load template-specific configuration
+    cfg = load_template_config(args.template)
+    config_dir = Path(__file__).parent / "configs" / args.template
+
+    workbook: Path = args.workbook or cfg.WORKBOOK_PATH
+    output: Path = args.output or (config_dir / "input_groups.json")
+    export_inputs_path: Path = args.export_inputs_path or (cfg.EXPORT_DIR / cfg.PACKAGE_NAME / "inputs.py")
+
+    if not ensure_workbook_available(workbook, getattr(cfg, "WORKBOOK_TEMPLATE_URL", None)):
+        if not workbook.exists():
+            raise SystemExit(f"Workbook not available at {workbook}")
+
+    dynamic_refs = cfg.get_dynamic_ref_config()
+    region_config = cfg.REGION_CONFIG
+    string_constant_excludes = cfg.STRING_CONSTANT_EXCLUDES
+    blank_constant_excludes = cfg.BLANK_CONSTANT_EXCLUDES
 
     print("=" * 70)
-    print("LIC-DSF Input Grouping")
+    print(f"LIC-DSF Input Grouping (template: {args.template})")
     print("=" * 70)
     print(f"Workbook: {workbook}")
 
     print("\n1. Discovering formula targets in indicator rows...")
-    targets = discover_targets(workbook)
+    targets = discover_targets(cfg.EXPORT_RANGES)
     print(f"   Targets: {len(targets)}")
     if not targets:
         raise SystemExit("No targets found. Nothing to group.")
 
     print("\n2. Building dependency graph...")
-    graph = build_graph(workbook, targets, max_depth=args.max_depth)
+    graph = build_graph(workbook, targets, max_depth=args.max_depth, dynamic_refs=dynamic_refs)
     print(f"   Graph nodes: {len(graph)}")
 
     print("\n2b. Populating leaf values from cached workbook values...")
     populate_leaf_values(graph, workbook)
 
     print("\n3. Enriching nodes with row/column labels...")
-    enrichment_results = enrich_graph(graph, workbook)
+    enrichment_results = enrich_graph(graph, workbook, region_config=region_config)
     print(f"   Enriched nodes: {len(enrichment_results)}")
 
     print("\n4. Extracting leaf input cells...")
@@ -393,13 +412,13 @@ def main() -> None:
     print(f"   Input cells (leaf, non-formula): {len(input_cells)}")
 
     print("\n4b. Classifying constants vs inputs...")
-    constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
+    constant_ranges = iter_string_constant_addresses(graph, string_constant_excludes)
     input_addresses = classify_input_addresses(
         graph,
         targets,
         constant_ranges=constant_ranges,
         constant_blanks=True,
-        blank_excludes=BLANK_CONSTANT_EXCLUDES,
+        blank_excludes=blank_constant_excludes,
     )
     before = len(input_cells)
     input_cells = [c for c in input_cells if c.address in input_addresses]
@@ -407,7 +426,7 @@ def main() -> None:
 
     export_default_inputs: set[str] | None = None
     if args.restrict_to_export_default_inputs:
-        export_default_inputs = _load_export_default_input_addresses(args.export_inputs_path)
+        export_default_inputs = _load_export_default_input_addresses(export_inputs_path)
         before = len(input_cells)
         input_cells = [c for c in input_cells if c.address in export_default_inputs]
         print(
@@ -424,15 +443,16 @@ def main() -> None:
         export_default_inputs_count=len(export_default_inputs)
         if export_default_inputs is not None
         else None,
+        workbook_path=str(workbook),
     )
 
-    args.output.write_text(
+    output.write_text(
         json.dumps(output_payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
     print("\n6. Wrote grouped inputs:")
-    print(f"   {args.output}")
+    print(f"   {output}")
     payload_groups = output_payload.get("groups")
     if not isinstance(payload_groups, list):
         payload_groups = []

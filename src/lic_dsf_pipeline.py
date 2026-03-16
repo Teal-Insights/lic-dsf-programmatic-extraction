@@ -14,27 +14,9 @@ from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import DependencyGraph, Node, create_dependency_graph
 from openpyxl import Workbook
 
-from .lic_dsf_config import get_dynamic_ref_config
 from openpyxl.worksheet.worksheet import Worksheet
 
-STRING_CONSTANT_EXCLUDES = {
-    "START!K10",
-    "'BLEND floating calculations WB'!C6",
-    "'Input 6(optional)-Standard Test'!C4",
-    "'Input 6(optional)-Standard Test'!C5",
-    "'Input 6(optional)-Standard Test'!C7",
-    "'Input 6(optional)-Standard Test'!C8",
-    "'Input 6(optional)-Standard Test'!D18",
-    "'Input 6(optional)-Standard Test'!D26",
-    "'Input 6(optional)-Standard Test'!D30",
-    "'Input 6(optional)-Standard Test'!D33",
-    "'Input 6(optional)-Standard Test'!D8",
-    "'Input 6(optional)-Standard Test'!D9",
-}
-BLANK_CONSTANT_EXCLUDES = {
-    "'Input 6(optional)-Standard Test'!D8",
-    "'Input 6(optional)-Standard Test'!D9",
-}
+from excel_grapher.grapher import DynamicRefConfig
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
 
 
@@ -59,17 +41,16 @@ def _is_blank_value(value: object) -> bool:
     return value is None or value == ""
 
 
-def discover_targets(workbook: Path) -> list[str]:
+def discover_targets(export_ranges: list) -> list[str]:
     """
     Discover graph targets from explicit range specifications.
 
-    Targets are derived from `lic_dsf_labels.EXPORT_RANGES` and expanded via
-    sheet-qualified A1 ranges. The `workbook` argument is accepted for API
-    compatibility but is not required for discovery.
+    Targets are derived from the template's EXPORT_RANGES and expanded via
+    sheet-qualified A1 ranges.
     """
-    from lic_dsf_config import discover_targets_from_ranges
+    from .lic_dsf_config import discover_targets_from_ranges
 
-    return discover_targets_from_ranges(workbook)
+    return discover_targets_from_ranges(export_ranges)
 
 
 def build_graph(
@@ -78,6 +59,7 @@ def build_graph(
     max_depth: int,
     *,
     wb_formulas: Workbook | None = None,
+    dynamic_refs: DynamicRefConfig | None = None,
 ) -> DependencyGraph:
     source = wb_formulas if wb_formulas is not None else workbook
     return create_dependency_graph(
@@ -85,7 +67,7 @@ def build_graph(
         targets,
         load_values=False,
         max_depth=max_depth,
-        dynamic_refs=get_dynamic_ref_config(),
+        dynamic_refs=dynamic_refs,
         use_cached_dynamic_refs=False,
     )
 
@@ -186,20 +168,22 @@ def enrich_graph(
     *,
     wb_values: Workbook | None = None,
     wb_formulas: Workbook | None = None,
+    region_config: list | None = None,
 ) -> dict[str, dict[str, object]]:
-    from lic_dsf_labels import enrich_graph_with_labels
+    from .lic_dsf_labels import enrich_graph_with_labels
 
     return enrich_graph_with_labels(
         graph,
         workbook,
         wb_values=wb_values,
         wb_formulas=wb_formulas,
+        region_config=region_config,
     )
 
 
 def export_enrichment_audit(
     graph: DependencyGraph, enrichment_results: dict[str, dict[str, object]], path: Path
 ) -> None:
-    from lic_dsf_labels import export_enrichment_audit
+    from .lic_dsf_labels import export_enrichment_audit
 
     export_enrichment_audit(graph, enrichment_results, path)

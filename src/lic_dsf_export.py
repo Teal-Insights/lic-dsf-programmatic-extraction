@@ -23,9 +23,6 @@ from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import get_calc_settings
 
 from .lic_dsf_config import (
-    WORKBOOK_PATH,
-    WORKBOOK_TEMPLATE_URL,
-    EXPORT_RANGES,
     ensure_workbook_available,
     parse_range_spec,
     cells_in_range,
@@ -40,8 +37,6 @@ from .lic_dsf_labels import (
     parse_offset_label,
 )
 from .lic_dsf_pipeline import (
-    BLANK_CONSTANT_EXCLUDES,
-    STRING_CONSTANT_EXCLUDES,
     build_graph,
     classify_input_addresses,
     enrich_graph,
@@ -50,11 +45,9 @@ from .lic_dsf_pipeline import (
     populate_leaf_values,
 )
 from .lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
+from .configs import available_templates, load_template_config
 
 
-EXPORT_DIR = Path("export")
-ENRICHMENT_AUDIT_PATH = Path("enrichment_audit.json")
-INPUT_GROUPS_PATH = Path("input_groups.json")
 MAX_DEPTH = 50
 
 
@@ -107,14 +100,15 @@ def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]
 
 def build_entrypoints(
     targets: list[str],
-    audit_path: Path = ENRICHMENT_AUDIT_PATH,
+    audit_path: Path,
+    export_ranges: list | None = None,
 ) -> dict[str, list[str]]:
     labels_by_row = load_enrichment_audit_labels(audit_path)
     entrypoints: dict[str, list[str]] = {}
 
     # Precompute per-cell targets from configured ranges.
     per_cell_targets: set[str] = set()
-    for cfg in EXPORT_RANGES:
+    for cfg in (export_ranges or []):
         if cfg.get("entrypoint_mode") != "per_cell":
             continue
         sheet_name, range_a1 = parse_range_spec(cfg["range_spec"])
@@ -275,7 +269,7 @@ def year_for_row(
     return values[0]
 
 
-def load_input_groups(path: Path = INPUT_GROUPS_PATH) -> list[dict]:
+def load_input_groups(path: Path) -> list[dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     groups = payload.get("groups", [])
     if not isinstance(groups, list):
@@ -1031,24 +1025,32 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Export LIC-DSF workbook formulas (with optional audit-only mode)."
     )
+    templates = available_templates()
+    parser.add_argument(
+        "--template",
+        type=str,
+        required=True,
+        choices=templates,
+        help=f"Template version to use (available: {', '.join(templates)})",
+    )
     parser.add_argument(
         "--workbook",
         type=Path,
-        default=WORKBOOK_PATH,
-        help="Path to workbook (default: workbooks/lic-dsf-template-2026-01-31.xlsm)",
+        default=None,
+        help="Override path to workbook (default: from template config)",
     )
     parser.add_argument(
         "--workbook-url",
         type=str,
-        default=WORKBOOK_TEMPLATE_URL,
-        help="Download URL for the default workbook",
+        default=None,
+        help="Override download URL for the workbook",
     )
     parser.add_argument("--max-depth", type=int, default=MAX_DEPTH, help="Dependency graph max depth")
     parser.add_argument(
         "--audit-path",
         type=Path,
-        default=ENRICHMENT_AUDIT_PATH,
-        help="Path for enrichment audit JSON output",
+        default=None,
+        help="Path for enrichment audit JSON output (default: in config dir)",
     )
     parser.add_argument(
         "--audit-only",
@@ -1058,26 +1060,26 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--input-groups-path",
         type=Path,
-        default=INPUT_GROUPS_PATH,
-        help="Path to input groups JSON for setter generation",
+        default=None,
+        help="Path to input groups JSON for setter generation (default: in config dir)",
     )
     parser.add_argument(
         "--input-groups-audit-path",
         type=Path,
-        default=Path("input_groups.json"),
-        help="Path for input groups JSON output in audit-only mode",
+        default=None,
+        help="Path for input groups JSON output in audit-only mode (default: in config dir)",
     )
     parser.add_argument(
         "--export-dir",
         type=Path,
-        default=EXPORT_DIR,
-        help="Directory to write exported package",
+        default=None,
+        help="Directory to write exported package (default: from template config)",
     )
     parser.add_argument(
         "--package-name",
         type=str,
-        default="lic_dsf",
-        help="Package name for generated modules",
+        default=None,
+        help="Package name for generated modules (default: from template config)",
     )
     return parser
 
@@ -1085,45 +1087,60 @@ def build_arg_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser().parse_args(argv)
 
-    if args.workbook == WORKBOOK_PATH:
-        if not ensure_workbook_available(args.workbook, args.workbook_url):
-            print(f"Error: Workbook not available at {args.workbook}")
+    # Load template-specific configuration
+    cfg = load_template_config(args.template)
+    config_dir = Path(__file__).parent / "configs" / args.template
+
+    workbook = args.workbook or cfg.WORKBOOK_PATH
+    workbook_url = args.workbook_url or getattr(cfg, "WORKBOOK_TEMPLATE_URL", None)
+    audit_path = args.audit_path or (config_dir / "enrichment_audit.json")
+    input_groups_path = args.input_groups_path or (config_dir / "input_groups.json")
+    input_groups_audit_path = args.input_groups_audit_path or (config_dir / "input_groups.json")
+    export_dir = args.export_dir or cfg.EXPORT_DIR
+    package_name = args.package_name or cfg.PACKAGE_NAME
+
+    if not ensure_workbook_available(workbook, workbook_url):
+        if not workbook.exists():
+            print(f"Error: Workbook not available at {workbook}")
             return
-    elif not args.workbook.exists():
-        print(f"Error: Workbook not found at {args.workbook}")
-        return
 
     import time as _time
 
-    from lic_dsf_pipeline import discover_targets
+    from .lic_dsf_pipeline import discover_targets
 
     _t0 = _time.monotonic()
-    targets = discover_targets(args.workbook)
+    targets = discover_targets(cfg.EXPORT_RANGES)
     print(f"[TIMING] discover_targets: {_time.monotonic() - _t0:.2f}s")
     if not targets:
         print("No targets found. Nothing to export.")
         return
 
     print("=" * 70)
-    print("LIC-DSF Workbook Export (standalone Python code)")
+    print(f"LIC-DSF Workbook Export (template: {args.template})")
     print("=" * 70)
-    print(f"Workbook: {args.workbook}")
+    print(f"Workbook: {workbook}")
     print(f"Target cells: {len(targets)}")
+
+    dynamic_refs = cfg.get_dynamic_ref_config()
+    region_config = cfg.REGION_CONFIG
+    string_constant_excludes = cfg.STRING_CONSTANT_EXCLUDES
+    blank_constant_excludes = cfg.BLANK_CONSTANT_EXCLUDES
 
     wb_values: openpyxl.Workbook | None = None
     wb_formulas: openpyxl.Workbook | None = None
-    keep_vba = args.workbook.suffix.lower() == ".xlsm"
+    keep_vba = workbook.suffix.lower() == ".xlsm"
     try:
-        wb_formulas = openpyxl.load_workbook(args.workbook, data_only=False, keep_vba=keep_vba)
-        wb_values = openpyxl.load_workbook(args.workbook, data_only=True, keep_vba=keep_vba)
+        wb_formulas = openpyxl.load_workbook(workbook, data_only=False, keep_vba=keep_vba)
+        wb_values = openpyxl.load_workbook(workbook, data_only=True, keep_vba=keep_vba)
 
         print("\nBuilding dependency graph...")
         _t0 = _time.monotonic()
         graph = build_graph(
-            args.workbook,
+            workbook,
             targets,
             max_depth=args.max_depth,
             wb_formulas=wb_formulas,
+            dynamic_refs=dynamic_refs,
         )
         print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s")
 
@@ -1142,16 +1159,16 @@ def main(argv: list[str] | None = None) -> None:
 
         print("\nPopulating leaf values from cached workbook values...")
         _t0 = _time.monotonic()
-        populate_leaf_values(graph, args.workbook, wb_values=wb_values)
+        populate_leaf_values(graph, workbook, wb_values=wb_values)
         print(f"[TIMING] populate_leaf_values: {_time.monotonic() - _t0:.2f}s")
 
-        constant_ranges = iter_string_constant_addresses(graph, STRING_CONSTANT_EXCLUDES)
+        constant_ranges = iter_string_constant_addresses(graph, string_constant_excludes)
         input_addresses = classify_input_addresses(
             graph,
             targets,
             constant_ranges=constant_ranges,
             constant_blanks=True,
-            blank_excludes=BLANK_CONSTANT_EXCLUDES,
+            blank_excludes=blank_constant_excludes,
             attach_to_graph=True,
         )
 
@@ -1159,9 +1176,10 @@ def main(argv: list[str] | None = None) -> None:
         _t0 = _time.monotonic()
         enrichment_results = enrich_graph(
             graph,
-            args.workbook,
+            workbook,
             wb_values=wb_values,
             wb_formulas=wb_formulas,
+            region_config=region_config,
         )
         print(f"[TIMING] enrich_graph: {_time.monotonic() - _t0:.2f}s")
         total_nodes = len(enrichment_results)
@@ -1223,11 +1241,11 @@ def main(argv: list[str] | None = None) -> None:
             print(f"         Col labels: {col_str}")
             sample_count += 1
 
-        print(f"\nExporting audit file to {args.audit_path}...")
-        export_enrichment_audit(graph, enrichment_results, args.audit_path)
-        print(f"   Done. Review {args.audit_path} for sheet-by-sheet details.")
+        print(f"\nExporting audit file to {audit_path}...")
+        export_enrichment_audit(graph, enrichment_results, audit_path)
+        print(f"   Done. Review {audit_path} for sheet-by-sheet details.")
 
-        print(f"\nExporting input groups to {args.input_groups_audit_path}...")
+        print(f"\nExporting input groups to {input_groups_audit_path}...")
         input_cells = iter_input_cells(graph, enrichment_results)
         input_cells = [c for c in input_cells if c.address in input_addresses]
         input_groups_payload = build_input_groups_payload(
@@ -1236,15 +1254,16 @@ def main(argv: list[str] | None = None) -> None:
             input_cells=input_cells,
             restricted_to_export_default_inputs=False,
             export_default_inputs_count=None,
+            workbook_path=str(workbook),
         )
-        args.input_groups_audit_path.write_text(
+        input_groups_audit_path.write_text(
             json.dumps(input_groups_payload, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
-        print(f"   Done. Review {args.input_groups_audit_path} for group details.")
+        print(f"   Done. Review {input_groups_audit_path} for group details.")
 
         print("\nWorkbook calculation settings...")
-        settings = get_calc_settings(args.workbook)
+        settings = get_calc_settings(workbook)
         print(f"   Iterate enabled: {settings.iterate_enabled}")
         print(f"   Iterate count:   {settings.iterate_count}")
         print(f"   Iterate delta:   {settings.iterate_delta}")
@@ -1252,7 +1271,7 @@ def main(argv: list[str] | None = None) -> None:
         if args.audit_only:
             return
 
-        entrypoints = build_entrypoints(targets, audit_path=args.audit_path)
+        entrypoints = build_entrypoints(targets, audit_path=audit_path, export_ranges=cfg.EXPORT_RANGES)
         print(f"Entrypoints: {len(entrypoints)}")
 
         print("Generating Python package...")
@@ -1260,42 +1279,42 @@ def main(argv: list[str] | None = None) -> None:
         generator = CodeGenerator(graph)
         modules = generator.generate_modules(
             targets,
-            package_name=args.package_name,
+            package_name=package_name,
             entrypoints=entrypoints if entrypoints else None,
         )
         print(f"[TIMING] generate_modules: {_time.monotonic() - _t0:.2f}s")
 
         # Generate year-aware input setters from canonical input groups.
-        if args.input_groups_path.exists():
+        if input_groups_path.exists():
             _t0 = _time.monotonic()
-            groups = load_input_groups(args.input_groups_path)
+            groups = load_input_groups(input_groups_path)
             setters_py = generate_setters_module(
-                workbook=args.workbook,
+                workbook=workbook,
                 groups=groups,
                 wb_values=wb_values,
                 wb_formulas=wb_formulas,
             )
             print(f"[TIMING] generate_setters_module: {_time.monotonic() - _t0:.2f}s")
-            modules[f"{args.package_name}/setters.py"] = setters_py
-            entrypoint_path = f"{args.package_name}/entrypoint.py"
-            init_path = f"{args.package_name}/__init__.py"
+            modules[f"{package_name}/setters.py"] = setters_py
+            entrypoint_path = f"{package_name}/entrypoint.py"
+            init_path = f"{package_name}/__init__.py"
             if entrypoint_path in modules:
                 modules[entrypoint_path] = patch_entrypoint_for_setters(modules[entrypoint_path])
             if init_path in modules:
                 modules[init_path] = patch_init_for_setters(modules[init_path])
         else:
             print(
-                f"Warning: {args.input_groups_path} not found; skipping input setter generation."
+                f"Warning: {input_groups_path} not found; skipping input setter generation."
             )
 
-        args.export_dir.mkdir(parents=True, exist_ok=True)
+        export_dir.mkdir(parents=True, exist_ok=True)
         for rel, content in modules.items():
-            dst = args.export_dir / rel
+            dst = export_dir / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_text(content, encoding="utf-8")
 
         pkg_prefix = Path(next(iter(modules.keys()))).parts[0] if modules else "(unknown)"
-        print(f"\nWrote {len(modules)} files under {args.export_dir / pkg_prefix}")
+        print(f"\nWrote {len(modules)} files under {export_dir / pkg_prefix}")
     finally:
         if wb_values is not None:
             wb_values.close()

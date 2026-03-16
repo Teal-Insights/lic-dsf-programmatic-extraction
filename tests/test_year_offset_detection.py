@@ -5,7 +5,10 @@ from __future__ import annotations
 from typing import Mapping
 from unittest.mock import MagicMock
 
-from src.lic_dsf_config import WORKBOOK_PATH
+from src.configs import load_template_config
+
+_cfg = load_template_config("2026-01-31")
+WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 from src.lic_dsf_labels import (
     detect_year_offset_headers,
 )

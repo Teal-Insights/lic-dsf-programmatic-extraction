@@ -1,19 +1,10 @@
 #!/usr/bin/env python3
 """
-Central configuration for LIC-DSF programmatic extraction.
+Shared configuration types and utilities for LIC-DSF programmatic extraction.
 
-This module owns:
-- Workbook paths / download URL
-- Explicit export/annotation target ranges
-- Helpers for expanding configured ranges into dependency-graph targets
-
-Dynamic refs (OFFSET/INDIRECT) are resolved via a constraint-based config.
-Iterative workflow: run the export script; if DynamicRefError is raised, the
-message includes the formula cell that needs a constraint. Inspect that cell
-and the row/column headers in the workbook to decide plausible input domains,
-add the address to LicDsfConstraints (with Annotated[int, Between(lo, hi)] or
-Literal[...]), then re-run until the graph
-builds.
+Template-specific configuration (workbook paths, export ranges, constraints,
+region configs) lives in ``src/configs/<template>/config.py``. This module
+provides shared type definitions and helper functions used across templates.
 """
 
 from __future__ import annotations
@@ -21,12 +12,10 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Literal, TypedDict, cast, Any
-from urllib.request import urlopen
+from typing import Literal, TypedDict
 
 import openpyxl.utils.cell
 from excel_grapher import format_cell_key
-from excel_grapher.grapher import DynamicRefConfig
 
 
 class ExportRangeConfig(TypedDict):
@@ -46,29 +35,26 @@ class ExportRangeConfig(TypedDict):
     entrypoint_mode: Literal["row_group", "per_cell"]
 
 
-# Default workbook used for dependency mapping / enrichment.
-WORKBOOK_PATH = Path("workbooks/lic-dsf-template-2026-01-31.xlsm")
-WORKBOOK_TEMPLATE_URL = (
-    "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/new-lic-dsf-template"
-)
-
-
 def ensure_workbook_available(
-    path: Path = WORKBOOK_PATH, url: str | None = None
+    path: Path, url: str | None = None
 ) -> bool:
     """
-    Ensure the default LIC-DSF template workbook exists locally.
+    Ensure an LIC-DSF template workbook exists locally.
 
-    If the workbook is missing, downloads it from `url` (or `WORKBOOK_TEMPLATE_URL`) into `path`.
+    If the workbook is missing, downloads it from ``url`` into ``path``.
     """
     if path.exists() and path.stat().st_size > 0:
         return True
 
+    if url is None:
+        return False
+
+    from urllib.request import urlopen
+
     path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        source_url = url or WORKBOOK_TEMPLATE_URL
-        with urlopen(source_url, timeout=60) as resp:
+        with urlopen(url, timeout=60) as resp:
             with tempfile.NamedTemporaryFile(
                 prefix=f".{path.name}.", suffix=".download", dir=str(path.parent), delete=False
             ) as tmp:
@@ -83,83 +69,6 @@ def ensure_workbook_available(
         return True
     except Exception:
         return False
-
-
-# Row labels for the multi-row stress-test blocks (same row layout in each block).
-# Blank string means that row is skipped when splitting by row.
-STRESS_TEST_ROW_LABELS: list[str] = [
-    "Baseline",
-    "A1. Key variables at their historical averages in 2024-2034 2/",
-    "B1. Real GDP growth",
-    "B2. Primary balance",
-    "B3. Exports",
-    "B4. Other flows 3/",
-    "B5. Depreciation",
-    "B6. Combination of B1-B5",
-    "",
-    "C1. Combined contingent liabilities",
-    "C2. Natural disaster",
-    "C3. Commodity price",
-    "C4. Market Financing",
-    "A2. Alternative Scenario :[Customize, enter title]",
-]
-
-
-STRESS_TEST_BLOCKS: list[tuple[str, int]] = [
-    ("PV of Debt-to-GDP Ratio", 239),
-    ("PV of Debt-to-Revenue Ratio", 281),
-    ("Debt Service-to-Revenue Ratio", 318),
-    ("Debt Service-to-GDP Ratio", 351),
-]
-
-
-EXPORT_FIXED_RANGES: list[ExportRangeConfig] = [
-    {
-        "label": "External DSA risk rating signals",
-        "range_spec": "'Chart Data'!D10:D17",
-        "entrypoint_mode": "per_cell",
-    },
-    {
-        "label": "Fiscal (Total Public Debt) risk rating signals",
-        "range_spec": "'Chart Data'!I10:I14",
-        "entrypoint_mode": "per_cell",
-    },
-    {
-        "label": "Applicable tailored stress test signals",
-        "range_spec": "'Chart Data'!I17:I19",
-        "entrypoint_mode": "row_group",
-    },
-    {
-        "label": "Fiscal space for moderate risk category",
-        "range_spec": "'Chart Data'!E25:E27",
-        "entrypoint_mode": "row_group",
-    },
-    {
-        "label": "Overall rating",
-        "range_spec": "'Chart Data'!L10:L11",
-        "entrypoint_mode": "row_group",
-    },
-]
-
-
-def _export_chart_data_ranges() -> list[ExportRangeConfig]:
-    out: list[ExportRangeConfig] = list(EXPORT_FIXED_RANGES)
-    for metric_label, start_row in STRESS_TEST_BLOCKS:
-        for i, row_label in enumerate(STRESS_TEST_ROW_LABELS):
-            if not row_label:
-                continue
-            row = start_row + i
-            out.append(
-                {
-                    "label": f"{metric_label} - {row_label}",
-                    "range_spec": f"'Chart Data'!D{row}:X{row}",
-                    "entrypoint_mode": "row_group",
-                }
-            )
-    return out
-
-
-EXPORT_RANGES: list[ExportRangeConfig] = _export_chart_data_ranges()
 
 
 def parse_range_spec(spec: str) -> tuple[str, str]:
@@ -209,147 +118,17 @@ def cells_in_range(sheet: str, range_a1: str) -> list[str]:
     return out
 
 
-def discover_targets_from_ranges(_workbook: Path) -> list[str]:
+def discover_targets_from_ranges(
+    export_ranges: list[ExportRangeConfig],
+) -> list[str]:
     """
     Discover export/annotation targets from explicit range specs.
 
-    The workbook path is accepted for API compatibility but is not needed
-    for discovery; ranges are expanded purely from configuration.
+    Returns a de-duplicated list of sheet-qualified cell keys.
     """
     targets: list[str] = []
-    for cfg in EXPORT_RANGES:
+    for cfg in export_ranges:
         sheet_name, range_a1 = parse_range_spec(cfg["range_spec"])
         targets.extend(cells_in_range(sheet_name, range_a1))
     # Preserve order while de-duplicating.
     return list(dict.fromkeys(targets))
-
-
-# Constraint-based config for dynamic references (OFFSET/INDIRECT).
-
-class LicDsfConstraints(TypedDict, total=False):
-    """
-    Constraint types for cells that feed OFFSET/INDIRECT.
-
-    Keys are address-style (e.g. "Sheet1!B1"). Add entries when the graph
-    builder raises DynamicRefError and reports missing constraints.
-    """
-
-    pass
-
-LiteralType = cast(Any, Literal)
-
-# PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965 (fixed).
-# Treat these as constants derived from the current workbook values.
-LicDsfConstraints.__annotations__["PV_Base!A917"] = Literal[64]
-LicDsfConstraints.__annotations__["PV_Base!A941"] = Literal[90]
-LicDsfConstraints.__annotations__["PV_Base!A965"] = Literal[115]
-# A918:A938, A942:A962, A966:A986 each has a single cached letter D, E, …, X.
-for _start, _end in [(918, 939), (942, 963), (966, 987)]:
-    for _row in range(_start, _end):
-        _letter = chr(ord("D") + _row - _start)
-        LicDsfConstraints.__annotations__[f"PV_Base!A{_row}"] = LiteralType[_letter]
-
-# Language selector and lookup table (feed INDIRECT/VLOOKUP for language-dependent refs).
-# START!L10 = VLOOKUP(K10, lookup!BB4:BC7, 2); evaluator does not support VLOOKUP, so L10 is constrained too.
-_LANG = Literal["English", "French", "Portuguese", "Spanish"]
-_LANG_LOOKUP = Literal[
-    "English", "French", "Portuguese", "Spanish", "Français", "Portugues", "Español"
-]
-LicDsfConstraints.__annotations__["START!L10"] = _LANG
-LicDsfConstraints.__annotations__["START!K10"] = _LANG
-for _r in range(4, 8):
-    for _c in ("BB", "BC"):
-        LicDsfConstraints.__annotations__[f"lookup!{_c}{_r}"] = _LANG_LOOKUP
-
-
-def _constrain_lookup_countries(constraints: type[Any]) -> None:
-    """Constrain lookup!C4:C73 — LIC-DSF eligible country names.
-
-    Generated by example/codegen_lookup_countries.py.
-    """
-    _countries: list[tuple[int, str]] = [
-        (4, 'Afghanistan'),
-        (5, 'Bangladesh'),
-        (6, 'Benin'),
-        (7, 'Bhutan'),
-        (8, 'Burkina Faso'),
-        (9, 'Burundi'),
-        (10, 'Cambodia'),
-        (11, 'Cameroon'),
-        (12, 'Cabo Verde'),
-        (13, 'Central African Republic'),
-        (14, 'Chad'),
-        (15, 'Comoros'),
-        (16, 'Congo, DR'),
-        (17, 'Congo, Republic of'),
-        (18, "Cote d'Ivoire"),
-        (19, 'Djibouti'),
-        (20, 'Dominica'),
-        (21, 'Eritrea'),
-        (22, 'Ethiopia'),
-        (23, 'Gambia, The'),
-        (24, 'Ghana'),
-        (25, 'Grenada'),
-        (26, 'Guinea'),
-        (27, 'Guinea-Bissau'),
-        (28, 'Guyana'),
-        (29, 'Haiti'),
-        (30, 'Honduras'),
-        (31, 'Kenya'),
-        (32, 'Kiribati'),
-        (33, 'Kyrgyz Republic'),
-        (34, 'Lao PDR'),
-        (35, 'Lesotho'),
-        (36, 'Liberia'),
-        (37, 'Madagascar'),
-        (38, 'Malawi'),
-        (39, 'Maldives'),
-        (40, 'Mali'),
-        (41, 'Marshall Islands'),
-        (42, 'Mauritania'),
-        (43, 'Micronesia'),
-        (44, 'Moldova'),
-        (45, 'Mozambique'),
-        (46, 'Myanmar'),
-        (47, 'Nepal'),
-        (48, 'Nicaragua'),
-        (49, 'Niger'),
-        (50, 'Papua New Guinea'),
-        (51, 'Rwanda'),
-        (52, 'Samoa'),
-        (53, 'Sao Tome & Principe'),
-        (54, 'Senegal'),
-        (55, 'Sierra Leone'),
-        (56, 'Solomon Islands'),
-        (57, 'Somalia'),
-        (58, 'South Sudan'),
-        (59, 'St. Lucia'),
-        (60, 'St. Vincent & the Grenadines'),
-        (61, 'Sudan'),
-        (62, 'Tajikistan'),
-        (63, 'Tanzania'),
-        (64, 'Timor-Leste'),
-        (65, 'Togo'),
-        (66, 'Tonga'),
-        (67, 'Tuvalu'),
-        (68, 'Uganda'),
-        (69, 'Uzbekistan'),
-        (70, 'Vanuatu'),
-        (71, 'Yemen, Republic of'),
-        (72, 'Zambia'),
-        (73, 'Zimbabwe'),
-    ]
-    for _row, _name in _countries:
-        constraints.__annotations__[f"lookup!C{_row}"] = LiteralType[_name]
-
-
-_constrain_lookup_countries(LicDsfConstraints)
-
-
-def get_dynamic_ref_config() -> DynamicRefConfig:
-    """Return a DynamicRefConfig for constraint-based resolution of OFFSET/INDIRECT."""
-    return DynamicRefConfig.from_constraints_and_workbook(
-        LicDsfConstraints, WORKBOOK_PATH
-    )
-
-

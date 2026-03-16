@@ -45,220 +45,6 @@ class RegionConfig(TypedDict, total=False):
     annotation_axis: Literal["row", "column", "cell"]
 
 
-# Region configurations for custom label extraction
-# More specific regions should come before less specific ones for the same sheet
-REGION_CONFIG: list[RegionConfig] = [
-    # Input 5 - Local-debt Financing: Years in row 5 (cols H+), labels in cols A & B
-    {
-        "sheet": "Input 5 - Local-debt Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [5],
-        "label_columns": ["A", "B"],
-    },
-    # Ext_Debt_Data: Years in rows 1 and 9, labels in column A
-    {
-        "sheet": "Ext_Debt_Data",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [1, 9],
-        "label_columns": ["A"],
-    },
-    # PV_Base: Years in row 7, labels in columns A and C
-    {
-        "sheet": "PV_Base",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [7],
-        "label_columns": ["A", "C"],
-    },
-    # PV_LC_NR1: Years in row 3, labels in columns A and C
-    {
-        "sheet": "PV_LC_NR1",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    # PV_LC_NR2: Same structure as NR1
-    {
-        "sheet": "PV_LC_NR2",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    # PV_LC_NR3: Same structure as NR1
-    {
-        "sheet": "PV_LC_NR3",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    # Input 3 - Macro-Debt data(DMX): Years in row 7, labels in columns A-C
-    {
-        "sheet": "Input 3 - Macro-Debt data(DMX)",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [7],
-        "label_columns": ["A", "B", "C"],
-    },
-    # Input 4 - External Financing: Years in row 6, labels in column B
-    {
-        "sheet": "Input 4 - External Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [6],
-        "label_columns": ["B"],
-    },
-    # Baseline - external: Years in row 8, labels in column B
-    {
-        "sheet": "Baseline - external",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B"],
-    },
-    # Baseline - public: Similar structure to external
-    {
-        "sheet": "Baseline - public",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B"],
-    },
-    # Input 8 - SDR: Years in row 9, labels in column A
-    {
-        "sheet": "Input 8 - SDR",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [9],
-        "label_columns": ["A"],
-    },
-    # B1_GDP_ext: Years in row 8, labels in columns B and Z (for far-right area)
-    {
-        "sheet": "B1_GDP_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    # B3_Exports_ext: Same structure as B1
-    {
-        "sheet": "B3_Exports_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    # B4_other flows_ext: Same structure as B1
-    {
-        "sheet": "B4_other flows_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    # Macro-Debt_Data: Years in rows 1 and 5, labels in columns B and E
-    {
-        "sheet": "Macro-Debt_Data",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [1, 5],
-        "label_columns": ["B", "E"],
-    },
-    # PV Stress: Years in row 3, labels in columns A and C
-    {
-        "sheet": "PV Stress",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    # Input 6(optional)-Standard Test: Labels in columns A, B, C
-    {
-        "sheet": "Input 6(optional)-Standard Test",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B", "C"],
-    },
-    # Input 7 - Residual Financing: Labels in column B
-    {
-        "sheet": "Input 7 - Residual Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["B"],
-    },
-    # START: Labels in columns A and B
-    {
-        "sheet": "START",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-    # lookup: Labels in columns A and B
-    {
-        "sheet": "lookup",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-    # translation: Labels in columns A and B
-    {
-        "sheet": "translation",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-]
 
 # Excel error values to filter out
 EXCEL_ERRORS = frozenset(
@@ -506,11 +292,15 @@ def dedupe_labels(labels: list[str]) -> list[str]:
     return out
 
 
-def find_region_config(sheet: str, row: int, col: int) -> RegionConfig | None:
+def find_region_config(
+    sheet: str, row: int, col: int, region_config: list[RegionConfig] | None = None
+) -> RegionConfig | None:
     """
     Find the first matching region configuration for a cell.
     """
-    for config in REGION_CONFIG:
+    if region_config is None:
+        return None
+    for config in region_config:
         # Check sheet name
         if config.get("sheet") != sheet:
             continue
@@ -686,6 +476,7 @@ def enrich_graph_with_labels(
     *,
     wb_values: openpyxl.Workbook | None = None,
     wb_formulas: openpyxl.Workbook | None = None,
+    region_config: list[RegionConfig] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """
     Enrich nodes in the graph with row and column labels.
@@ -739,12 +530,12 @@ def enrich_graph_with_labels(
             col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
 
             # Check for region-based configuration first
-            region_config = find_region_config(node.sheet, node.row, col_idx)
+            matched_region = find_region_config(node.sheet, node.row, col_idx, region_config)
 
-            if region_config is not None:
-                offset_maps = _get_offset_maps(node.sheet, region_config)
+            if matched_region is not None:
+                offset_maps = _get_offset_maps(node.sheet, matched_region)
                 row_labels, col_labels = get_labels_from_region_config(
-                    ws, node.row, col_idx, region_config, offset_maps
+                    ws, node.row, col_idx, matched_region, offset_maps
                 )
             else:
                 # Fall back to heuristic scanning

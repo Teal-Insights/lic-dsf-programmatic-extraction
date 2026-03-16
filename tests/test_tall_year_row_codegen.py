@@ -4,7 +4,12 @@ from pathlib import Path
 
 import pytest
 
+from src.configs import load_template_config
 from src.lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
+
+_cfg = load_template_config("2026-01-31")
+_INPUT_GROUPS_PATH = Path(__file__).resolve().parents[1] / "src" / "configs" / "2026-01-31" / "input_groups.json"
+_WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
 
 def _pick_tall_year_group(groups: list[dict]) -> dict:
@@ -15,10 +20,10 @@ def _pick_tall_year_group(groups: list[dict]) -> dict:
 
 
 def test_codegen_generates_tall_year_row_setter() -> None:
-    groups = load_input_groups(Path("input_groups.json"))
+    groups = load_input_groups(_INPUT_GROUPS_PATH)
     g = _pick_tall_year_group(groups)
 
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[g])
+    module = generate_setters_module(workbook=_WORKBOOK_PATH, groups=[g])
     assert "class YearRowAssignment" in module
     base = generate_setter_method_name(
         str(g.get("sheet")),
@@ -27,4 +32,3 @@ def test_codegen_generates_tall_year_row_setter() -> None:
     )
     assert f"def {base}_by_year" in module
     assert f"def {base}_by_year_from_array" not in module
-

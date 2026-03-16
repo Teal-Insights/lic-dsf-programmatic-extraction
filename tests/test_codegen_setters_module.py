@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from src.configs import load_template_config
 from src.lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
+
+_cfg = load_template_config("2026-01-31")
+_INPUT_GROUPS_PATH = Path(__file__).resolve().parents[1] / "src" / "configs" / "2026-01-31" / "input_groups.json"
+_WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
 
 def _pick_wide_year_series(groups: list[dict]) -> dict:
@@ -34,9 +39,9 @@ def _pick_non_year_group(groups: list[dict]) -> dict:
 
 
 def test_generate_setters_module_contains_wide_year_series_setter() -> None:
-    groups = load_input_groups(Path("input_groups.json"))
+    groups = load_input_groups(_INPUT_GROUPS_PATH)
     target = _pick_wide_year_series(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=_WORKBOOK_PATH, groups=[target])
 
     assert "class LicDsfContext(EvalContext):" in module
     name = generate_setter_method_name(
@@ -52,9 +57,9 @@ def test_generate_setters_module_contains_wide_year_series_setter() -> None:
 
 
 def test_generate_setters_module_contains_no_year_range_setters() -> None:
-    groups = load_input_groups(Path("input_groups.json"))
+    groups = load_input_groups(_INPUT_GROUPS_PATH)
     target = _pick_non_year_group(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=_WORKBOOK_PATH, groups=[target])
 
     assert "class RangeAssignment" in module
     name = generate_setter_method_name(
@@ -68,11 +73,10 @@ def test_generate_setters_module_contains_no_year_range_setters() -> None:
 
 
 def test_generate_setters_module_includes_workbook_loader() -> None:
-    groups = load_input_groups(Path("input_groups.json"))
+    groups = load_input_groups(_INPUT_GROUPS_PATH)
     target = _pick_wide_year_series(groups)
-    module = generate_setters_module(workbook=Path("workbooks/lic-dsf-template-2026-01-31.xlsm"), groups=[target])
+    module = generate_setters_module(workbook=_WORKBOOK_PATH, groups=[target])
 
     assert "def load_inputs_from_workbook" in module
     assert "_read_inputs_from_workbook" in module
     assert "DEFAULT_INPUTS" in module
-
