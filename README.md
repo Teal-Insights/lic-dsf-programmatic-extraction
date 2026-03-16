@@ -4,33 +4,52 @@ This repo contains scripts to analyze an IMF/World Bank LIC-DSF Excel workbook:
 
 - **Dependency mapping**: identify formula cells in configured indicator rows, build a dependency
   graph, and enrich nodes with human-readable row/column labels.
+- **Code generation**: export workbook formulas as a standalone Python package that can be published
+  to PyPI and used without Excel.
 - **RAG-based annotation**: retrieve relevant context from the LIC-DSF guidance note using a local
   embeddings collection, then call DeepSeek (`deepseek-chat`) to generate short annotations for
   indicator groups.
 
-The code is intentionally split into two scripts so “mapping” stays mapping-only, and the LLM/RAG
-workflow lives in a dedicated entrypoint.
+## Template versioning
+
+The World Bank periodically releases new LIC-DSF template workbooks. Each template version can
+differ in structure (sheet layout, cell ranges, formulas), so all template-specific configuration
+lives in its own directory under `src/configs/<date>/`:
+
+```
+src/configs/
+  2025-08-12/
+    config.py          # workbook path, export ranges, constraints, region config, etc.
+    input_groups.json   # generated artifact
+    enrichment_audit.json
+  2026-01-31/
+    config.py
+    input_groups.json
+    enrichment_audit.json
+```
+
+Each template version produces an **independent PyPI package** (e.g. `lic-dsf-2026-01-31`) so that
+users on different template versions can coexist. When a new template is released:
+
+1. Add the workbook to `workbooks/`
+2. Create `src/configs/<date>/config.py` (copy the most recent config and adjust)
+3. Run the pipeline with `--template <date>`
+4. Test and publish the generated package
 
 ## Repository layout
 
-- `workbooks/`
-  - `lic-dsf-template.xlsm`: **source-of-truth** workbook for this workflow
-  - (optional) other workbooks for comparison/testing
-- `guidance_note/`
-  - `lic-dsf-guidance-note.pdf`: guidance note PDF (downloaded automatically if missing)
-  - `lic-dsf-guidance-note.txt`: plaintext guidance note used for semantic search
-- `lic-dsf-chunks/`
-  - Local chunk files used to build the embeddings store (created only if missing)
-- `src/lic_dsf_annotate.py`
-  - DeepSeek annotations + `annotations.json` export
-- `src/lic_dsf_pipeline.py`
-  - Shared graph + classification utilities used by export and input grouping
-- `src/lic_dsf_labels.py`
-  - Workbook configuration and label extraction helpers
-- `src/lic_dsf_group_inputs.py`
-  - Input grouping + `input_groups.json` export (inputs only, constants filtered)
-- `src/lic_dsf_input_setters.py`
-  - Shared setter helpers used by generated export package
+- `workbooks/` — source-of-truth workbooks (one per template version)
+- `src/configs/<date>/config.py` — per-template configuration (ranges, constraints, region config)
+- `src/configs/<date>/*.json` — per-template generated artifacts
+- `src/lic_dsf_config.py` — shared type definitions and utility functions
+- `src/lic_dsf_pipeline.py` — shared graph + classification utilities
+- `src/lic_dsf_labels.py` — label extraction helpers
+- `src/lic_dsf_export.py` — code generation + enrichment audit
+- `src/lic_dsf_group_inputs.py` — input grouping + `input_groups.json` export
+- `src/lic_dsf_input_setters.py` — shared setter helpers used by generated export package
+- `src/lic_dsf_annotate.py` — DeepSeek annotations
+- `guidance_note/` — LIC-DSF guidance note PDF and text
+- `dist/lic-dsf-<date>/` — generated Python packages (one per template)
 
 ## Prerequisites
 
@@ -58,70 +77,99 @@ Optionally, store it in a `.env` file (loaded by `src/lic_dsf_annotate.py`):
 DEEPSEEK_API_KEY=...
 ```
 
-## Script 1: Dependency mapping + enrichment audit
+## Pipeline scripts
 
-Runs dependency discovery for the configured export ranges, builds a dependency graph, enriches
-nodes with row/column labels, and writes an audit JSON.
+All scripts require a `--template` argument specifying which template version to use. Available
+templates are auto-discovered from `src/configs/`.
 
-### Run
+### Script 1: Dependency mapping + enrichment audit
 
-```bash
-uv run python -m src.lic_dsf_export --audit-only
-```
-
-### Inputs
-
-- `workbooks/lic-dsf-template-2026-01-31.xlsm` (default path configured via `WORKBOOK_PATH` in `src/lic_dsf_config.py`)
-- Export-range configuration in `EXPORT_RANGES` inside `src/lic_dsf_config.py`
-- Label extraction configuration in `REGION_CONFIG` inside `src/lic_dsf_labels.py`
-
-### Output
-
-- `enrichment_audit.json`
-  - Contains summary statistics + sheet-by-sheet details for extracted labels.
-
-### Rerun behavior
-
-- `enrichment_audit.json` is **overwritten** on every run.
-
-## Script 2: RAG-based annotation (Guidance Note + DeepSeek)
-
-This script:
-
-- Finds target cells in the configured export ranges
-- Builds a dependency graph
-- Enriches nodes with row/column labels (re-uses mapping logic)
-- Retrieves relevant guidance-note context using an embeddings collection
-- Calls DeepSeek (`deepseek-chat`) to generate concise annotations
-
-### Run
+Builds a dependency graph, enriches nodes with row/column labels, and writes an audit JSON.
 
 ```bash
-uv run python -m src.lic_dsf_annotate
+uv run python -m src.lic_dsf_export --template 2026-01-31 --audit-only
 ```
 
-### Inputs
+**Inputs**: workbook and configuration from `src/configs/2026-01-31/config.py`
 
-- Workbook: `workbooks/lic-dsf-template-2026-01-31.xlsm` (from `src.lic_dsf_config.WORKBOOK_PATH`)
-- Guidance note text: `guidance_note/lic-dsf-guidance-note.txt`
-- DeepSeek API key: `DEEPSEEK_API_KEY`
+**Output**: `src/configs/2026-01-31/enrichment_audit.json` (overwritten on every run)
 
-### Output
+### Script 2: Export formulas to standalone Python code
 
-- `annotations.json`
-  - Includes workbook path, embedding collection name, model name, and a map of annotation keys to
-    generated text.
+Discovers targets, builds a dependency graph, and uses `excel-grapher`'s `CodeGenerator` to emit a
+standalone Python package.
 
-### Rerun behavior
+```bash
+uv run python -m src.lic_dsf_export --template 2026-01-31
+```
 
-- `annotations.json` is **overwritten** on every run.
-- The embeddings collection is **not** rebuilt on every run:
-  - If the collection exists, it is reused.
-  - If missing, `src/lic_dsf_annotate.py` will bootstrap it from the guidance note.
+**Output**: `dist/lic-dsf-2026-01-31/lic_dsf_2026_01_31/` (overwritten on every run)
+
+### Script 3: Group inputs for setter generation
+
+Groups hardcoded input cells into semantically labeled clusters for setter code generation.
+
+```bash
+uv run python -m src.lic_dsf_group_inputs --template 2026-01-31
+```
+
+**Output**: `src/configs/2026-01-31/input_groups.json` (overwritten on every run)
+
+### Script 4: RAG-based annotation (Guidance Note + DeepSeek)
+
+Retrieves guidance-note context via embeddings and calls DeepSeek to generate concise annotations.
+
+```bash
+uv run python -m src.lic_dsf_annotate --template 2026-01-31
+```
+
+**Inputs**: workbook, guidance note text (`guidance_note/lic-dsf-guidance-note.txt`), `DEEPSEEK_API_KEY`
+
+**Output**: `src/configs/2026-01-31/annotations.json` (overwritten on every run)
+
+## Recommended sequence
+
+```bash
+# 1. (Optional) Generate enrichment audit
+uv run python -m src.lic_dsf_export --template 2026-01-31 --audit-only
+
+# 2. (Optional) Generate input groups for setters
+uv run python -m src.lic_dsf_group_inputs --template 2026-01-31
+
+# 3. (Optional) Generate annotations
+uv run python -m src.lic_dsf_annotate --template 2026-01-31
+
+# 4. Core export step — generates the Python package
+uv run python -m src.lic_dsf_export --template 2026-01-31
+```
+
+## Using generated input setters
+
+The generated package exposes a context object with helper setters derived from `input_groups.json`.
+
+- **Year-series setters**: accept `{year: value}` (primary) and also `values + start_year` (secondary).
+- **Range setters (scalars / 1D / 2D tables)**: accept a scalar, 1D sequence, or 2D sequence-of-sequences matching the range shape.
+
+Example:
+
+```python
+import lic_dsf_2026_01_31 as lic_dsf
+
+ctx = lic_dsf.make_context()
+
+# Year-series: dict form (recommended)
+assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({2023: 123, 2026: None})
+
+# 1D range
+ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
+
+# Load all inputs from a filled-out template (requires optional openpyxl)
+ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2026-01-31.xlsm")
+```
 
 ## Embeddings store (how it works)
 
-Semantic search uses the [`llm`](https://llm.datasette.io/) library’s embeddings database:
+Semantic search uses the [`llm`](https://llm.datasette.io/) library's embeddings database:
 
 - DB location: `~/.config/io.datasette.llm/embeddings.db`
 - Collection name: `lic-dsf-guidance`
@@ -145,89 +193,5 @@ uv run llm collections delete lic-dsf-guidance
 Then rerun:
 
 ```bash
-uv run python -m src.lic_dsf_annotate
+uv run python -m src.lic_dsf_annotate --template 2026-01-31
 ```
-
-## Script 3: Export formulas to standalone Python code
-
-This script:
-
-- Discovers targets from `EXPORT_RANGES`
-- Builds a dependency graph
-- Uses `excel-formula-expander`'s `CodeGenerator` to emit a small Python package
-
-### Run
-
-```bash
-uv run python -m src.lic_dsf_export
-```
-
-### Audit-only mode
-
-```bash
-uv run python -m src.lic_dsf_export --audit-only
-```
-
-### Output
-
-- `dist/<normalized-workbook-stem>/` (overwritten on every run)
-
-### Using generated input setters
-
-The generated package exposes a context object with helper setters derived from `input_groups_export.json`.
-
-- **Year-series setters**: accept `{year: value}` (primary) and also `values + start_year` (secondary).
-- **Range setters (scalars / 1D / 2D tables)**: accept a scalar, 1D sequence, or 2D sequence-of-sequences matching the range shape.
-
-Example:
-
-```python
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path("export").resolve()))
-import lic_dsf
-
-ctx = lic_dsf.make_context()
-
-# Year-series: dict form (recommended)
-assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({2023: 123, 2026: None})
-
-# 1D range
-ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
-
-# Load all inputs from a filled-out template (requires optional openpyxl)
-ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2026-01-31.xlsm")
-```
-
-## Script 4: Group inputs for setter generation
-
-This script:
-
-- Discovers targets from `EXPORT_RANGES`
-- Builds a dependency graph
-- Populates leaf values and classifies constants vs inputs
-- Enriches input cells with row/column labels
-- Groups inputs into labeled clusters and writes JSON
-
-### Run
-
-```bash
-uv run python -m src.lic_dsf_group_inputs
-```
-
-### Output
-
-- `input_groups.json` (overwritten on every run)
-
-### Export integration
-
-If you copy or rename the output to `input_groups_export.json`, `src/lic_dsf_export.py` will
-generate setters in the exported package using those groups.
-
-## Recommended sequence
-
-1. `python -m src.lic_dsf_export --audit-only` (optional, if you want updated `enrichment_audit.json`)
-2. `python -m src.lic_dsf_group_inputs` (optional, if you want updated input groups for setters)
-3. `python -m src.lic_dsf_annotate` (optional today; planned to inform export docstrings)
-4. `python -m src.lic_dsf_export` (core export step)
