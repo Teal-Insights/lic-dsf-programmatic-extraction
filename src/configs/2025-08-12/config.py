@@ -310,21 +310,21 @@ REGION_CONFIG: list[RegionConfig] = [
 # Constraints (OFFSET / INDIRECT resolution)
 # ---------------------------------------------------------------------------
 
+"""
+Dynamic refs (OFFSET/INDIRECT) are resolved via a constraint-based config.
+Iterative workflow: run the script; if DynamicRefError is raised, the message
+includes the formula cell that needs a constraint. Inspect that cell and the
+row/column headers in the workbook to decide plausible input domains, add the
+address to LicDsfConstraints (with Annotated[int, Between(lo, hi)] or
+Literal[...]), then re-run until the graph builds.
+"""
+
 
 class LicDsfConstraints(TypedDict, total=False):
     pass
 
 
 LiteralType = cast(Any, Literal)
-
-# PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx).
-LicDsfConstraints.__annotations__["PV_Base!A917"] = Literal[64]
-LicDsfConstraints.__annotations__["PV_Base!A941"] = Literal[90]
-LicDsfConstraints.__annotations__["PV_Base!A965"] = Literal[115]
-for _start, _end in [(918, 939), (942, 963), (966, 987)]:
-    for _row in range(_start, _end):
-        _letter = chr(ord("D") + _row - _start)
-        LicDsfConstraints.__annotations__[f"PV_Base!A{_row}"] = LiteralType[_letter]
 
 # Language selector and lookup table.
 _LANG = Literal["English", "French", "Portuguese", "Spanish"]
