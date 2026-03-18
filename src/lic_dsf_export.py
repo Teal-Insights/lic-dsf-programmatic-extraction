@@ -14,6 +14,7 @@ import argparse
 import ast
 import json
 import re
+from string import Template
 from typing import Mapping
 
 import openpyxl
@@ -1215,6 +1216,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _template_description(template_date: str) -> str:
+    """Convert a template date like '2026-01-31' to a human-friendly label like 'Jan 2026'."""
+    from datetime import datetime
+
+    dt = datetime.strptime(template_date, "%Y-%m-%d")
+    return dt.strftime("%b %Y")
+
+
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser().parse_args(argv)
 
@@ -1476,6 +1485,30 @@ def main(argv: list[str] | None = None) -> None:
             Path(next(iter(modules.keys()))).parts[0] if modules else "(unknown)"
         )
         print(f"\nWrote {len(modules)} files under {export_dir / pkg_prefix}")
+
+        # Render README from template
+        readme_template_path = Path(__file__).parent / "README.md.template"
+        if readme_template_path.exists():
+            tmpl = Template(readme_template_path.read_text(encoding="utf-8"))
+            readme_text = tmpl.substitute(
+                TEMPLATE_DATE=args.template,
+                PACKAGE_DIR=package_name,
+                TEMPLATE_DESCRIPTION=_template_description(args.template),
+            )
+            readme_dst = export_dir / "README.md"
+            readme_dst.write_text(readme_text, encoding="utf-8")
+            print(f"Wrote {readme_dst}")
+
+            # Copy README asset files if they exist
+            assets_src = Path(__file__).parent / "README_files"
+            if assets_src.is_dir():
+                import shutil
+
+                assets_dst = export_dir / "README_files"
+                if assets_dst.exists():
+                    shutil.rmtree(assets_dst)
+                shutil.copytree(assets_src, assets_dst)
+                print(f"Copied README assets to {assets_dst}")
     finally:
         if wb_values is not None:
             wb_values.close()
