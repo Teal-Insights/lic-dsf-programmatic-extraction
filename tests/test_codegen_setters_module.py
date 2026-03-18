@@ -3,10 +3,20 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.configs import load_template_config
-from src.lic_dsf_export import generate_setter_method_name, generate_setters_module, load_input_groups
+from src.lic_dsf_export import (
+    generate_setter_method_name,
+    generate_setters_module,
+    load_input_groups,
+)
 
 _cfg = load_template_config("2026-01-31")
-_INPUT_GROUPS_PATH = Path(__file__).resolve().parents[1] / "src" / "configs" / "2026-01-31" / "input_groups.json"
+_INPUT_GROUPS_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "src"
+    / "configs"
+    / "2026-01-31"
+    / "input_groups.json"
+)
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
 
@@ -50,6 +60,8 @@ def test_generate_setters_module_contains_wide_year_series_setter() -> None:
         str(target.get("group_id", "group")),
     )
     assert f"def {name}" in module
+    assert "start_year: int | None = None" in module
+    assert "strict: bool = True" in module
     assert f"def {name}_from_array" not in module
     cells = sorted(str(c) for c in target.get("cells", []))
     assert cells[0] in module

@@ -9,6 +9,7 @@ from src.configs import load_template_config
 
 _cfg = load_template_config("2026-01-31")
 WORKBOOK_PATH = _cfg.WORKBOOK_PATH
+import pytest
 from src.lic_dsf_labels import (
     detect_year_offset_headers,
 )
@@ -153,6 +154,7 @@ def test_empty_cells_fall_back_to_max_column_scan() -> None:
 # --- integration with real workbook ---
 
 
+@pytest.mark.slow
 def test_b1_gdp_ext_row8_offsets() -> None:
     """B1_GDP_ext header row 8 should yield offsets from -1 through 20."""
     import openpyxl

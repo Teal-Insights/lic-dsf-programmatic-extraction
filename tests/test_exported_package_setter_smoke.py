@@ -10,7 +10,13 @@ from src.lic_dsf_export import generate_setter_method_name, load_input_groups
 from src.lic_dsf_input_setters import build_wide_year_series_spec
 
 _cfg = load_template_config("2026-01-31")
-_INPUT_GROUPS_PATH = Path(__file__).resolve().parents[1] / "src" / "configs" / "2026-01-31" / "input_groups.json"
+_INPUT_GROUPS_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "src"
+    / "configs"
+    / "2026-01-31"
+    / "input_groups.json"
+)
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 _EXPORT_DIR = _cfg.EXPORT_DIR
 
@@ -35,9 +41,6 @@ def _normalize_address(address: str) -> str:
     return address
 
 
-@pytest.mark.xfail(
-    reason="Requires regenerated export package with offset-based setters (INDICATOR_CONFIG update needed)"
-)
 def test_exported_package_has_year_series_setter() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
     import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
@@ -87,14 +90,15 @@ def test_exported_package_has_year_series_setter() -> None:
     offsets = list(spec.offsets)
     expected = list(range(offsets[0], offsets[0] + len(offsets)))
     if offsets != expected:
-        pytest.skip("Non-contiguous offsets; array mapping requires contiguous offsets.")
+        pytest.skip(
+            "Non-contiguous offsets; array mapping requires contiguous offsets."
+        )
 
     ctx2 = lic_dsf.make_context()
     assignment2 = getattr(ctx2, name)([10, 20], start_year=offsets[0], strict=True)
     assert assignment2.applied[offsets[0]] in ctx2.inputs
 
 
-@pytest.mark.xfail(reason="Requires regenerated export package under new template-versioned name")
 def test_exported_package_exports_range_assignment() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
     import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
@@ -103,7 +107,6 @@ def test_exported_package_exports_range_assignment() -> None:
     assert "RangeAssignment" in getattr(lic_dsf, "__all__", [])
 
 
-@pytest.mark.xfail(reason="Requires regenerated export package under new template-versioned name")
 def test_exported_package_exports_context_with_setters() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
     import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
@@ -112,7 +115,6 @@ def test_exported_package_exports_context_with_setters() -> None:
     assert "LicDsfContext" in getattr(lic_dsf, "__all__", [])
 
 
-@pytest.mark.xfail(reason="Requires regenerated export package under new template-versioned name")
 def test_exported_package_exports_year_row_assignment() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
     import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
