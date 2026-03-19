@@ -58,7 +58,7 @@ flowchart LR
   A ~~~ EG
 ```
 
-The Excel template is architected a big-ass data object (BADO) plus a stable engine that knows how to interpret and compute that object.
+The Excel template is architected as a big-ass data object (BADO) plus a stable engine that knows how to interpret and compute that object.
 
 ```mermaid
 flowchart LR
@@ -143,9 +143,9 @@ flowchart LR
 
 Limitations of the first layer:
 - *Poor separation of concerns* — formulas live in the data layer, so data and economic logic are mixed in one big structure.
-- *Non-transparent economic logic* — the model consists of 200,000 atomic operations; neither readable nor maintainable.
+- *Non-transparent economic logic* — the model is 200,000 atomic operations; neither readable nor maintainable.
 
-What we want in a Python library: the *data layer* holds constants and inputs; *computational logic* lives as code.
+These limitations are fine for verifying correctness, but not for delivering a tool economists would actually want to use. What we want in a Python library: the *data layer* holds constants and inputs; *computational logic* lives as code.
 
 That brings us to the second layer: the *exporter* module.
 
@@ -173,7 +173,14 @@ The exporter is *configurable*:
 
 Configuration is where *domain knowledge* belongs: which cells are inputs, which are outputs, which are internal constants. For the LIC DSF template, that configuration lives in the `lic-dsf-programmatic-extraction` repository.
 
+The exporter *also already works today*. We have a generated Python library that takes user inputs, runs the LIC DSF calculations, and produces outputs — all without Excel.
+
 Where we're headed:
 - Today we still have *one function per formula cell*.
 - Goal: *one function per economic model concept*.
-- We'll use *static analysis* and *graph analysis* to find groups of functions that should be collapsed. Most of that post-processing will live in `lic-dsf-programmatic-extraction`; some of it may be reusable and live in `excel-grapher`.
+- We'll use *static analysis* and *graph analysis* to find groups of functions that should be collapsed. Most of that post-processing will live in `lic-dsf-programmatic-extraction`; some may be reusable in `excel-grapher`.
+
+One thing to remember:
+We *trace* dependencies, *translate* formulas, *configure* and shape the output, and *ship* a library. The rest is detail.
+
+Don't AI-generate the code. AI-generate the code that generates the code.
