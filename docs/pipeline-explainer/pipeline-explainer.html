@@ -500,9 +500,10 @@ flowchart TB
     <ul style="text-align: left; max-width: 640px; margin: 0 auto;">
       <li class="fragment fade-up">If we only want particular output cells, how do we limit extraction to only the relevant inputs?</li>
       <li class="fragment fade-up">What sequence do we compute the cells in?</li>
+      <li class="fragment fade-up">Some Excel functions — like OFFSET, INDEX, and INDIRECT — don't just compute values, they <em>navigate the spreadsheet itself</em>. Translating them requires understanding the workbook's <em>layout</em>, not just its formulas.</li>
     </ul>
     <div class="one-thing fragment fade-up" style="margin-top: 0.8em;">
-      We solve these by building a <em>graph</em> of relationships between cells.
+      We solve these problems by building a <em>graph</em> of relationships between cells.
     </div>
     <aside class="notes">
       Dependency graph gives us both scope and order.
@@ -574,7 +575,7 @@ flowchart LR
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>First layer: BADO + evaluator</h3>
     <div class="one-thing fragment fade-up">
-      <em>It already works today.</em> We can run the workbook this way and get results.
+      <em>It already works today.</em> We can run the workbook this way and get results — and because the translation is mechanical, we can <em>guarantee correctness</em> by comparing every output cell against Excel's own results.
     </div>
     <div class="mermaid-wrap">
       <div class="mermaid">
@@ -648,6 +649,7 @@ flowchart LR
       <li class="fragment fade-up">Specify <em>targets</em> (which outputs you want) → it generates functions that produce those outputs.</li>
       <li class="fragment fade-up">Specify how to <em>group inputs</em> → it generates setters for those groups.</li>
       <li class="fragment fade-up">Mark cells as <em>constants</em> (used in the computation but not user-settable) so they stay out of the public API.</li>
+      <li class="fragment fade-up">Define what <em>type</em> of data each input expects (a number, a date, a country from a fixed list) so the library can <em>validate</em> inputs and reject bad data immediately.</li>
     </ul>
     <aside class="notes">
       Configuration drives the shape of the generated library.
@@ -662,6 +664,17 @@ flowchart LR
     </div>
     <aside class="notes">
       This repo encodes what we know about the LIC DSF workbook: inputs, outputs, and constants.
+    </aside>
+  </section>
+
+  <!-- ============ EXPORTER WORKS TODAY ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The exporter also already works today</h3>
+    <div class="one-thing fragment fade-up">
+      We have a generated Python library that takes user inputs, runs the LIC DSF calculations, and produces outputs — all without Excel.
+    </div>
+    <aside class="notes">
+      The exporter is functional today: it produces a standalone Python library from the Excel template.
     </aside>
   </section>
 
