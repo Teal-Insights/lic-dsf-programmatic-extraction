@@ -248,20 +248,86 @@
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>The problem</h3>
     <div class="big-idea fragment fade-up">
-      Excel workbooks are powerful — but the logic runs <em>inside the application</em>. We want the <em>same logic</em> in Python so economists can run scenarios without opening Excel.
+      The LIC DSF is powerful — but all the logic is locked inside the Excel workbook. Our goal is to duplicate it as a <em>Python tool</em> that can live alongside the workbook.
     </div>
     <aside class="notes">
-      The LIC DSF template is a big Excel workbook. To use it you have to open it, change cells, and look at the results. We want that same behavior as a Python library.
+      The LIC DSF template is a big Excel workbook. All the logic lives inside it. We want to duplicate that logic as a Python library.
+    </aside>
+  </section>
+
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <video src="Friendship_Between_Excel_and_Python.mp4" controls style="max-width: 80%; margin: 0 auto; display: block; border-radius: 12px;"></video>
+    <aside class="notes">
+      A short video about the friendship between Excel and Python.
     </aside>
   </section>
 
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>The problem</h3>
     <div class="one-thing fragment fade-up">
-      Manual Excel work is <em>laborious</em>, <em>time-consuming</em>, and <em>error-prone</em>. Workflows cannot be <em>typed</em>, <em>tested</em>, or even <em>audited</em>. It can't be <em>automated</em> or done <em>at scale</em>.
+      The LIC DSF expects user input. But users could type <em>anything</em> into input cells. In Excel, you can't <em>guard</em> against bad inputs or <em>alert</em> the user they've made an error.
     </div>
     <aside class="notes">
-      Manual work in Excel doesn't scale and is hard to verify. We need a programmatic path.
+      Excel has no input validation. Users can enter anything, and there's no way to catch mistakes.
+    </aside>
+  </section>
+
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <div class="one-thing fragment fade-up">
+      Running alternative scenarios in Excel requires laboriously changing inputs and then checking output cells. And what if you want to run 100 scenarios? This <em>doesn't scale</em>.
+    </div>
+    <aside class="notes">
+      Scenario analysis in Excel is manual and doesn't scale beyond a handful of cases.
+    </aside>
+  </section>
+
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <div class="one-thing fragment fade-up">
+      How does data flow through the workbook? Are the calculations even right? In Excel, it's very hard to tell. We can't easily <em>step through</em> the formulas or <em>test</em> that they're correct.
+    </div>
+    <aside class="notes">
+      Excel makes it nearly impossible to audit data flow or test that formulas are correct.
+    </aside>
+  </section>
+
+  <!-- ============ PYTHON SOLVES THIS ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>The problem</h3>
+    <p class="fragment fade-up">A Python library solves this. In Python,</p>
+    <ul style="margin-top: 0.5em; text-align: left; max-width: 640px; margin-left: auto; margin-right: auto;">
+      <li class="fragment fade-up">We can <em>validate</em> inputs and raise an error if something's wrong.</li>
+      <li class="fragment fade-up">We can run, <em>in parallel</em>, any scenarios we want.</li>
+      <li class="fragment fade-up">We can <em>test</em> and <em>audit</em> all computation to make sure that nothing breaks.</li>
+    </ul>
+    <aside class="notes">
+      Python gives us validation, parallelism, and testability — everything Excel lacks.
+    </aside>
+  </section>
+
+  <!-- ============ BUT THAT'S A BIG CHALLENGE ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>But that's a big challenge</h3>
+    <p class="fragment fade-up">But how do we make sure a Python library is true to the template in Excel? That's a big challenge. The LIC DSF:</p>
+    <ul style="margin-top: 0.5em; text-align: left; max-width: 640px; margin-left: auto; margin-right: auto;">
+      <li class="fragment fade-up">has over <em>800,000 cells</em>, including <em>200,000 formula cells</em></li>
+      <li class="fragment fade-up">calls <em>55 unique functions</em>, nested up to <em>7 levels</em> deep</li>
+    </ul>
+    <aside class="notes">
+      The LIC DSF template is huge: hundreds of thousands of cells and formulas, with deep nesting.
+    </aside>
+  </section>
+
+  <!-- ============ BRUTE FORCE ATTEMPT ============ -->
+  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
+    <h3>What didn't work</h3>
+    <div class="one-thing fragment fade-up">
+      We initially tried to brute-force our way to a Python version with AI agents, but the models aren't <em>good enough</em> or <em>predictable enough</em>. They made mistakes and produced chaotic output shapes.
+    </div>
+    <aside class="notes">
+      Direct AI translation was unreliable — models made mistakes and produced inconsistent output.
     </aside>
   </section>
 
@@ -269,68 +335,21 @@
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>The solution in one sentence</h3>
     <div class="big-idea fragment fade-up">
-      We <em>trace</em> what each cell depends on, <em>translate</em> the formulas to Python, and <em>ship a library</em> that runs the same math.
+      We <em>trace</em> what each cell depends on and <em>translate</em> the formulas to Python according to <em>mechanical rules</em>.
     </div>
     <aside class="notes">
-      Trace dependencies, translate formulas, ship a library. That's the whole pipeline in one line.
+      Trace dependencies, translate formulas mechanically. That's the whole pipeline in one line.
     </aside>
   </section>
 
-  <!-- ============ BUT THAT'S A BIG CHALLENGE ============ -->
+  <!-- ============ HARDER THAN IT SOUNDS ============ -->
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>But that's a big challenge</h3>
-    <p class="fragment fade-up">The LIC DSF:</p>
-    <ul style="margin-top: 0.5em; text-align: left; max-width: 640px; margin-left: auto; margin-right: auto;">
-      <li class="fragment fade-up">has over <em>800,000 cells</em>, including <em>200,000 formula cells</em></li>
-      <li class="fragment fade-up">calls <em>55 unique functions</em>, nested up to <em>7 levels</em> deep</li>
-      <li class="fragment fade-up">uses lookups and offsets <em>tightly coupled to Excel's data model</em></li>
-    </ul>
-    <aside class="notes">
-      The LIC DSF template is huge: hundreds of thousands of cells and formulas, with deep nesting and Excel-specific constructs.
-    </aside>
-  </section>
-
-  <!-- ============ OPTION 1 ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Option 1</h3>
+    <h3>Harder than it sounds</h3>
     <div class="one-thing fragment fade-up">
-      <em>Drive Excel from Python.</em> Pros: modest speedup, familiar tooling, correctness guarantees. Cons: most of the limitations of Excel still apply.
+      This is much harder than it sounds, but AI agents help make it tractable. Instead of using AI to write the translation, we use AI to write a <em>mechanical translation engine</em>.
     </div>
     <aside class="notes">
-      Automating Excel from Python keeps correctness but doesn't escape Excel's limits.
-    </aside>
-  </section>
-
-  <!-- ============ OPTION 2 ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Option 2</h3>
-    <div class="one-thing fragment fade-up">
-      <em>Have AI agents translate to Python.</em> Pros: leverages the "bitter lesson," improves as AI models do. Cons: unpredictable output shape, no correctness guarantees, unreproducible for new template versions.
-    </div>
-    <aside class="notes">
-      Pure AI translation is flexible but unreliable and not reproducible across template versions.
-    </aside>
-  </section>
-
-  <!-- ============ OPTION 3 ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Option 3</h3>
-    <div class="one-thing fragment fade-up">
-      <em>Translate to Python mechanically.</em> Pros: predictable output shape, correctness guarantees, reproducible for new template versions. Cons: hard to get right, output is still Excel-shaped.
-    </div>
-    <aside class="notes">
-      Mechanical translation gives us predictability and correctness; we can post-process to make it more Python-shaped.
-    </aside>
-  </section>
-
-  <!-- ============ AI AGENTS HELP ============ -->
-  <section data-transition="zoom-in fade-out" data-transition-speed="slow">
-    <h3>Making Option 3 tractable</h3>
-    <div class="big-idea fragment fade-up">
-      AI agents help make Option 3 tractable. And we can <em>post-process the output to make it more Python-shaped</em>.
-    </div>
-    <aside class="notes">
-      We use AI to build the mechanical pipeline; then we shape the output into a proper library.
+      We don't use AI to translate directly — we use AI to build the engine that does the translation mechanically.
     </aside>
   </section>
 
@@ -338,7 +357,7 @@
   <section data-transition="zoom-in fade-out" data-transition-speed="slow">
     <h3>The lesson</h3>
     <div class="big-idea fragment fade-up">
-      For interpretability, reproducibility, and correctness guarantees, <em>don't AI-generate the code</em>. <em>AI-generate the code that generates the code</em>.
+      For results you can trust, reproduce, and audit, <em>don't AI-generate the code</em>. <em>AI-generate the code that generates the code</em>.
     </div>
     <aside class="notes">
       The code economists use is generated by our pipeline, not by an AI directly. That gives us control and verification.

@@ -1,31 +1,38 @@
+## Executive Summary
+
 The problem:
-Excel workbooks are powerful — but the logic runs *inside the application*. We want the *same logic* in Python so economists can run scenarios without opening Excel.
+The LIC DSF is powerful — but all the logic is locked inside the Excel workbook. Our goal is to duplicate it as a Python tool that can live alongside the workbook.
 
-Manual Excel work is *laborious*, *time-consuming*, and *error-prone*. Workflows cannot be *typed*, *tested*, or even *audited*. It can't be *automated* or done *at scale*.
+docs/pipeline-explainer/Friendship_Between_Excel_and_Python.mp4
 
-The solution in one sentence:
-We *trace* what each cell depends on, *translate* the formulas to Python, and *ship a library* that runs the same math.
+The LIC DSF expects user input. But users could type *anything* into input cells. In Excel, you can't *guard* against bad inputs or *alert* the user they've made an error.
 
-But that's a big challenge. The LIC DSF:
+Running alternative scenarios in Excel requires laboriously changing inputs and then checking output cells. And what if you want to run 100 scenarios? This *doesn't scale*.
+
+How does data flow through the workbook? Are the calculations even right? In Excel, it's very hard to tell. We can't easily *step through* the formulas or *test* that they're correct.
+
+A Python library solves this. In Python, 
+- We can *validate* inputs and raise an error if something's wrong.
+- We can run, *in parallel*, any scenarios we want.
+- We can *test* and *audit* all computation to make sure that nothing breaks.
+
+But how do we make sure a Python library is true to the template in Excel? That's a big challenge. The LIC DSF:
 
 [Cycle through bullets one per slide, with transition animation]
 - has over *800,000 cells*, including *200,000 formula cells*
 - calls *55 unique functions*, nested up to *7 levels* deep
-- uses lookups and offsets that are *tightly coupled to Excel's data model*
 
-Option 1:
-*Drive Excel from Python*. Pros: modest speedup, familiar tooling, correctness guarantees. Cons: most of the limitations of Excel still apply.
+We initially tried to brute-force our way to a Python version with AI agents, but the models aren't *good enough* or *predictable enough*. They made mistakes and produced chaotic output shapes. 
 
-Option 2:
-*Have AI agents translate to Python*. Pros: leverages the "bitter lesson," improves as AI models do. Cons: unpredictable output shape, no correctness guarantees, unreproducible for new template versions.
+The solution in one sentence:
+We *trace* what each cell depends on and *translate* the formulas to Python according to *mechanical rules*.
 
-Option 3:
-*Translate to Python mechanically*. Pros: predictable output shape, correctness guarantees, reproducible for new template versions. Cons: hard to get right, output is still Excel-shaped.
-
-AI agents help make Option 3 tractable. And we can *post-process the output to make it more Python-shaped*.
+This is much harder than it sounds, but AI agents help make it tractable. Instead of using AI to write the translation, we use AI to write a *mechanical translation engine*.
 
 The lesson:
-For interpretability, reproducibility, and correctness guarantees, *don't AI-generate the code*. *AI-generate the code that generates the code*.
+For results you can trust, reproduce, and audit, *don't AI-generate the code*. *AI-generate the code that generates the code*.
+
+## Deep Dive
 
 Architecture:
 ```mermaid
