@@ -107,7 +107,6 @@ flowchart TB
 The hard parts of implementing BADO + engine:
 - If we only want particular output cells, how do we limit our extraction to only the relevant inputs?
 - What sequence do you compute the cells in?
-- Some Excel functions — like OFFSET, INDEX, and INDIRECT — don't just compute values, they *navigate the spreadsheet itself*. Translating them requires understanding the workbook's *layout*, not just its formulas.
 We solve these problems by building a *graph* of relationships between cells.
 
 For any cell we care about (e.g. a stress-test result), we ask: *which other cells does its formula use?* We repeat until we hit numbers or text. That gives us a *dependency graph*.
@@ -147,6 +146,8 @@ Limitations of the first layer:
 
 These limitations are fine for verifying correctness, but not for delivering a tool economists would actually want to use. What we want in a Python library: the *data layer* holds constants and inputs; *computational logic* lives as code.
 
+The hard case: dynamic references. Some Excel functions — like OFFSET, INDEX, and INDIRECT — don't just compute values; they *navigate the spreadsheet itself*. They're tightly coupled to Excel's data model, and their arguments are theoretically *unbounded*: as the user changes inputs, they could point to any range of cells. This is one case where static analysis isn't enough. You need to understand *workbook intent* and exercise some intelligence to introduce *sensible bounds* that aren't present in Excel.
+
 That brings us to the second layer: the *exporter* module.
 
 ```mermaid
@@ -169,9 +170,12 @@ The exporter is *configurable*:
 - Specify *targets* (which outputs you want) → it generates functions that produce those outputs.
 - Specify how to *group inputs* → it generates setters for those groups.
 - Mark cells as *constants* (used in the computation but not user-settable) so they stay out of the public API.
-- Define what *type* of data each input expects (a number, a date, a country from a fixed list) so the library can *validate* inputs and reject bad data immediately.
 
-Configuration is where *domain knowledge* belongs: which cells are inputs, which are outputs, which are internal constants. For the LIC DSF template, that configuration lives in the `lic-dsf-programmatic-extraction` repository.
+Configuration as guardrails:
+- Define what *type* of data each input expects (a number, a date, a country from a fixed list) so the library can *validate* inputs and reject bad data immediately.
+- Define *constraints* on inputs that affect dynamic references (like OFFSET) so they're not unbounded.
+
+Configuration is where *domain knowledge* belongs: which cells are inputs, which are outputs, which are internal constants, types and constraints. We're adding information to the Excel template based on our understanding of workbook *intent*. This configuration lives in the `lic-dsf-programmatic-extraction` repository.
 
 The exporter *also already works today*. We have a generated Python library that takes user inputs, runs the LIC DSF calculations, and produces outputs — all without Excel.
 
