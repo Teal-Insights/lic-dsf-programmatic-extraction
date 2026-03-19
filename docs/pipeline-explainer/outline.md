@@ -107,6 +107,7 @@ flowchart TB
 The hard parts of implementing BADO + engine:
 - If we only want particular output cells, how do we limit our extraction to only the relevant inputs?
 - What sequence do you compute the cells in?
+- Some Excel functions — like OFFSET, INDEX, and INDIRECT — don't just compute values, they *navigate the spreadsheet itself*. Translating them requires understanding the workbook's *layout*, not just its formulas.
 We solve these problems by building a *graph* of relationships between cells.
 
 For any cell we care about (e.g. a stress-test result), we ask: *which other cells does its formula use?* We repeat until we hit numbers or text. That gives us a *dependency graph*.
@@ -128,7 +129,7 @@ flowchart LR
   B1 --> A1
 ```
 
-BADO + evaluator is the first layer of excel-grapher. *It already works today.* We can run the workbook this way and get results.
+BADO + evaluator is the first layer of excel-grapher. *It already works today.* We can run the workbook this way and get results — and because the translation is mechanical, we can *guarantee correctness* by comparing every output cell against Excel's own results.
 
 ```mermaid
 flowchart LR
@@ -168,6 +169,7 @@ The exporter is *configurable*:
 - Specify *targets* (which outputs you want) → it generates functions that produce those outputs.
 - Specify how to *group inputs* → it generates setters for those groups.
 - Mark cells as *constants* (used in the computation but not user-settable) so they stay out of the public API.
+- Define what *type* of data each input expects (a number, a date, a country from a fixed list) so the library can *validate* inputs and reject bad data immediately.
 
 Configuration is where *domain knowledge* belongs: which cells are inputs, which are outputs, which are internal constants. For the LIC DSF template, that configuration lives in the `lic-dsf-programmatic-extraction` repository.
 
