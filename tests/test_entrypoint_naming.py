@@ -148,3 +148,34 @@ def test_build_entrypoints_uses_export_range_label_as_section_context(tmp_path) 
         "pv_of_debt_to_exports_ratio_a2_alternative_scenario_customize_enter_title"
         in entrypoints
     )
+
+
+def test_build_entrypoints_ignores_figure_data_row_placeholder_label(tmp_path) -> None:
+    audit = {
+        "by_sheet": {
+            "Chart Data": {
+                "cells": [
+                    {
+                        "address": "D106",
+                        "row_labels": ["Debt service to exports ratio - Baseline"],
+                    }
+                ]
+            }
+        }
+    }
+    audit_path = tmp_path / "enrichment_audit.json"
+    audit_path.write_text(json.dumps(audit), encoding="utf-8")
+
+    targets = ["'Chart Data'!D106"]
+    export_ranges = [
+        {
+            "label": "Figure data row 106",
+            "range_spec": "'Chart Data'!D106:X106",
+            "entrypoint_mode": "row_group",
+        }
+    ]
+
+    entrypoints = build_entrypoints(targets, audit_path, export_ranges)
+
+    assert "debt_service_to_exports_ratio_baseline" in entrypoints
+    assert "figure_data_row_106" not in entrypoints

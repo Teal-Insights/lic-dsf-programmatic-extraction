@@ -74,6 +74,10 @@ def normalize_entrypoint_name(name: str) -> str:
     return cleaned
 
 
+def is_placeholder_section_label(label: str) -> bool:
+    return bool(re.fullmatch(r"\s*figure\s+data\s+row\s+\d+\s*", label, flags=re.I))
+
+
 def canonical_sheet_name(sheet: str) -> str:
     sheet = sheet.strip()
     if len(sheet) >= 2 and sheet[0] == "'" and sheet[-1] == "'":
@@ -173,6 +177,8 @@ def build_entrypoints(
     for (sheet, row), row_targets in targets_by_row.items():
         row_label = next(iter(labels_by_row.get((sheet, row), [])), "")
         section_label = section_labels_by_row.get((sheet, row), "")
+        if section_label and is_placeholder_section_label(section_label):
+            section_label = ""
         if not row_label and not section_label:
             missing_label_rows.add((sheet, row))
         if section_label:
@@ -196,6 +202,8 @@ def build_entrypoints(
         row = int(row_str)
         row_label = next(iter(labels_by_row.get((sheet, row), [])), "")
         section_label = section_labels_by_row.get((sheet, row), "")
+        if section_label and is_placeholder_section_label(section_label):
+            section_label = ""
         if not row_label and not section_label:
             missing_label_rows.add((sheet, row))
         if section_label:
