@@ -14,6 +14,7 @@ import argparse
 import ast
 import json
 import re
+import warnings
 from string import Template
 from typing import Mapping
 
@@ -73,6 +74,13 @@ def normalize_entrypoint_name(name: str) -> str:
     return cleaned
 
 
+def canonical_sheet_name(sheet: str) -> str:
+    sheet = sheet.strip()
+    if len(sheet) >= 2 and sheet[0] == "'" and sheet[-1] == "'":
+        sheet = sheet[1:-1].replace("''", "'")
+    return sheet
+
+
 def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]:
     if not path.exists():
         return {}
@@ -84,6 +92,7 @@ def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]
     labels_by_row: dict[tuple[str, int], list[str]] = {}
     by_sheet = payload.get("by_sheet", {})
     for sheet, sheet_payload in by_sheet.items():
+        canonical_sheet = canonical_sheet_name(sheet)
         for cell in sheet_payload.get("cells", []):
             address = cell.get("address")
             if not isinstance(address, str):
@@ -96,7 +105,7 @@ def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]
             if not isinstance(row_labels, list):
                 continue
             if row_labels:
-                labels_by_row.setdefault((sheet, row), []).extend(
+                labels_by_row.setdefault((canonical_sheet, row), []).extend(
                     label
                     for label in row_labels
                     if isinstance(label, str) and label.strip()
@@ -111,6 +120,7 @@ def build_entrypoints(
 ) -> dict[str, list[str]]:
     labels_by_row = load_enrichment_audit_labels(audit_path)
     entrypoints: dict[str, list[str]] = {}
+    missing_label_rows: set[tuple[str, int]] = set()
 
     # Precompute per-cell targets from configured ranges.
     per_cell_targets: set[str] = set()
@@ -131,6 +141,7 @@ def build_entrypoints(
         if not m:
             continue
         sheet, _col, row_str = m.group(1), m.group(2), m.group(3)
+        sheet = canonical_sheet_name(sheet)
         row = int(row_str)
         targets_by_row.setdefault((sheet, row), []).append(addr)
 
@@ -138,6 +149,8 @@ def build_entrypoints(
     # sheet prefixes so compute_ function names stay stable across template tabs.
     for (sheet, row), row_targets in targets_by_row.items():
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
+        if not label:
+            missing_label_rows.add((sheet, row))
         base = normalize_entrypoint_name(label or f"row {row}")
         name = base
         suffix = 2
@@ -152,8 +165,11 @@ def build_entrypoints(
         if not m:
             continue
         sheet, col_letter, row_str = m.group(1), m.group(2), m.group(3)
+        sheet = canonical_sheet_name(sheet)
         row = int(row_str)
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
+        if not label:
+            missing_label_rows.add((sheet, row))
         base_row = normalize_entrypoint_name(label or f"row {row}")
         base = f"{base_row}_{col_letter.lower()}"
         name = base
@@ -162,6 +178,20 @@ def build_entrypoints(
             name = f"{base}_{suffix}"
             suffix += 1
         entrypoints[name] = [addr]
+    if missing_label_rows:
+        samples = ", ".join(
+            f"{sheet}!{row}"
+            for sheet, row in sorted(missing_label_rows, key=lambda item: (item[0], item[1]))[
+                :5
+            ]
+        )
+        warnings.warn(
+            "Missing row label coverage for "
+            f"{len(missing_label_rows)} entrypoint row(s); "
+            f"falling back to row-based names. Examples: {samples}",
+            UserWarning,
+            stacklevel=2,
+        )
     return entrypoints
 
 

@@ -4,6 +4,8 @@ import json
 import sys
 import types
 
+import pytest
+
 
 # src.lic_dsf_export imports excel_grapher at module import time; stub it for tests.
 excel_grapher_pkg = types.ModuleType("excel_grapher")
@@ -54,3 +56,49 @@ def test_build_entrypoints_omits_sheet_prefixes(tmp_path) -> None:
     assert "overall_rating_d" in entrypoints
     assert "output_2_1_stress_charts_ex_baseline" not in entrypoints
     assert "chart_data_overall_rating_d" not in entrypoints
+
+
+def test_build_entrypoints_supports_quoted_sheet_targets(tmp_path) -> None:
+    audit = {
+        "by_sheet": {
+            "Chart Data": {
+                "cells": [
+                    {
+                        "address": "D17",
+                        "row_labels": ["Debt service to revenue MX shock - Market"],
+                    }
+                ]
+            }
+        }
+    }
+    audit_path = tmp_path / "enrichment_audit.json"
+    audit_path.write_text(json.dumps(audit), encoding="utf-8")
+
+    targets = ["'Chart Data'!I17"]
+
+    entrypoints = build_entrypoints(targets, audit_path, export_ranges=[])
+
+    assert "debt_service_to_revenue_mx_shock_market" in entrypoints
+    assert "row_17" not in entrypoints
+
+
+def test_build_entrypoints_warns_on_missing_row_label_coverage(tmp_path) -> None:
+    audit = {
+        "by_sheet": {
+            "Chart Data": {
+                "cells": [
+                    {"address": "D17", "row_labels": ["Debt service to revenue MX shock - Market"]}
+                ]
+            }
+        }
+    }
+    audit_path = tmp_path / "enrichment_audit.json"
+    audit_path.write_text(json.dumps(audit), encoding="utf-8")
+
+    targets = ["'Chart Data'!I17", "'Chart Data'!I999"]
+
+    with pytest.warns(UserWarning, match="Missing row label coverage"):
+        entrypoints = build_entrypoints(targets, audit_path, export_ranges=[])
+
+    assert "debt_service_to_revenue_mx_shock_market" in entrypoints
+    assert "row_999" in entrypoints
