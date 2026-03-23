@@ -102,3 +102,49 @@ def test_build_entrypoints_warns_on_missing_row_label_coverage(tmp_path) -> None
 
     assert "debt_service_to_revenue_mx_shock_market" in entrypoints
     assert "row_999" in entrypoints
+
+
+def test_build_entrypoints_uses_export_range_label_as_section_context(tmp_path) -> None:
+    audit = {
+        "by_sheet": {
+            "Chart Data": {
+                "cells": [
+                    {
+                        "address": "D51",
+                        "row_labels": ["A2. Alternative Scenario :[Customize, enter title]"],
+                    },
+                    {
+                        "address": "D93",
+                        "row_labels": ["A2. Alternative Scenario :[Customize, enter title]"],
+                    },
+                ]
+            }
+        }
+    }
+    audit_path = tmp_path / "enrichment_audit.json"
+    audit_path.write_text(json.dumps(audit), encoding="utf-8")
+
+    targets = ["'Chart Data'!D51", "'Chart Data'!D93"]
+    export_ranges = [
+        {
+            "label": "PV of debt-to GDP ratio - A2. Alternative Scenario :[Customize, enter title]",
+            "range_spec": "'Chart Data'!D51:X51",
+            "entrypoint_mode": "row_group",
+        },
+        {
+            "label": "PV of debt-to-exports ratio - A2. Alternative Scenario :[Customize, enter title]",
+            "range_spec": "'Chart Data'!D93:X93",
+            "entrypoint_mode": "row_group",
+        },
+    ]
+
+    entrypoints = build_entrypoints(targets, audit_path, export_ranges)
+
+    assert (
+        "pv_of_debt_to_gdp_ratio_a2_alternative_scenario_customize_enter_title"
+        in entrypoints
+    )
+    assert (
+        "pv_of_debt_to_exports_ratio_a2_alternative_scenario_customize_enter_title"
+        in entrypoints
+    )

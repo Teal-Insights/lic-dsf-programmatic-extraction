@@ -81,6 +81,28 @@ def canonical_sheet_name(sheet: str) -> str:
     return sheet
 
 
+def build_section_labels_by_row(
+    export_ranges: list | None,
+) -> dict[tuple[str, int], str]:
+    labels_by_row: dict[tuple[str, int], str] = {}
+    for cfg in export_ranges or []:
+        label = cfg.get("label")
+        range_spec = cfg.get("range_spec")
+        if not isinstance(label, str) or not label.strip():
+            continue
+        if not isinstance(range_spec, str) or not range_spec.strip():
+            continue
+        sheet_name, range_a1 = parse_range_spec(range_spec)
+        sheet_name = canonical_sheet_name(sheet_name)
+        for cell in cells_in_range(sheet_name, range_a1):
+            m = re.match(r"^(.+)!([A-Z]+)(\d+)$", cell)
+            if not m:
+                continue
+            row = int(m.group(3))
+            labels_by_row.setdefault((sheet_name, row), label.strip())
+    return labels_by_row
+
+
 def load_enrichment_audit_labels(path: Path) -> dict[tuple[str, int], list[str]]:
     if not path.exists():
         return {}
@@ -119,6 +141,7 @@ def build_entrypoints(
     export_ranges: list | None = None,
 ) -> dict[str, list[str]]:
     labels_by_row = load_enrichment_audit_labels(audit_path)
+    section_labels_by_row = build_section_labels_by_row(export_ranges)
     entrypoints: dict[str, list[str]] = {}
     missing_label_rows: set[tuple[str, int]] = set()
 
@@ -148,10 +171,14 @@ def build_entrypoints(
     # Row-grouped entrypoints (one per row). Name generation intentionally omits
     # sheet prefixes so compute_ function names stay stable across template tabs.
     for (sheet, row), row_targets in targets_by_row.items():
-        label = next(iter(labels_by_row.get((sheet, row), [])), "")
-        if not label:
+        row_label = next(iter(labels_by_row.get((sheet, row), [])), "")
+        section_label = section_labels_by_row.get((sheet, row), "")
+        if not row_label and not section_label:
             missing_label_rows.add((sheet, row))
-        base = normalize_entrypoint_name(label or f"row {row}")
+        if section_label:
+            base = normalize_entrypoint_name(section_label)
+        else:
+            base = normalize_entrypoint_name(row_label or f"row {row}")
         name = base
         suffix = 2
         while name in entrypoints:
@@ -167,10 +194,14 @@ def build_entrypoints(
         sheet, col_letter, row_str = m.group(1), m.group(2), m.group(3)
         sheet = canonical_sheet_name(sheet)
         row = int(row_str)
-        label = next(iter(labels_by_row.get((sheet, row), [])), "")
-        if not label:
+        row_label = next(iter(labels_by_row.get((sheet, row), [])), "")
+        section_label = section_labels_by_row.get((sheet, row), "")
+        if not row_label and not section_label:
             missing_label_rows.add((sheet, row))
-        base_row = normalize_entrypoint_name(label or f"row {row}")
+        if section_label:
+            base_row = normalize_entrypoint_name(section_label)
+        else:
+            base_row = normalize_entrypoint_name(row_label or f"row {row}")
         base = f"{base_row}_{col_letter.lower()}"
         name = base
         suffix = 2
