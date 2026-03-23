@@ -80,6 +80,80 @@ PLACEHOLDER_PATTERNS = frozenset(
 )
 
 
+def get_effective_indent(cell) -> int:
+    """
+    Compute an effective indentation level for a cell.
+
+    Combines ``cell.alignment.indent`` (Excel's formatting indent) with
+    leading whitespace in the cell value (a secondary visual indent cue
+    used in some LIC-DSF templates).
+    """
+    alignment_indent = (
+        int(cell.alignment.indent)
+        if cell.alignment and cell.alignment.indent
+        else 0
+    )
+    text_indent = 0
+    if isinstance(cell.value, str):
+        stripped = cell.value.lstrip()
+        leading_spaces = len(cell.value) - len(stripped)
+        if leading_spaces > 0:
+            text_indent = 1
+    return alignment_indent + text_indent
+
+
+def build_label_hierarchy(
+    ws: Worksheet,
+    label_col_idx: int,
+    min_row: int | None = None,
+    max_row: int | None = None,
+) -> dict[int, list[str]]:
+    """
+    Build a mapping of ``row → ancestor labels`` for a label column.
+
+    Scans the label column top-to-bottom, using effective indentation to
+    determine parent–child relationships.  For each row that contains a
+    valid label, the returned list contains its *ancestor* labels ordered
+    from outermost to innermost (the row's own label is **not** included).
+
+    Rows whose label column is empty are skipped (they don't break the
+    hierarchy).
+    """
+    start = min_row or 1
+    end = max_row or (ws.max_row or 1)
+
+    # Stack entries: (effective_indent, label_text)
+    stack: list[tuple[int, str]] = []
+    hierarchy: dict[int, list[str]] = {}
+
+    for row in range(start, end + 1):
+        cell = ws.cell(row=row, column=label_col_idx)
+        if cell.value is None:
+            continue
+        if not isinstance(cell.value, str):
+            continue
+        text = cell.value.strip()
+        if not text or not is_valid_label(text):
+            continue
+
+        indent = get_effective_indent(cell)
+
+        # Pop stack entries that are at the same indent level or deeper —
+        # they are siblings or children of the previous context, not parents
+        # of the current row.
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+
+        # The remaining stack entries are the ancestors of this row.
+        hierarchy[row] = [label for _, label in stack]
+
+        # Push the current row onto the stack so it can be a parent of
+        # subsequent deeper-indented rows.
+        stack.append((indent, text))
+
+    return hierarchy
+
+
 def is_valid_label(text: str) -> bool:
     """
     Check if a text string is a valid label (not an error or placeholder).
@@ -336,6 +410,7 @@ def get_labels_from_region_config(
     col: int,
     config: RegionConfig,
     offset_maps: dict[int, dict[int, int]] | None = None,
+    label_hierarchies: dict[str, dict[int, list[str]]] | None = None,
 ) -> tuple[list[str], list[str]]:
     """
     Extract row and column labels using explicit region configuration.
@@ -343,15 +418,27 @@ def get_labels_from_region_config(
     ``offset_maps`` is an optional mapping of ``header_row → {col_idx → offset}``
     produced by :func:`detect_year_offset_headers`.  When present, header cells
     that are year-offset formulas emit ``"offset:<N>"`` labels.
+
+    ``label_hierarchies`` is an optional mapping of
+    ``col_letter → {row → [ancestor_labels]}`` produced by
+    :func:`build_label_hierarchy`.  When present, ancestor labels are
+    prepended to the row labels so that the hierarchy is captured.
     """
     row_labels: list[str] = []
     col_labels: list[str] = []
     offset_maps = offset_maps or {}
+    label_hierarchies = label_hierarchies or {}
 
     # Get row labels from specified label columns
     label_columns = config.get("label_columns", [])
     for col_letter in label_columns:
         label_col_idx = openpyxl.utils.cell.column_index_from_string(col_letter)
+
+        # Prepend ancestor labels from the hierarchy if available
+        hierarchy = label_hierarchies.get(col_letter, {})
+        ancestors = hierarchy.get(row, [])
+        row_labels.extend(ancestors)
+
         cell_value = ws.cell(row=row, column=label_col_idx).value
 
         if cell_value is not None:
@@ -510,6 +597,29 @@ def enrich_graph_with_labels(
                         sheet_cache[hr] = {}
             return sheet_cache
 
+        # Precompute label hierarchies: sheet → col_letter → {row → [ancestors]}
+        _hierarchy_cache: dict[str, dict[str, dict[int, list[str]]]] = {}
+
+        def _get_label_hierarchies(
+            sheet: str, config: RegionConfig
+        ) -> dict[str, dict[int, list[str]]]:
+            if sheet not in _hierarchy_cache:
+                _hierarchy_cache[sheet] = {}
+            sheet_cache = _hierarchy_cache[sheet]
+            ws_h = worksheets.get(sheet)
+            if ws_h is None:
+                return sheet_cache
+            for col_letter in config.get("label_columns", []):
+                if col_letter not in sheet_cache:
+                    col_idx = openpyxl.utils.cell.column_index_from_string(col_letter)
+                    sheet_cache[col_letter] = build_label_hierarchy(
+                        ws_h,
+                        col_idx,
+                        min_row=config.get("min_row"),
+                        max_row=config.get("max_row"),
+                    )
+            return sheet_cache
+
         enrichment_results: dict[str, dict[str, Any]] = {}
 
         for key in graph:
@@ -534,8 +644,12 @@ def enrich_graph_with_labels(
 
             if matched_region is not None:
                 offset_maps = _get_offset_maps(node.sheet, matched_region)
+                label_hierarchies = _get_label_hierarchies(
+                    node.sheet, matched_region
+                )
                 row_labels, col_labels = get_labels_from_region_config(
-                    ws, node.row, col_idx, matched_region, offset_maps
+                    ws, node.row, col_idx, matched_region, offset_maps,
+                    label_hierarchies=label_hierarchies,
                 )
             else:
                 # Fall back to heuristic scanning
