@@ -30,6 +30,9 @@ class RegionConfig(TypedDict, total=False):
         max_col: Maximum column of the region (inclusive, e.g., "Z"). None = no max.
         header_rows: List of row numbers that contain column headers (1-indexed)
         label_columns: List of column letters that contain row labels
+        no_hierarchy_columns: List of column letters that should NOT have
+            indent-based hierarchical label detection.  By default all
+            ``label_columns`` get hierarchy; list columns here to opt out.
         annotation_axis: Axis for deduplicating annotations - "row" for wide-format
             time series (one annotation per row), "column" for columnar time series,
             or "cell" for individual cell annotations. Default: auto-detect.
@@ -42,6 +45,7 @@ class RegionConfig(TypedDict, total=False):
     max_col: str | None
     header_rows: list[int]
     label_columns: list[str]
+    no_hierarchy_columns: list[str]
     annotation_axis: Literal["row", "column", "cell"]
 
 
@@ -76,6 +80,7 @@ PLACEHOLDER_PATTERNS = frozenset(
         "N.A.",
         "TBD",
         "tbd",
+        "[insert filepath]",
     }
 )
 
@@ -609,7 +614,10 @@ def enrich_graph_with_labels(
             ws_h = worksheets.get(sheet)
             if ws_h is None:
                 return sheet_cache
+            no_hierarchy = set(config.get("no_hierarchy_columns", []))
             for col_letter in config.get("label_columns", []):
+                if col_letter in no_hierarchy:
+                    continue
                 if col_letter not in sheet_cache:
                     col_idx = openpyxl.utils.cell.column_index_from_string(col_letter)
                     sheet_cache[col_letter] = build_label_hierarchy(
