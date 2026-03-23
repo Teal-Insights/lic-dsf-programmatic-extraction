@@ -57,15 +57,21 @@ cd "$WORK_DIR/repo"
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-# Set up Git LFS for large files
-echo "==> Configuring Git LFS..."
-git lfs install --local 2>/dev/null || true
-if [ ! -f .gitattributes ]; then
-    cat > .gitattributes <<'ATTR'
-# Track large generated Python modules with Git LFS
-*.py filter=lfs diff=lfs merge=lfs -text
-ATTR
-    git add .gitattributes
+# Remove any legacy Git LFS rule that tracks Python source files.
+if [ -f .gitattributes ]; then
+    python3 - <<'PY'
+from pathlib import Path
+
+path = Path(".gitattributes")
+lines = path.read_text(encoding="utf-8").splitlines()
+filtered = [line for line in lines if "*.py filter=lfs" not in line]
+if filtered != lines:
+    text = "\n".join(filtered).rstrip("\n")
+    if text:
+        path.write_text(text + "\n", encoding="utf-8")
+    else:
+        path.unlink()
+PY
 fi
 
 # Clear existing package content (so deletions are tracked)
