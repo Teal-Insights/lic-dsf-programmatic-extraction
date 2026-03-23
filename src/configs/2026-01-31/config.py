@@ -67,6 +67,44 @@ STRESS_TEST_BLOCKS: list[tuple[str, int]] = [
 ]
 
 
+FIGURE_DATA_ROWS: list[int] = [
+    # Figure 1 (Output 2-1 Stress_Charts_Ex)
+    51,
+    61,
+    62,
+    63,
+    64,
+    66,
+    93,
+    103,
+    104,
+    105,
+    106,
+    108,
+    135,
+    145,
+    146,
+    147,
+    148,
+    150,
+    177,
+    187,
+    188,
+    189,
+    190,
+    192,
+    # Figure 2 extras (Output 2-2 Stress_Charts_Pub)
+    263,
+    264,
+    265,
+    267,
+    306,
+    341,
+    342,
+    343,
+]
+
+
 EXPORT_FIXED_RANGES: list[ExportRangeConfig] = [
     {
         "label": "External DSA risk rating signals",
@@ -98,18 +136,31 @@ EXPORT_FIXED_RANGES: list[ExportRangeConfig] = [
 
 def _export_chart_data_ranges() -> list[ExportRangeConfig]:
     out: list[ExportRangeConfig] = list(EXPORT_FIXED_RANGES)
+    seen_row_specs = {entry["range_spec"] for entry in out}
+
+    def add_chart_data_row(row: int, label: str) -> None:
+        range_spec = f"'Chart Data'!D{row}:X{row}"
+        if range_spec in seen_row_specs:
+            return
+        out.append(
+            {
+                "label": label,
+                "range_spec": range_spec,
+                "entrypoint_mode": "row_group",
+            }
+        )
+        seen_row_specs.add(range_spec)
+
     for metric_label, start_row in STRESS_TEST_BLOCKS:
         for i, row_label in enumerate(STRESS_TEST_ROW_LABELS):
             if not row_label:
                 continue
             row = start_row + i
-            out.append(
-                {
-                    "label": f"{metric_label} - {row_label}",
-                    "range_spec": f"'Chart Data'!D{row}:X{row}",
-                    "entrypoint_mode": "row_group",
-                }
-            )
+            add_chart_data_row(row, f"{metric_label} - {row_label}")
+
+    for row in FIGURE_DATA_ROWS:
+        add_chart_data_row(row, f"Figure data row {row}")
+
     return out
 
 
