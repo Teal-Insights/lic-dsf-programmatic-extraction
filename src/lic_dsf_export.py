@@ -134,18 +134,12 @@ def build_entrypoints(
         row = int(row_str)
         targets_by_row.setdefault((sheet, row), []).append(addr)
 
-    # Row-grouped entrypoints (one per row).
+    # Row-grouped entrypoints (one per row). Name generation intentionally omits
+    # sheet prefixes so compute_ function names stay stable across template tabs.
     for (sheet, row), row_targets in targets_by_row.items():
-        prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
-        sheet_prefix = normalize_entrypoint_name(
-            prefix_match.group(1) if prefix_match else sheet
-        )
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
-        base = normalize_entrypoint_name(label or f"{sheet} {row}")
-        if base.startswith(f"{sheet_prefix}_") or base == sheet_prefix:
-            name = base
-        else:
-            name = f"{sheet_prefix}_{base}"
+        base = normalize_entrypoint_name(label or f"row {row}")
+        name = base
         suffix = 2
         while name in entrypoints:
             name = f"{base}_{suffix}"
@@ -159,17 +153,10 @@ def build_entrypoints(
             continue
         sheet, col_letter, row_str = m.group(1), m.group(2), m.group(3)
         row = int(row_str)
-        prefix_match = re.match(r"^([A-Za-z]\d+)", sheet.strip())
-        sheet_prefix = normalize_entrypoint_name(
-            prefix_match.group(1) if prefix_match else sheet
-        )
         label = next(iter(labels_by_row.get((sheet, row), [])), "")
-        base_row = normalize_entrypoint_name(label or f"{sheet} {row}")
+        base_row = normalize_entrypoint_name(label or f"row {row}")
         base = f"{base_row}_{col_letter.lower()}"
-        if not base.startswith(f"{sheet_prefix}_") and base != sheet_prefix:
-            name = f"{sheet_prefix}_{base}"
-        else:
-            name = base
+        name = base
         suffix = 2
         while name in entrypoints:
             name = f"{base}_{suffix}"
