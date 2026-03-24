@@ -109,6 +109,8 @@ sed -e "s/{{TEMPLATE_DATE}}/${TEMPLATE_DATE}/g" \
     -e "s/{{VERSION}}/${VERSION}/g" \
     "$SCRIPT_DIR/pyproject.toml.template" > pyproject.toml
 
+python3 "$SCRIPT_DIR/validate_packaging_pyproject.py" pyproject.toml
+
 # Stage all changes
 git add -A
 
