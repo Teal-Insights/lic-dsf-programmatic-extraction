@@ -29,6 +29,7 @@ from .lic_dsf_config import (
     validate_workbook_metadata,
     parse_range_spec,
     cells_in_range,
+    normalize_cell_address,
 )
 from .lic_dsf_labels import (
     detect_year_offset_headers,
@@ -156,12 +157,13 @@ def build_entrypoints(
             continue
         sheet_name, range_a1 = parse_range_spec(cfg["range_spec"])
         per_cell_targets.update(cells_in_range(sheet_name, range_a1))
+    per_cell_targets_norm = {normalize_cell_address(a) for a in per_cell_targets}
 
     # Partition targets into row-grouped vs per-cell.
     targets_by_row: dict[tuple[str, int], list[str]] = {}
     per_cell_list: list[str] = []
     for addr in targets:
-        if addr in per_cell_targets:
+        if normalize_cell_address(addr) in per_cell_targets_norm:
             per_cell_list.append(addr)
             continue
         m = re.match(r"^(.+)!([A-Z]+)(\d+)$", addr)

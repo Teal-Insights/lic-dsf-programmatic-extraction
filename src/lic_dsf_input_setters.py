@@ -8,6 +8,7 @@ import openpyxl.utils.cell
 from openpyxl.worksheet.worksheet import Worksheet
 
 from .lic_dsf_labels import (
+    RegionConfig,
     detect_year_offset_headers,
     find_region_config,
     get_column_labels,
@@ -72,8 +73,9 @@ def _year_labels_for_cell(
     row: int,
     col: int,
     offset_maps: dict[int, dict[int, int]] | None = None,
+    region_config: list[RegionConfig] | None = None,
 ) -> list[int]:
-    cfg = find_region_config(ws.title, row, col)
+    cfg = find_region_config(ws.title, row, col, region_config)
     if cfg is not None:
         _row_labels, col_labels = get_labels_from_region_config(ws, row, col, cfg, offset_maps)
     else:
@@ -125,12 +127,16 @@ def build_wide_year_series_spec(
     row: int,
     start_col: int,
     end_col: int,
+    region_config: list[RegionConfig] | None = None,
 ) -> WideYearSeriesSpec:
     """
     Build an offset->address mapping for a 1-row wide range.
 
     Uses formula-based offset detection and falls back to cached-value
     label extraction when offset detection doesn't apply.
+
+    Pass the template's ``REGION_CONFIG`` so column/row headers resolve the same
+    way as in export-time setter generation.
     """
     from pathlib import Path
 
@@ -141,7 +147,7 @@ def build_wide_year_series_spec(
         ws_v = wb_values[sheet]
 
         offset_maps: dict[int, dict[int, int]] = {}
-        cfg = find_region_config(sheet, row, start_col)
+        cfg = find_region_config(sheet, row, start_col, region_config)
         if cfg is not None:
             ws_f = wb_formulas[sheet]
             for hr in cfg.get("header_rows", []):
@@ -151,7 +157,9 @@ def build_wide_year_series_spec(
         ordered_offsets: list[int] = []
 
         for col in range(start_col, end_col + 1):
-            values = _year_labels_for_cell(ws_v, row, col, offset_maps)
+            values = _year_labels_for_cell(
+                ws_v, row, col, offset_maps, region_config=region_config
+            )
             if len(values) != 1:
                 col_letter = openpyxl.utils.cell.get_column_letter(col)
                 raise ValueError(

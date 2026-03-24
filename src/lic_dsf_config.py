@@ -9,6 +9,7 @@ provides shared type definitions and helper functions used across templates.
 
 from __future__ import annotations
 
+import re
 import shutil
 import tempfile
 import warnings
@@ -202,6 +203,29 @@ def cells_in_range(sheet: str, range_a1: str) -> list[str]:
             col_letter = openpyxl.utils.cell.get_column_letter(col_idx)
             out.append(format_cell_key(sheet, col_letter, row))
     return out
+
+
+def normalize_cell_address(address: str) -> str:
+    """
+    Normalize a sheet-qualified A1 address to excel-grapher's canonical form.
+
+    ``cells_in_range`` / ``format_cell_key`` may quote sheet names (e.g.
+    ``'Chart Data'!D10``) while target lists sometimes omit quotes
+    (``Chart Data!D10``). This helper makes membership checks reliable.
+    """
+    if "!" not in address:
+        return address
+    sheet_part, a1 = address.split("!", 1)
+    sheet_part = sheet_part.strip()
+    if sheet_part.startswith("'") and sheet_part.endswith("'"):
+        sheet = sheet_part[1:-1].replace("''", "'")
+    else:
+        sheet = sheet_part
+    m = re.match(r"^([A-Z]+)(\d+)$", a1.strip())
+    if not m:
+        return address
+    col_letter, row_str = m.group(1), m.group(2)
+    return format_cell_key(sheet, col_letter, int(row_str))
 
 
 def discover_targets_from_ranges(

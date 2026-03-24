@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
+from src.lic_dsf_config import cells_in_range, normalize_cell_address
+
 
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[1]
@@ -25,3 +27,9 @@ def test_deploy_script_does_not_track_python_sources_with_lfs() -> None:
     assert (
         re.search(r"(?m)^\*\.py\s+filter=lfs\b", deploy_script) is None
     )
+
+
+def test_normalize_cell_address_matches_cells_in_range_quoting() -> None:
+    canonical = cells_in_range("Chart Data", "D10:D10")[0]
+    assert normalize_cell_address("Chart Data!D10") == canonical
+    assert normalize_cell_address("'Chart Data'!D10") == canonical

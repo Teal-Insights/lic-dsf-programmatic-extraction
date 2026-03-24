@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 import openpyxl.utils.cell
 
+from src.configs import load_template_config
 from src.lic_dsf_input_setters import (
     BASE_YEAR_ADDRESS,
     WideYearSeriesSpec,
@@ -11,6 +12,8 @@ from src.lic_dsf_input_setters import (
     apply_year_series_mapping,
     build_wide_year_series_spec,
 )
+
+_REGION = load_template_config("2026-01-31").REGION_CONFIG
 
 
 @dataclass
@@ -28,6 +31,7 @@ def test_build_wide_year_series_spec_ext_debt_data_row10() -> None:
         row=10,
         start_col=openpyxl.utils.cell.column_index_from_string("E"),
         end_col=openpyxl.utils.cell.column_index_from_string("H"),
+        region_config=_REGION,
     )
 
     assert spec.offsets == (-1, 0, 1, 2)
