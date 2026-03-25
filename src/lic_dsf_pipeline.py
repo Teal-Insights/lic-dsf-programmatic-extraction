@@ -135,14 +135,17 @@ def build_graph(
     dynamic_refs: DynamicRefConfig | None = None,
 ) -> DependencyGraph:
     source = wb_formulas if wb_formulas is not None else workbook
-    return create_dependency_graph(
+    graph = create_dependency_graph(
         source,
         targets,
         load_values=False,
         max_depth=max_depth,
         dynamic_refs=dynamic_refs,
         use_cached_dynamic_refs=False,
+        capture_dependency_provenance=True,
     )
+    graph.compress_identity_transits()
+    return graph
 
 
 def populate_leaf_values(

@@ -29,13 +29,14 @@ import openpyxl
 import openpyxl.utils.cell
 import sqlite_utils
 
-from excel_grapher.grapher import DependencyGraph, create_dependency_graph
+from excel_grapher.grapher import DependencyGraph
 from .lic_dsf_config import (
     ensure_workbook_available,
     validate_workbook_metadata,
     discover_targets_from_ranges,
 )
 from .lic_dsf_labels import enrich_graph_with_labels, find_region_config
+from .lic_dsf_pipeline import build_graph
 from .configs import available_templates, load_template_config
 
 
@@ -628,13 +629,11 @@ def main() -> None:
 
     print("\n2. Building dependency graph...")
     dynamic_refs = cfg.get_dynamic_ref_config()
-    graph = create_dependency_graph(
+    graph = build_graph(
         workbook_path,
         all_targets,
-        load_values=False,
         max_depth=50,
         dynamic_refs=dynamic_refs,
-        use_cached_dynamic_refs=False,
     )
     print(f"   Nodes in graph: {len(graph)}")
 
