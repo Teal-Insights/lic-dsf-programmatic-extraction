@@ -5,8 +5,12 @@ Shared pipeline utilities for LIC-DSF export and input grouping.
 
 from __future__ import annotations
 
-from pathlib import Path
+import json
+import math
 import re
+from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 import openpyxl
 import openpyxl.utils.cell
@@ -18,6 +22,75 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from excel_grapher.grapher import DynamicRefConfig
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
+
+GRAPH_JSON_VERSION = 1
+
+
+def _json_safe(value: Any) -> Any:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return str(value)
+        return value
+    if isinstance(value, str):
+        return value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    return str(value)
+
+
+def dependency_graph_to_dict(graph: DependencyGraph) -> dict[str, Any]:
+    """
+    Serialize a DependencyGraph to a JSON-compatible dict (nodes, edges, metadata).
+    """
+    nodes_out: dict[str, Any] = {}
+    for key in graph:
+        node = graph.get_node(key)
+        if node is None:
+            continue
+        nodes_out[key] = {
+            "sheet": node.sheet,
+            "column": node.column,
+            "row": node.row,
+            "formula": node.formula,
+            "normalized_formula": node.normalized_formula,
+            "value": _json_safe(node.value),
+            "is_leaf": node.is_leaf,
+            "metadata": _json_safe(node.metadata),
+        }
+    edges_out: list[dict[str, Any]] = []
+    for key in graph:
+        for dep in sorted(graph.dependencies(key)):
+            raw_attrs = dict(graph.edge_attrs(key, dep))
+            attrs_out: dict[str, Any] = {}
+            for ak, av in raw_attrs.items():
+                if ak == "guard":
+                    attrs_out[ak] = None if av is None else str(av)
+                else:
+                    attrs_out[ak] = _json_safe(av)
+            edges_out.append({"from": key, "to": dep, "attrs": attrs_out})
+    return {
+        "version": GRAPH_JSON_VERSION,
+        "nodes": nodes_out,
+        "edges": edges_out,
+    }
+
+
+def export_graph_json(graph: DependencyGraph, path: Path) -> None:
+    """Write `dependency_graph_to_dict(graph)` to `path` as UTF-8 JSON."""
+    path.write_text(
+        json.dumps(dependency_graph_to_dict(graph), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 
 def _format_sheet_name(sheet: str) -> str:

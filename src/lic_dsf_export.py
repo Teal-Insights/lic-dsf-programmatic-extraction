@@ -45,6 +45,7 @@ from .lic_dsf_pipeline import (
     classify_input_addresses,
     enrich_graph,
     export_enrichment_audit,
+    export_graph_json,
     iter_string_constant_addresses,
     populate_leaf_values,
 )
@@ -1243,6 +1244,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Path for enrichment audit JSON output (default: in config dir)",
     )
     parser.add_argument(
+        "--graph-path",
+        type=Path,
+        default=None,
+        help="Path for dependency graph JSON output (default: graph.json in config dir)",
+    )
+    parser.add_argument(
         "--audit-only",
         action="store_true",
         help="Generate enrichment audit only; skip export generation",
@@ -1292,6 +1299,7 @@ def main(argv: list[str] | None = None) -> None:
     workbook = args.workbook or cfg.WORKBOOK_PATH
     workbook_url = args.workbook_url or getattr(cfg, "WORKBOOK_TEMPLATE_URL", None)
     audit_path = args.audit_path or (config_dir / "enrichment_audit.json")
+    graph_path = args.graph_path or (config_dir / "graph.json")
     input_groups_path = args.input_groups_path or (config_dir / "input_groups.json")
     input_groups_audit_path = args.input_groups_audit_path or (
         config_dir / "input_groups.json"
@@ -1466,6 +1474,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"\nExporting audit file to {audit_path}...")
         export_enrichment_audit(graph, enrichment_results, audit_path)
         print(f"   Done. Review {audit_path} for sheet-by-sheet details.")
+
+        print(f"\nExporting dependency graph to {graph_path}...")
+        export_graph_json(graph, graph_path)
+        print(f"   Done. Graph has {len(graph)} nodes.")
 
         print(f"\nExporting input groups to {input_groups_audit_path}...")
         input_cells = iter_input_cells(graph, enrichment_results)
