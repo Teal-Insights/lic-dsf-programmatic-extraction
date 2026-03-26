@@ -527,6 +527,47 @@ for _row, _name in _countries:
     constrain(LicDsfConstraints, f"lookup!C{_row}", LiteralType[_name])
 
 
+def _constrain_pv_stress_com(constraints: type[Any]) -> None:
+    # Ranges from the user prompt:
+    # AA36:AA140, AB36:AB140, AC36:AC140, AD36:AD140, AE36:AE140, AF37:AF141, BD27:BD131,
+    # D9:D140, H36:H140, I36:I140, J36:J140, K36:K140, L36:L140, M36:M140, N36:N140,
+    # O36:O140, P36:P140, Q36:Q140, R36:R140, S36:S140, T36:T140, U36:U140, V36:V140,
+    # W36:W140, X36:X140, Y36:Y140, Z36:Z140
+
+    # Non-negative financial flows / values
+    financial_type = Annotated[float | None, Between(0, 1e15)]
+
+    # D9:D140 has some specific constants
+    for r in range(9, 141):
+        addr = f"PV_stress_com!D{r}"
+        if r in (10, 22, 35):
+            constrain(constraints, addr, Literal[2024])
+        elif r in (23, 24, 28):
+            constrain(constraints, addr, Literal[100])
+        else:
+            constrain(constraints, addr, financial_type)
+
+    # Standard year-based columns (H-AE, rows 36-140)
+    # H: 2028, I: 2029, ..., Z: 2046, AA: 2047, ..., AE: 2051
+    cols = (
+        "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "AA", "AB", "AC", "AD", "AE"
+    )
+    for col in cols:
+        for r in range(36, 141):
+            constrain(constraints, f"PV_stress_com!{col}{r}", financial_type)
+
+    # Offset ranges
+    for r in range(37, 142):
+        constrain(constraints, f"PV_stress_com!AF{r}", financial_type)
+
+    for r in range(27, 132):
+        constrain(constraints, f"PV_stress_com!BD{r}", financial_type)
+
+
+_constrain_pv_stress_com(LicDsfConstraints)
+
+
 def get_dynamic_ref_config() -> DynamicRefConfig:
     """Return a DynamicRefConfig for constraint-based resolution of OFFSET/INDIRECT."""
     return DynamicRefConfig.from_constraints_and_workbook(
