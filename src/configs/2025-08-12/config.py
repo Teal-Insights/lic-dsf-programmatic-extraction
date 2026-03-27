@@ -570,6 +570,64 @@ def _constrain_pv_stress_com(constraints: type[Any]) -> None:
 _constrain_pv_stress_com(LicDsfConstraints)
 
 
+def _constrain_pv_baseline_com(constraints: type[Any]) -> None:
+    # Non-negative financial flows / values (or None for empty cells)
+    financial_type = Annotated[float | None, Between(0, 1e15)]
+
+    # D column: mixed constants and financial values
+    # D7: total commercial (financial)
+    constrain(constraints, "PV_baseline_com!D7", financial_type)
+    # D19, D45, D71, D97, D123: "Base" normalization = 100
+    for r in (19, 45, 71, 97, 123):
+        constrain(constraints, f"PV_baseline_com!D{r}", Literal[100])
+    # D32, D58, D84, D110, D136: "New forex borrowing (gross, USD)"
+    for r in (32, 58, 84, 110, 136):
+        constrain(constraints, f"PV_baseline_com!D{r}", financial_type)
+
+    # AF33, AF59, AF85, AF111, AF137: "cumulative" in Output sections (Eurobond thru COM5)
+    for r in (33, 59, 85, 111, 137):
+        constrain(constraints, f"PV_baseline_com!AF{r}", financial_type)
+
+    # BD23, BD49, BD75, BD101, BD127: "Total debt service"
+    for r in (23, 49, 75, 101, 127):
+        constrain(constraints, f"PV_baseline_com!BD{r}", financial_type)
+
+    # H:AE ranges for "New forex borrowing (gross, USD)" rows
+    cols = (
+        "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE"
+    )
+    for r in (32, 58, 84, 110, 136):
+        for col in cols:
+            constrain(constraints, f"PV_baseline_com!{col}{r}", financial_type)
+
+
+_constrain_pv_baseline_com(LicDsfConstraints)
+
+# ---------------------------------------------------------------------------
+# Translation table constraints
+# ---------------------------------------------------------------------------
+
+# Translation labels referenced by dynamic formulas (OFFSET/INDIRECT).
+# Column C = English, D–F = other languages (Spanish, Portuguese, French per workbook layout).
+constrain(LicDsfConstraints, "translation!C90", Literal["Residency-based"])
+constrain(LicDsfConstraints, "translation!C451", Literal["Grace period"])
+constrain(LicDsfConstraints, "translation!C452", Literal["Loan Maturity"])
+constrain(LicDsfConstraints, "translation!C898", Literal["Projections"])
+
+constrain(LicDsfConstraints, "translation!D451", Literal["Período de gracia"])
+constrain(LicDsfConstraints, "translation!E451", Literal["Prazo de carência"])
+constrain(LicDsfConstraints, "translation!F451", Literal["Différé d'amortissement "])
+
+constrain(LicDsfConstraints, "translation!D452", Literal["Vencimiento del préstamo"])
+constrain(LicDsfConstraints, "translation!E452", Literal["Vencimento do empr."])
+constrain(LicDsfConstraints, "translation!F452", Literal["Échéance  crédit "])
+
+constrain(LicDsfConstraints, "translation!D898", Literal["Projections"])
+constrain(LicDsfConstraints, "translation!E898", Literal["Projecções"])
+constrain(LicDsfConstraints, "translation!F898", Literal["Proyecciones"])
+
+
 def _get_missing_constraints(specs: list[str], constraints: type[TypedDict]) -> list[str]:
     def _normalize_sheet(sheet: str) -> str:
         """Strip surrounding single-quotes so format_key can re-add them consistently."""
