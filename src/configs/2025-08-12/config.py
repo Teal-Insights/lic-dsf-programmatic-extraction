@@ -930,6 +930,85 @@ def _constrain_input3_dmx(constraints: type[Any]) -> None:
 _constrain_input3_dmx(LicDsfConstraints)
 
 # ---------------------------------------------------------------------------
+# Input 4 - External Financing
+# ---------------------------------------------------------------------------
+
+
+def _constrain_input4_external_financing(constraints: type[Any]) -> None:
+    """External financing (enrichment_audit: AG–AM flows; F interest rate; G grace; H maturity)."""
+    financial_type = Annotated[float | None, Between(0, 1e15)]
+    unit_rate = Annotated[float | None, Between(0, 1)]
+    grace = Annotated[int | None, Between(0, 50)]
+    maturity = Annotated[int | None, Between(1, 100)]
+
+    q = "'Input 4 - External Financing'"
+    for a1 in (
+        "AG10:AM10",
+        "AG19:AM19",
+        "AG21:AM21",
+        "AG23:AM23",
+        "AG26:AM26",
+        "AG30:AM30",
+        "AG32:AM32",
+        "AG36:AM36",
+        "AG38:AM38",
+        "AG42:AM42",
+    ):
+        constrain(constraints, f"{q}!{a1}", financial_type)
+
+    for cell in ("F10", "F19", "F21", "F23", "F26", "F30", "F32", "F36", "F45"):
+        constrain(constraints, f"{q}!{cell}", unit_rate)
+    constrain(constraints, f"{q}!F38:F42", unit_rate)
+
+    for row in (10, 19, 21, 23, 26, 30, 32, 36):
+        constrain(constraints, f"{q}!G{row}", grace)
+        constrain(constraints, f"{q}!H{row}", maturity)
+    for row in range(38, 43):
+        constrain(constraints, f"{q}!G{row}", grace)
+        constrain(constraints, f"{q}!H{row}", maturity)
+
+
+_constrain_input4_external_financing(LicDsfConstraints)
+
+# ---------------------------------------------------------------------------
+# Input 6 (Tailored / optional Standard Test) and Input 8 (SDR)
+# ---------------------------------------------------------------------------
+
+def _constrain_input6_input8(constraints: type[Any]) -> None:
+    """Tailored and standardized stress options; SDR sheet (enrichment_audit + template dropdowns)."""
+    _threshold = Literal["Historical average only", "Baseline projection only", "Whichever is lower"]
+    financial = Annotated[float | None, Between(0, 1e15)]
+    financial_signed = Annotated[float | None, Between(-1e15, 1e15)]
+    unit_rate = Annotated[float | None, Between(0, 1)]
+
+    q6t = "'Input 6 - Tailored Tests'"
+    q6o = "'Input 6(optional)-Standard Test'"
+    q8 = "'Input 8 - SDR'"
+
+    constrain(constraints, f"{q6t}!C6", Literal["On", "Off"])
+
+    constrain(constraints, f"{q6o}!C4", Literal["New", "Old"])
+    constrain(constraints, f"{q6o}!C5", _threshold)
+    constrain(constraints, f"{q6o}!C7", _threshold)
+    constrain(constraints, f"{q6o}!C8", Literal["On", "Off"])
+    constrain(constraints, f"{q6o}!C17", Annotated[float, Between(0, 10)])
+    constrain(constraints, f"{q6o}!D8", Literal[None])
+    constrain(constraints, f"{q6o}!D9", Literal[None])
+    constrain(constraints, f"{q6o}!D18", _threshold)
+
+    constrain(constraints, f"{q8}!B6:B7", financial)
+    constrain(constraints, f"{q8}!C11:C12", financial_signed)
+    constrain(constraints, f"{q8}!D11:V12", financial_signed)
+    constrain(constraints, f"{q8}!D14:V14", financial_signed)
+    constrain(constraints, f"{q8}!W14", unit_rate)
+    constrain(constraints, f"{q8}!AG37", financial)
+    constrain(constraints, f"{q8}!X27", financial)
+    constrain(constraints, f"{q8}!Y28", financial)
+
+
+_constrain_input6_input8(LicDsfConstraints)
+
+# ---------------------------------------------------------------------------
 # Translation table constraints
 # ---------------------------------------------------------------------------
 
