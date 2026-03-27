@@ -604,12 +604,352 @@ def _constrain_pv_baseline_com(constraints: type[Any]) -> None:
 
 _constrain_pv_baseline_com(LicDsfConstraints)
 
+
+def _constrain_pv_stress_and_pv_base_index_cells(constraints: type[Any]) -> None:
+    """INDEX/OFFSET inputs on PV Stress and PV_Base (labels from enrichment_audit.json).
+
+    PV Stress: interest and USD discount columns → unit rates; borrowing and cumulative → flows.
+    PV_Base AF: cumulative outputs; BD: total debt service; D: Interest rates, Base=100 scalars,
+    IDA line, or maturity/Base blocks.
+    """
+    financial_type = Annotated[float | None, Between(0, 1e15)]
+    unit_rate = Annotated[float | None, Between(0, 1)]
+
+    constrain(constraints, "'PV Stress'!D147", unit_rate)
+    constrain(constraints, "'PV Stress'!D161", financial_type)
+    constrain(constraints, "'PV Stress'!D4", financial_type)
+    constrain(constraints, "'PV Stress'!E161:G161", financial_type)
+    constrain(constraints, "'PV Stress'!H147:X147", unit_rate)
+    constrain(constraints, "'PV Stress'!Y148:AF148", unit_rate)
+    constrain(constraints, "'PV Stress'!Y162:AF162", financial_type)
+    constrain(constraints, "'PV Stress'!Y30:AF30", financial_type)
+
+    for _r in (
+        23,
+        272,
+        298,
+        350,
+        376,
+        480,
+        506,
+        610,
+        636,
+        740,
+        766,
+        818,
+        844,
+        896,
+    ):
+        constrain(constraints, f"PV_Base!AF{_r}", financial_type)
+
+    for _r in (366, 470, 496, 600, 626, 730, 756, 808, 834, 886):
+        constrain(constraints, f"PV_Base!BD{_r}", financial_type)
+
+    for _r in (27, 276, 302, 354, 380, 484, 510, 614, 640, 744, 770, 822, 848, 900):
+        constrain(constraints, f"PV_Base!D{_r}", unit_rate)
+
+    for _r in (9, 258, 284, 336, 362, 466, 492, 596, 622, 726, 752, 804, 830, 882):
+        constrain(constraints, f"PV_Base!D{_r}", Literal[100])
+
+    constrain(constraints, "PV_Base!D49", financial_type)
+
+
+_constrain_pv_stress_and_pv_base_index_cells(LicDsfConstraints)
+
+
+# ---------------------------------------------------------------------------
+# PV_LC_NR1 / PV_LC_NR3 constraints (local-currency new-loan output blocks)
+# ---------------------------------------------------------------------------
+
+def _constrain_pv_lc_nr(constraints: type[Any], sheet: str) -> None:
+    financial_type = Annotated[float | None, Between(0, 1e15)]
+
+    # C28: text label "Stock of debt (in LC)"
+    constrain(constraints, f"{sheet}!C28", Literal["Stock of debt (in LC)"])
+
+    # BD7: interest rate (local currency) — unit rate
+    constrain(constraints, f"{sheet}!BD7", Annotated[float | None, Between(0, 1)])
+
+    # Y6:AE6: tail end of gross financing row (beyond projection horizon)
+    for _col in ("Y", "Z", "AA", "AB", "AC", "AD", "AE"):
+        constrain(constraints, f"{sheet}!{_col}6", financial_type)
+
+    # AF column: "cumulative" rows in each 19-row loan output block
+    for _r in range(26, 407, 19):
+        constrain(constraints, f"{sheet}!AF{_r}", financial_type)
+
+    # BB column: "Total debt service (in USD)" rows in each 19-row block
+    for _r in range(30, 411, 19):
+        constrain(constraints, f"{sheet}!BB{_r}", financial_type)
+
+    # D column: three sub-types per 19-row block starting at row 23
+    for _block_start in range(23, 404, 19):
+        # offset 0: counter/start year (literal 0)
+        constrain(constraints, f"{sheet}!D{_block_start}", Literal[0])
+        # offset 5: stock of debt (initial stock, zero or positive)
+        constrain(constraints, f"{sheet}!D{_block_start + 5}", financial_type)
+        # offset 8: interest in USD (empty in D column)
+        constrain(constraints, f"{sheet}!D{_block_start + 8}", financial_type)
+
+
+_constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR1")
+_constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR3")
+
+# ---------------------------------------------------------------------------
+# Input 1 - Basics
+# ---------------------------------------------------------------------------
+
+# enrichment_audit.json: first projection year; discount rate (template 0.05); ext/dom
+# definition (data validation lookup!X4:X5).
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C18", Annotated[int, Between(1990, 2100)])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C25", Annotated[float, Between(0, 1)])
+constrain(
+    LicDsfConstraints,
+    "'Input 1 - Basics'!C33",
+    Literal["Residency-based", "Currency-based"],
+)
+
+# ---------------------------------------------------------------------------
+# Input 3 - Macro-Debt data (DMX)
+# ---------------------------------------------------------------------------
+
+_INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
+    "AB100:AQ100",
+    "AB109:AQ109",
+    "AB111:AQ111",
+    "AB113:AQ113",
+    "AB116:AQ116",
+    "AB120:AQ120",
+    "AB122:AQ122",
+    "AB126:AQ126",
+    "AB128:AQ128",
+    "AB12:AQ13",
+    "AB132:AQ132",
+    "AB141:AQ144",
+    "AB155:AQ155",
+    "AB157:AQ157",
+    "AB166:AQ169",
+    "AB175:AQ175",
+    "AB177:AQ178",
+    "AB180:AQ180",
+    "AB19:AQ20",
+    "AB22:AQ22",
+    "AB24:AQ24",
+    "AB26:AQ27",
+    "AB30:AQ30",
+    "AB34:AQ35",
+    "AB38:AQ38",
+    "AB41:AQ41",
+    "AB43:AQ43",
+    "AB52:AQ52",
+    "AB55:AQ55",
+    "AB57:AQ59",
+    "AB65:AQ65",
+    "AB70:AQ70",
+    "AB72:AQ72",
+    "AB74:AQ74",
+    "AB77:AQ77",
+    "AB81:AQ81",
+    "AB83:AQ83",
+    "AB87:AQ87",
+    "AB89:AQ89",
+    "AB93:AQ93",
+    "AB95:AQ95",
+    "AR100",
+    "AR109",
+    "AR111",
+    "AR113",
+    "AR116",
+    "AR120",
+    "AR122",
+    "AR126",
+    "AR128",
+    "AR12:AR13",
+    "AR132",
+    "AR141:AR144",
+    "AR147",
+    "AR155",
+    "AR157",
+    "AR166:AR169",
+    "AR175",
+    "AR177:AR178",
+    "AR180",
+    "AR19:AR20",
+    "AR22",
+    "AR24",
+    "AR26:AR27",
+    "AR30",
+    "AR34:AR35",
+    "AR38",
+    "AR41",
+    "AR43",
+    "AR52",
+    "AR55",
+    "AR57:AR59",
+    "AR65",
+    "AR70",
+    "AR72",
+    "AR74",
+    "AR77",
+    "AR81",
+    "AR83",
+    "AR87",
+    "AR89",
+    "AR93",
+    "AR95",
+    "BP65",
+    "BP70",
+    "BP72",
+    "BP74",
+    "BP77",
+    "BP81",
+    "BP83",
+    "BP87",
+    "BP89",
+    "BP93",
+    "M12:M13",
+    "M35",
+    "N12:N13",
+    "N142",
+    "N166:N167",
+    "N20",
+    "N34:N35",
+    "N41",
+    "N43",
+    "N53",
+    "N59",
+    "V12:V13",
+    "V20",
+    "V35",
+    "W12:W13",
+    "W138:W139",
+    "W142",
+    "W161:W164",
+    "W166:W167",
+    "W19:W20",
+    "W34:W35",
+    "W41",
+    "W43",
+    "W51:W53",
+    "W55",
+    "W57:W59",
+    "X100",
+    "X109",
+    "X111",
+    "X113",
+    "X116",
+    "X120",
+    "X122",
+    "X126",
+    "X128",
+    "X12:X13",
+    "X132",
+    "X141:X144",
+    "X147",
+    "X149:X150",
+    "X152",
+    "X154:X155",
+    "X157",
+    "X166:X169",
+    "X172:X173",
+    "X175",
+    "X177:X178",
+    "X180",
+    "X19:X20",
+    "X22",
+    "X24",
+    "X26:X27",
+    "X30",
+    "X35",
+    "X41",
+    "X52",
+    "X55",
+    "X57:X58",
+    "X65",
+    "X70",
+    "X72",
+    "X74",
+    "X77",
+    "X81",
+    "X83",
+    "X87",
+    "X89",
+    "X93",
+    "X95",
+    "Y100:AA100",
+    "Y109:AA109",
+    "Y111:AA111",
+    "Y113:AA113",
+    "Y116:AA116",
+    "Y120:AA120",
+    "Y122:AA122",
+    "Y126:AA126",
+    "Y128:AA132",
+    "Y12:AA13",
+    "Y141:AA144",
+    "Y155:AA155",
+    "Y157:AA157",
+    "Y166:AA169",
+    "Y175:AA175",
+    "Y177:AA178",
+    "Y180:AA180",
+    "Y19:AA20",
+    "Y22:AA22",
+    "Y24:AA24",
+    "Y26:AA27",
+    "Y30:AA30",
+    "Y34:AA35",
+    "Y38:AA38",
+    "Y41:AA41",
+    "Y43:AA43",
+    "Y52:AA52",
+    "Y55:AA55",
+    "Y57:AA59",
+    "Y65:AA65",
+    "Y70:AA70",
+    "Y72:AA72",
+    "Y74:AA74",
+    "Y77:AA77",
+    "Y81:AA81",
+    "Y83:AA83",
+    "Y87:AA87",
+    "Y89:AA89",
+    "Y93:AA93",
+    "Y95:AA95",
+)
+
+
+def _constrain_input3_dmx(constraints: type[Any]) -> None:
+    """Input 3 DMX macro series feeding INDEX (enrichment_audit: flows/GDP; may be negative)."""
+    dmx_macro = Annotated[float | None, Between(-1e15, 1e15)]
+    q = "'Input 3 - Macro-Debt data(DMX)'"
+    for a1 in _INPUT3_DMX_A1_RANGES:
+        constrain(constraints, f"{q}!{a1}", dmx_macro)
+
+
+_constrain_input3_dmx(LicDsfConstraints)
+
 # ---------------------------------------------------------------------------
 # Translation table constraints
 # ---------------------------------------------------------------------------
 
 # Translation labels referenced by dynamic formulas (OFFSET/INDIRECT).
 # Column C = English, D–F = other languages (Spanish, Portuguese, French per workbook layout).
+# ---------------------------------------------------------------------------
+# Ext_Debt_Data constraints
+# ---------------------------------------------------------------------------
+
+# AA403:AG403 — "Exchange rate (pa)" projection columns (years); may also map to
+# creditor-row financial data depending on workbook layout.
+constrain(LicDsfConstraints, "Ext_Debt_Data!AA403:AG403", Annotated[float | None, Between(0, 1e15)])
+
+# F383:F384 — short-term debt principal / interest (or exchange rate in some layouts)
+constrain(LicDsfConstraints, "Ext_Debt_Data!F383:F384", Annotated[float | None, Between(0, 1e15)])
+
+# ---------------------------------------------------------------------------
+# Translation table constraints
+# ---------------------------------------------------------------------------
+
 constrain(LicDsfConstraints, "translation!C90", Literal["Residency-based"])
 constrain(LicDsfConstraints, "translation!C451", Literal["Grace period"])
 constrain(LicDsfConstraints, "translation!C452", Literal["Loan Maturity"])
