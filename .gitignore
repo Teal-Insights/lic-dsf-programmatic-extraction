@@ -15,8 +15,6 @@ wheels/
 sk-*
 
 # Data files (large/binary)
-*.xlsm
-*.xlsx
 *.pdf
 *.json
 .~lock*
