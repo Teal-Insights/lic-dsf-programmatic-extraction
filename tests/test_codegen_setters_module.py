@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from src.configs import load_template_config
 from src.lic_dsf_export import (
     generate_setter_method_name,
@@ -18,6 +20,8 @@ _INPUT_GROUPS_PATH = (
     / "input_groups.json"
 )
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH
+
+pytestmark = pytest.mark.slow
 
 
 def _pick_wide_year_series(groups: list[dict]) -> dict:

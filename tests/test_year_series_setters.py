@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import openpyxl.utils.cell
+import pytest
 
 from src.configs import load_template_config
 from src.lic_dsf_input_setters import (
@@ -24,6 +25,7 @@ class DummyCtx:
         self.inputs.update(inputs)
 
 
+@pytest.mark.slow
 def test_build_wide_year_series_spec_ext_debt_data_row10() -> None:
     spec = build_wide_year_series_spec(
         workbook_path="workbooks/lic-dsf-template-2026-01-31.xlsm",

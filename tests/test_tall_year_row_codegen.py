@@ -21,6 +21,8 @@ _INPUT_GROUPS_PATH = (
 )
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
+pytestmark = pytest.mark.slow
+
 
 def _pick_tall_year_group(groups: list[dict]) -> dict:
     for g in groups:

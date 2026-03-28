@@ -1,26 +1,8 @@
 from __future__ import annotations
 
 import json
-import sys
-import types
 
 import pytest
-
-
-# src.lic_dsf_export imports excel_grapher at module import time; stub it for tests.
-excel_grapher_pkg = types.ModuleType("excel_grapher")
-excel_grapher_pkg.format_cell_key = lambda sheet, col, row: f"{sheet}!{col}{row}"
-excel_grapher_exporter = types.ModuleType("excel_grapher.exporter")
-excel_grapher_exporter.CodeGenerator = object
-excel_grapher_grapher = types.ModuleType("excel_grapher.grapher")
-excel_grapher_grapher.get_calc_settings = lambda *args, **kwargs: None
-excel_grapher_grapher.DependencyGraph = object
-excel_grapher_grapher.Node = object
-excel_grapher_grapher.create_dependency_graph = lambda *args, **kwargs: None
-excel_grapher_grapher.DynamicRefConfig = object
-sys.modules.setdefault("excel_grapher", excel_grapher_pkg)
-sys.modules["excel_grapher.exporter"] = excel_grapher_exporter
-sys.modules["excel_grapher.grapher"] = excel_grapher_grapher
 
 from src.lic_dsf_export import build_entrypoints
 

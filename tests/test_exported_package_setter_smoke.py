@@ -23,10 +23,13 @@ _REGION = _cfg.REGION_CONFIG
 
 _EXPORT_PKG_INIT = _EXPORT_DIR / "lic_dsf_2026_01_31" / "__init__.py"
 
-pytestmark = pytest.mark.skipif(
-    not _EXPORT_PKG_INIT.is_file(),
-    reason="Run the export pipeline to populate dist/ before this integration test.",
-)
+pytestmark = [
+    pytest.mark.slow,
+    pytest.mark.skipif(
+        not _EXPORT_PKG_INIT.is_file(),
+        reason="Run the export pipeline to populate dist/ before this integration test.",
+    ),
+]
 
 
 def _pick_wide_year_series(groups: list[dict]) -> dict:

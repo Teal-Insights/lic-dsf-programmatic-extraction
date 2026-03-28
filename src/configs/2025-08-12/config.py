@@ -1,5 +1,5 @@
 """
-Template-specific configuration for LIC-DSF template 2026-01-31.
+Template-specific configuration for LIC-DSF template 2025-08-12.
 
 This module contains all configuration that is specific to this template version:
 workbook path, export ranges, region config, constraints, and constant excludes.
@@ -393,6 +393,9 @@ constrain(LicDsfConstraints, "lookup!AF5", Literal["Old"])
 
 # Marker to use for applicable tailored stress test; we can treat as a constant
 constrain(LicDsfConstraints, "'Chart Data'!I21", Literal[1])
+
+# Year header slot on row 35 (empty in template; W35/X35 are 2043/2044); feeds Chart Data dynamic refs.
+constrain(LicDsfConstraints, "'Chart Data'!Y35", Annotated[int | None, Between(1990, 2100)])
 
 # PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965 (fixed).
 # Treat these as constants derived from the current workbook values.
@@ -935,13 +938,14 @@ _constrain_input3_dmx(LicDsfConstraints)
 
 
 def _constrain_input4_external_financing(constraints: type[Any]) -> None:
-    """External financing (enrichment_audit: AG–AM flows; F interest rate; G grace; H maturity)."""
+    """External financing (enrichment_audit: AG–AM and L–N flows; F interest; G grace; H maturity)."""
     financial_type = Annotated[float | None, Between(0, 1e15)]
     unit_rate = Annotated[float | None, Between(0, 1)]
     grace = Annotated[int | None, Between(0, 50)]
     maturity = Annotated[int | None, Between(1, 100)]
 
     q = "'Input 4 - External Financing'"
+    constrain(constraints, f"{q}!L10:N10", financial_type)
     for a1 in (
         "AG10:AM10",
         "AG19:AM19",
@@ -969,6 +973,99 @@ def _constrain_input4_external_financing(constraints: type[Any]) -> None:
 
 
 _constrain_input4_external_financing(LicDsfConstraints)
+
+# ---------------------------------------------------------------------------
+# Input 5 - Local-debt Financing
+# ---------------------------------------------------------------------------
+
+
+def _constrain_input5_local_debt(constraints: type[Any]) -> None:
+    """Domestic debt instruments: grace/maturity (C/D), interest by year (I–AA on assumption rows),
+    issuance and adjustment flows (enrichment_audit + template row 5–7 headers)."""
+
+    def _cols(c1: str, c2: str) -> list[str]:
+        min_c, _min_r, max_c, _max_r = range_boundaries(f"{c1}1:{c2}1")
+        return [get_column_letter(i) for i in range(min_c, max_c + 1)]
+
+    q = "'Input 5 - Local-debt Financing'"
+    financial = Annotated[float | None, Between(0, 1e15)]
+    financial_signed = Annotated[float | None, Between(-1e15, 1e15)]
+    unit_rate = Annotated[float | None, Between(0, 1)]
+    grace = Annotated[int | None, Between(0, 50)]
+    maturity = Annotated[int | None, Between(1, 100)]
+    small_int = Annotated[int | None, Between(0, 10)]
+
+    for row in (10, 16, 18, 20, 22, 83, 86, 89, 90, 91, 93, 94, 95, 100, 101, 104, 105, 106, 108, 109, 110):
+        constrain(constraints, f"{q}!C{row}", grace)
+
+    constrain(constraints, f"{q}!C78", Annotated[int | None, Between(0, 1)])
+
+    for row in (10, 16, 18, 20, 22, 93, 95, 104, 106, 108, 110):
+        constrain(constraints, f"{q}!D{row}", maturity)
+
+    for row in (93, 95, 104, 106, 108, 110):
+        constrain(constraints, f"{q}!E{row}", small_int)
+        constrain(constraints, f"{q}!F{row}", small_int)
+    constrain(constraints, f"{q}!F83", small_int)
+
+    for row in (16, 18, 20, 22):
+        constrain(constraints, f"{q}!I{row}", unit_rate)
+        constrain(constraints, f"{q}!N{row}", unit_rate)
+
+    for col_idx in range(9, 30):  # I:AC — adjustment row (signed flows including SoE removal)
+        constrain(constraints, f"{q}!{get_column_letter(col_idx)}63", financial_signed)
+
+    for addr in (
+        "AD93",
+        "AD95",
+        "AD108",
+        "AD110",
+        "AD188",
+        "AD191",
+        "AD193",
+    ):
+        constrain(constraints, f"{q}!{addr}", financial)
+
+    for row in (93, 95, 108, 110, 250, 254, 274, 278, 298, 302, 322, 392, 461):
+        constrain(constraints, f"{q}!AE{row}", financial)
+
+    for row in (93, 95, 108, 110, 250, 274, 298, 322, 392, 461, 488, 512):
+        constrain(constraints, f"{q}!AF{row}", financial)
+
+    for row in (93, 95, 108, 110, 250, 254, 274, 278, 298, 302, 322, 392, 461, 468, 488, 492, 512):
+        for col in _cols("AG", "AJ"):
+            constrain(constraints, f"{q}!{col}{row}", financial)
+
+    for row in (250, 254, 274, 278, 298, 302, 322, 392, 461, 468, 488, 492, 512):
+        for col in _cols("AK", "AX"):
+            constrain(constraints, f"{q}!{col}{row}", financial)
+
+    for row in (254, 278, 302, 392, 468, 492):
+        constrain(constraints, f"{q}!AY{row}", financial)
+
+    for row in (250, 274, 298, 322, 392, 463):
+        constrain(constraints, f"{q}!BA{row}", financial)
+
+    for row in (250, 274, 298, 322, 392, 463, 488, 512):
+        for col in _cols("BB", "BT"):
+            constrain(constraints, f"{q}!{col}{row}", financial)
+
+    for row in (392, 463):
+        constrain(constraints, f"{q}!BU{row}", financial)
+
+    for row in (230, 254, 278, 302, 327, 397):
+        constrain(constraints, f"{q}!H{row}", financial)
+
+    constrain(constraints, f"{q}!I461", financial)
+    for row in (488, 581):
+        for col_idx in range(9, 28):  # I:AA — issuance / projection inputs
+            constrain(constraints, f"{q}!{get_column_letter(col_idx)}{row}", financial)
+
+    for row in (250, 274, 298, 322, 488, 512, 581):
+        constrain(constraints, f"{q}!AB{row}", financial)
+
+
+_constrain_input5_local_debt(LicDsfConstraints)
 
 # ---------------------------------------------------------------------------
 # Input 6 (Tailored / optional Standard Test) and Input 8 (SDR)

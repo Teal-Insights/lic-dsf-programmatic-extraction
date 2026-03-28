@@ -22,3 +22,11 @@ dev = [
     "ruff>=0.14.11",
     "ty>=0.0.11",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: touches the real template workbook or heavy codegen/export (opt-in: pytest -m slow)",
+]
+# Skip slow tests by default. Run slow only: uv run pytest -m slow
+# Run everything: uv run pytest --override-ini="addopts="  (or -m "slow or not slow")
+addopts = ["-m", "not slow"]
