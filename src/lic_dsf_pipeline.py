@@ -21,6 +21,7 @@ from fastpyxl import Workbook
 from fastpyxl.worksheet.worksheet import Worksheet
 
 from excel_grapher.grapher import DynamicRefConfig
+
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
 
 GRAPH_JSON_VERSION = 1

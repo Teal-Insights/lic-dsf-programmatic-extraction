@@ -1,6 +1,6 @@
 ---
 alwaysApply: true
 ---
-Always run Python code with `uv run`.
+Always run Python code with `uv run`. Use `fastpyxl` as a one-to-one replacement for `openpyxl`.
 
 Practice TDD. First, write a test and watch it fail for the right reasons (RED). Then, write the code to make the test pass (GREEN).
