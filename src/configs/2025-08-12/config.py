@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import Any, Literal, TypedDict, Annotated, cast
 from fastpyxl.utils.cell import range_boundaries, get_column_letter
 
-from excel_grapher import constrain
+from excel_grapher import RealBetween, constrain
 from excel_grapher.grapher import DynamicRefConfig
 from excel_grapher.grapher.dynamic_refs import format_key
-from excel_grapher.core.cell_types import Between
+from excel_grapher.core.cell_types import Between, GreaterThanCell
 
 from ...lic_dsf_config import ExportRangeConfig, WorkbookMetadata
 from ...lic_dsf_labels import RegionConfig
@@ -371,7 +371,7 @@ REGION_CONFIG: list[RegionConfig] = [
 # ---------------------------------------------------------------------------
 
 """
-Dynamic refs (OFFSET/INDIRECT/INDEX) are resolved via a constraint-based config. Iterative workflow: run the script; if DynamicRefError is raised, the message includes the formula cell whose inputs need constraints. Inspect that cell and the row/column headers in the workbook to decide plausible input domains, use `constrain` to set a constraint (e.g., `constrain(LicDsfConstraints, "'Sheet Name'!A965", Literal["value"])` for a constant or something like `Annotated[float, Between(min=0)]` in lieu of `Literal` for a numeric constraint).
+Dynamic refs (OFFSET/INDIRECT/INDEX) are resolved via a constraint-based config. Iterative workflow: run the script; if DynamicRefError is raised, the message includes the formula cell whose inputs need constraints. Inspect that cell and the row/column headers in the workbook to decide plausible input domains, use `constrain` to set a constraint (e.g., `constrain(LicDsfConstraints, "'Sheet Name'!A965", Literal["value"])` for a constant or `Annotated[float, RealBetween(min=0)]` for a real-valued numeric range; use `Annotated[int, Between(lo, hi)]` for discrete integer bounds).
 
 Then re-run until the graph builds. Note that if row/column labels or intentionally blank cells show up in error output, they have been referenced by a dynamic ref and must be constrained for the graph to resolve. Blank cells can be set to `Literal[None]`.
 
@@ -383,7 +383,8 @@ LiteralType = cast(Any, Literal)
 # Constraint types for cells that feed OFFSET/INDIRECT. Keys must be address-style (e.g. "Sheet1!B1").
 # Add entries when the script raises DynamicRefError: the message lists leaf cells that need
 # constraints. Add each to __annotations__ (with Annotated[int, Between(lo, hi)],
-# Annotated[..., FromWorkbook()], or Literal[...]) then re-run. Repeat until the graph builds.
+# Annotated[float, RealBetween(...)], Annotated[..., FromWorkbook()], or Literal[...])
+# then re-run. Repeat until the graph builds.
 class LicDsfConstraints(TypedDict, total=False):
     pass
 
@@ -403,7 +404,7 @@ constrain(LicDsfConstraints, "PV_Base!A917", Literal[64])
 constrain(LicDsfConstraints, "PV_Base!A941", Literal[90])
 constrain(LicDsfConstraints, "PV_Base!A965", Literal[115])
 
-constrain(LicDsfConstraints, "PV_Base!A965", Annotated[float, Between(min=0)])
+constrain(LicDsfConstraints, "PV_Base!A965", Annotated[float, RealBetween(min=0)])
 
 # A918:A938, A942:A962, A966:A986 each has a single cached letter D, E, …, X.
 for _start, _end in [(918, 939), (942, 963), (966, 987)]:
@@ -428,17 +429,17 @@ constrain(LicDsfConstraints, "lookup!BB4:BC7", _LANG_LOOKUP)
 
 # Tailored stress test parameters (from Input 6 - Tailored Tests)
 constrain(LicDsfConstraints, "C4_Market_financing!AB20", Literal[0, 1])  # New commercial debt projected
-constrain(LicDsfConstraints, "C4_Market_financing!AB22", Annotated[float, Between(min=0, max=100)])  # FX depreciation shock (%)
-constrain(LicDsfConstraints, "C4_Market_financing!AB23", Annotated[float, Between(min=0, max=1)])  # ER pass-through to inflation
+constrain(LicDsfConstraints, "C4_Market_financing!AB22", Annotated[float, RealBetween(min=0, max=100)])  # FX depreciation shock (%)
+constrain(LicDsfConstraints, "C4_Market_financing!AB23", Annotated[float, RealBetween(min=0, max=1)])  # ER pass-through to inflation
 constrain(LicDsfConstraints, "C4_Market_financing!AB25", Annotated[int, Between(min=0, max=2000)])  # Increase in cost, bps
 constrain(LicDsfConstraints, "C4_Market_financing!AB28", Annotated[int, Between(min=1, max=50)])  # New maturity if original > 5y
-constrain(LicDsfConstraints, "C4_Market_financing!AB29", Annotated[float, Between(min=0, max=1)])  # Maturity shortening factor if < 5y
-constrain(LicDsfConstraints, "C4_Market_financing!AB30", Annotated[float, Between(min=0, max=1)])  # Grace period shortening factor
+constrain(LicDsfConstraints, "C4_Market_financing!AB29", Annotated[float, RealBetween(min=0, max=1)])  # Maturity shortening factor if < 5y
+constrain(LicDsfConstraints, "C4_Market_financing!AB30", Annotated[float, RealBetween(min=0, max=1)])  # Grace period shortening factor
 
 # New lending terms for the stress test (C4_Market_financing rows 35-39)
 constrain(LicDsfConstraints, "C4_Market_financing!C35:C39", Annotated[int, Between(min=0, max=50)])  # Grace period
 constrain(LicDsfConstraints, "C4_Market_financing!D35:D39", Annotated[int, Between(min=1, max=100)])  # Loan Maturity
-constrain(LicDsfConstraints, "C4_Market_financing!I35:I39", Annotated[float, Between(min=0, max=1)])  # Interest rate
+constrain(LicDsfConstraints, "C4_Market_financing!I35:I39", Annotated[float, RealBetween(min=0, max=1)])  # Interest rate
 
 # Structural dependencies for INDEX/MATCH resolution
 # 1. Set the default (None) for the bulk ranges
@@ -540,7 +541,7 @@ def _constrain_pv_stress_com(constraints: type[Any]) -> None:
     # W36:W140, X36:X140, Y36:Y140, Z36:Z140
 
     # Non-negative financial flows / values
-    financial_type = Annotated[float | None, Between(0, 1e15)]
+    financial_type = Annotated[float | None, RealBetween(0, 1e15)]
 
     # D9:D140 has some specific constants
     for r in range(9, 141):
@@ -575,7 +576,7 @@ _constrain_pv_stress_com(LicDsfConstraints)
 
 def _constrain_pv_baseline_com(constraints: type[Any]) -> None:
     # Non-negative financial flows / values (or None for empty cells)
-    financial_type = Annotated[float | None, Between(0, 1e15)]
+    financial_type = Annotated[float | None, RealBetween(0, 1e15)]
 
     # D column: mixed constants and financial values
     # D7: total commercial (financial)
@@ -615,8 +616,8 @@ def _constrain_pv_stress_and_pv_base_index_cells(constraints: type[Any]) -> None
     PV_Base AF: cumulative outputs; BD: total debt service; D: Interest rates, Base=100 scalars,
     IDA line, or maturity/Base blocks.
     """
-    financial_type = Annotated[float | None, Between(0, 1e15)]
-    unit_rate = Annotated[float | None, Between(0, 1)]
+    financial_type = Annotated[float | None, RealBetween(0, 1e15)]
+    unit_rate = Annotated[float | None, RealBetween(0, 1)]
 
     constrain(constraints, "'PV Stress'!D147", unit_rate)
     constrain(constraints, "'PV Stress'!D161", financial_type)
@@ -656,6 +657,15 @@ def _constrain_pv_stress_and_pv_base_index_cells(constraints: type[Any]) -> None
 
     constrain(constraints, "PV_Base!D49", financial_type)
 
+    # B9/B10 reference Input 4 G10/H10; PV_Base!AH11 uses D9/(B10-B9) — need B10 > B9 for abstract analysis.
+    _pv_base_grace = Annotated[int | None, Between(0, 50)]
+    constrain(constraints, "PV_Base!B9", _pv_base_grace)
+    constrain(
+        constraints,
+        "PV_Base!B10",
+        Annotated[int | None, Between(1, 100), GreaterThanCell("PV_Base!B9")],
+    )
+
 
 _constrain_pv_stress_and_pv_base_index_cells(LicDsfConstraints)
 
@@ -665,13 +675,16 @@ _constrain_pv_stress_and_pv_base_index_cells(LicDsfConstraints)
 # ---------------------------------------------------------------------------
 
 def _constrain_pv_lc_nr(constraints: type[Any], sheet: str) -> None:
-    financial_type = Annotated[float | None, Between(0, 1e15)]
+    financial_type = Annotated[float | None, RealBetween(0, 1e15)]
 
     # C28: text label "Stock of debt (in LC)"
     constrain(constraints, f"{sheet}!C28", Literal["Stock of debt (in LC)"])
 
-    # BD7: interest rate (local currency) — unit rate
-    constrain(constraints, f"{sheet}!BD7", Annotated[float | None, Between(0, 1)])
+    # Y7:BG7: interest rate (local currency) — unit rate; tail past F:U through AX/BD (OFFSET targets)
+    _interest_lc_unit = Annotated[float | None, RealBetween(0, 1)]
+    _lc7_min_col, _, _lc7_max_col, _ = range_boundaries("Y7:BG7")
+    for _ci in range(_lc7_min_col, _lc7_max_col + 1):
+        constrain(constraints, f"{sheet}!{get_column_letter(_ci)}7", _interest_lc_unit)
 
     # Y6:AE6: tail end of gross financing row (beyond projection horizon)
     for _col in ("Y", "Z", "AA", "AB", "AC", "AD", "AE"):
@@ -705,7 +718,7 @@ _constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR3")
 # enrichment_audit.json: first projection year; discount rate (template 0.05); ext/dom
 # definition (data validation lookup!X4:X5).
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C18", Annotated[int, Between(1990, 2100)])
-constrain(LicDsfConstraints, "'Input 1 - Basics'!C25", Annotated[float, Between(0, 1)])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C25", Annotated[float, RealBetween(0, 1)])
 constrain(
     LicDsfConstraints,
     "'Input 1 - Basics'!C33",
@@ -718,14 +731,20 @@ constrain(
 
 _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "AB100:AQ100",
+    "AB101:AQ108",
     "AB109:AQ109",
     "AB111:AQ111",
+    "AB112:AQ112",
     "AB113:AQ113",
     "AB116:AQ116",
     "AB120:AQ120",
     "AB122:AQ122",
+    "AB123:AQ123",
+    "AB124:AQ124",
+    "AB125:AQ125",
     "AB126:AQ126",
     "AB128:AQ128",
+    "AB129:AQ131",
     "AB12:AQ13",
     "AB132:AQ132",
     "AB141:AQ144",
@@ -739,6 +758,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "AB22:AQ22",
     "AB24:AQ24",
     "AB26:AQ27",
+    "AB28:AQ29",
     "AB30:AQ30",
     "AB34:AQ35",
     "AB38:AQ38",
@@ -759,14 +779,20 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "AB93:AQ93",
     "AB95:AQ95",
     "AR100",
+    "AR101:AR108",
     "AR109",
     "AR111",
+    "AR112",
     "AR113",
     "AR116",
     "AR120",
     "AR122",
+    "AR123",
+    "AR124",
+    "AR125",
     "AR126",
     "AR128",
+    "AR129:AR131",
     "AR12:AR13",
     "AR132",
     "AR141:AR144",
@@ -781,6 +807,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "AR22",
     "AR24",
     "AR26:AR27",
+    "AR28:AR29",
     "AR30",
     "AR34:AR35",
     "AR38",
@@ -813,6 +840,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "M12:M13",
     "M35",
     "N12:N13",
+    "O12:U13",
     "N142",
     "N166:N167",
     "N20",
@@ -837,14 +865,20 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "W55",
     "W57:W59",
     "X100",
+    "X101:X108",
     "X109",
     "X111",
+    "X112",
     "X113",
     "X116",
     "X120",
     "X122",
+    "X123",
+    "X124",
+    "X125",
     "X126",
     "X128",
+    "X129:X131",
     "X12:X13",
     "X132",
     "X141:X144",
@@ -862,6 +896,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "X22",
     "X24",
     "X26:X27",
+    "X28:X29",
     "X30",
     "X35",
     "X41",
@@ -880,12 +915,17 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "X93",
     "X95",
     "Y100:AA100",
+    "Y101:AA108",
     "Y109:AA109",
     "Y111:AA111",
+    "Y112:AA112",
     "Y113:AA113",
     "Y116:AA116",
     "Y120:AA120",
     "Y122:AA122",
+    "Y123:AA123",
+    "Y124:AA124",
+    "Y125:AA125",
     "Y126:AA126",
     "Y128:AA132",
     "Y12:AA13",
@@ -900,6 +940,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
     "Y22:AA22",
     "Y24:AA24",
     "Y26:AA27",
+    "Y28:AA29",
     "Y30:AA30",
     "Y34:AA35",
     "Y38:AA38",
@@ -924,7 +965,7 @@ _INPUT3_DMX_A1_RANGES: tuple[str, ...] = (
 
 def _constrain_input3_dmx(constraints: type[Any]) -> None:
     """Input 3 DMX macro series feeding INDEX (enrichment_audit: flows/GDP; may be negative)."""
-    dmx_macro = Annotated[float | None, Between(-1e15, 1e15)]
+    dmx_macro = Annotated[float | None, RealBetween(-1e15, 1e15)]
     q = "'Input 3 - Macro-Debt data(DMX)'"
     for a1 in _INPUT3_DMX_A1_RANGES:
         constrain(constraints, f"{q}!{a1}", dmx_macro)
@@ -939,13 +980,28 @@ _constrain_input3_dmx(LicDsfConstraints)
 
 def _constrain_input4_external_financing(constraints: type[Any]) -> None:
     """External financing (enrichment_audit: AG–AM and L–N flows; F interest; G grace; H maturity)."""
-    financial_type = Annotated[float | None, Between(0, 1e15)]
-    unit_rate = Annotated[float | None, Between(0, 1)]
+    financial_type = Annotated[float | None, RealBetween(0, 1e15)]
+    unit_rate = Annotated[float | None, RealBetween(0, 1)]
     grace = Annotated[int | None, Between(0, 50)]
     maturity = Annotated[int | None, Between(1, 100)]
 
     q = "'Input 4 - External Financing'"
     constrain(constraints, f"{q}!L10:N10", financial_type)
+    # L–Q blocks: blank projection columns between formula-backed creditor rows (OFFSET leaves).
+    for a1 in (
+        "L18:Q18",
+        "L20:Q20",
+        "L24:Q25",
+        "L31:Q31",
+        "L37:Q37",
+        "L43:Q43",
+        "M44:Q45",
+        "L46:Q47",
+    ):
+        constrain(constraints, f"{q}!{a1}", financial_type)
+    # Numeric spacers amid L–Q formulas (template ladder rows ~11–17).
+    for addr in ("M11", "N14:N15", "M16:O16", "M17:O17"):
+        constrain(constraints, f"{q}!{addr}", financial_type)
     for a1 in (
         "AG10:AM10",
         "AG19:AM19",
@@ -960,11 +1016,20 @@ def _constrain_input4_external_financing(constraints: type[Any]) -> None:
     ):
         constrain(constraints, f"{q}!{a1}", financial_type)
 
-    for cell in ("F10", "F19", "F21", "F23", "F26", "F30", "F32", "F36", "F45"):
+    for cell in ("F10", "F19", "F21", "F22", "F23", "F26", "F30", "F32", "F36", "F45"):
         constrain(constraints, f"{q}!{cell}", unit_rate)
     constrain(constraints, f"{q}!F38:F42", unit_rate)
 
-    for row in (10, 19, 21, 23, 26, 30, 32, 36):
+    # PV_Base!B9/B10 reference G10/H10; formulas such as PV_Base!Q28 divide by (H10-G10).
+    # Maturity must exceed grace for that row or the model divides by zero.
+    constrain(constraints, f"{q}!G10", grace)
+    constrain(
+        constraints,
+        f"{q}!H10",
+        Annotated[int | None, Between(1, 100), GreaterThanCell(f"{q}!G10")],
+    )
+
+    for row in (19, 21, 23, 26, 30, 32, 36):
         constrain(constraints, f"{q}!G{row}", grace)
         constrain(constraints, f"{q}!H{row}", maturity)
     for row in range(38, 43):
@@ -988,9 +1053,9 @@ def _constrain_input5_local_debt(constraints: type[Any]) -> None:
         return [get_column_letter(i) for i in range(min_c, max_c + 1)]
 
     q = "'Input 5 - Local-debt Financing'"
-    financial = Annotated[float | None, Between(0, 1e15)]
-    financial_signed = Annotated[float | None, Between(-1e15, 1e15)]
-    unit_rate = Annotated[float | None, Between(0, 1)]
+    financial = Annotated[float | None, RealBetween(0, 1e15)]
+    financial_signed = Annotated[float | None, RealBetween(-1e15, 1e15)]
+    unit_rate = Annotated[float | None, RealBetween(0, 1)]
     grace = Annotated[int | None, Between(0, 50)]
     maturity = Annotated[int | None, Between(1, 100)]
     small_int = Annotated[int | None, Between(0, 10)]
@@ -1046,9 +1111,22 @@ def _constrain_input5_local_debt(constraints: type[Any]) -> None:
     for row in (250, 274, 298, 322, 392, 463):
         constrain(constraints, f"{q}!BA{row}", financial)
 
-    for row in (250, 274, 298, 322, 392, 463, 488, 512):
-        for col in _cols("BB", "BT"):
-            constrain(constraints, f"{q}!{col}{row}", financial)
+    # BB:BT — issuance / flow grid; template has long blank runs between formula bands (BF leaf gaps).
+    _bb_bt_row_ranges: tuple[tuple[int, int], ...] = (
+        (248, 253),
+        (260, 277),
+        (284, 301),
+        (308, 326),
+        (333, 348),
+        (355, 370),
+        (377, 396),
+        (403, 418),
+        (425, 467),
+        (474, 491),
+        (498, 516),
+    )
+    for lo, hi in _bb_bt_row_ranges:
+        constrain(constraints, f"{q}!BB{lo}:BT{hi}", financial)
 
     for row in (392, 463):
         constrain(constraints, f"{q}!BU{row}", financial)
@@ -1074,9 +1152,9 @@ _constrain_input5_local_debt(LicDsfConstraints)
 def _constrain_input6_input8(constraints: type[Any]) -> None:
     """Tailored and standardized stress options; SDR sheet (enrichment_audit + template dropdowns)."""
     _threshold = Literal["Historical average only", "Baseline projection only", "Whichever is lower"]
-    financial = Annotated[float | None, Between(0, 1e15)]
-    financial_signed = Annotated[float | None, Between(-1e15, 1e15)]
-    unit_rate = Annotated[float | None, Between(0, 1)]
+    financial = Annotated[float | None, RealBetween(0, 1e15)]
+    financial_signed = Annotated[float | None, RealBetween(-1e15, 1e15)]
+    unit_rate = Annotated[float | None, RealBetween(0, 1)]
 
     q6t = "'Input 6 - Tailored Tests'"
     q6o = "'Input 6(optional)-Standard Test'"
@@ -1088,7 +1166,7 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
     constrain(constraints, f"{q6o}!C5", _threshold)
     constrain(constraints, f"{q6o}!C7", _threshold)
     constrain(constraints, f"{q6o}!C8", Literal["On", "Off"])
-    constrain(constraints, f"{q6o}!C17", Annotated[float, Between(0, 10)])
+    constrain(constraints, f"{q6o}!C17", Annotated[float, RealBetween(0, 10)])
     constrain(constraints, f"{q6o}!D8", Literal[None])
     constrain(constraints, f"{q6o}!D9", Literal[None])
     constrain(constraints, f"{q6o}!D18", _threshold)
@@ -1117,10 +1195,10 @@ _constrain_input6_input8(LicDsfConstraints)
 
 # AA403:AG403 — "Exchange rate (pa)" projection columns (years); may also map to
 # creditor-row financial data depending on workbook layout.
-constrain(LicDsfConstraints, "Ext_Debt_Data!AA403:AG403", Annotated[float | None, Between(0, 1e15)])
+constrain(LicDsfConstraints, "Ext_Debt_Data!AA403:AG403", Annotated[float | None, RealBetween(0, 1e15)])
 
 # F383:F384 — short-term debt principal / interest (or exchange rate in some layouts)
-constrain(LicDsfConstraints, "Ext_Debt_Data!F383:F384", Annotated[float | None, Between(0, 1e15)])
+constrain(LicDsfConstraints, "Ext_Debt_Data!F383:F384", Annotated[float | None, RealBetween(0, 1e15)])
 
 # ---------------------------------------------------------------------------
 # Translation table constraints
@@ -1189,6 +1267,18 @@ def get_dynamic_ref_config() -> DynamicRefConfig:
     return DynamicRefConfig.from_constraints_and_workbook(
         LicDsfConstraints, WORKBOOK_PATH
     )
+
+
+REQUIRED_CONSTRAINTS = ['C4_Market_financing!C19:C4_Market_financing!C32', 'C4_Market_financing!C40:C4_Market_financing!C53', 'C4_Market_financing!C4:C4_Market_financing!C7', 'C4_Market_financing!C9:C4_Market_financing!C11', 'C4_Market_financing!D19:C4_Market_financing!D22', 'C4_Market_financing!D29:C4_Market_financing!D32', 'C4_Market_financing!D40:C4_Market_financing!D53', 'C4_Market_financing!D4:C4_Market_financing!D6', 'C4_Market_financing!D9:C4_Market_financing!D11', 'C4_Market_financing!E19:C4_Market_financing!E34', 'C4_Market_financing!E40:C4_Market_financing!E47', 'C4_Market_financing!E4:C4_Market_financing!E7', 'C4_Market_financing!E9:C4_Market_financing!E11', 'C4_Market_financing!F19:C4_Market_financing!F22', 'C4_Market_financing!F29:C4_Market_financing!F34', 'C4_Market_financing!F42:C4_Market_financing!F47', 'C4_Market_financing!F4:C4_Market_financing!F7', 'C4_Market_financing!F9:C4_Market_financing!F11', 'C4_Market_financing!G19:C4_Market_financing!G34', 'C4_Market_financing!G42:C4_Market_financing!G47', 'C4_Market_financing!G4:C4_Market_financing!G7', 'C4_Market_financing!G9:C4_Market_financing!G11', 'Chart Data!I21', 'Ext_Debt_Data!AA403:Ext_Debt_Data!AG403', 'Ext_Debt_Data!F383:Ext_Debt_Data!F384', 'Input 1 - Basics!C18', 'Input 1 - Basics!C25', 'Input 1 - Basics!C33', 'Input 3 - Macro-Debt data(DMX)!AB100:Input 3 - Macro-Debt data(DMX)!AQ100', 'Input 3 - Macro-Debt data(DMX)!AB101:Input 3 - Macro-Debt data(DMX)!AQ108', 'Input 3 - Macro-Debt data(DMX)!AB109:Input 3 - Macro-Debt data(DMX)!AQ109', 'Input 3 - Macro-Debt data(DMX)!AB111:Input 3 - Macro-Debt data(DMX)!AQ111', 'Input 3 - Macro-Debt data(DMX)!AB112:Input 3 - Macro-Debt data(DMX)!AQ112', 'Input 3 - Macro-Debt data(DMX)!AB113:Input 3 - Macro-Debt data(DMX)!AQ113', 'Input 3 - Macro-Debt data(DMX)!AB116:Input 3 - Macro-Debt data(DMX)!AQ116', 'Input 3 - Macro-Debt data(DMX)!AB120:Input 3 - Macro-Debt data(DMX)!AQ120', 'Input 3 - Macro-Debt data(DMX)!AB122:Input 3 - Macro-Debt data(DMX)!AQ122', 'Input 3 - Macro-Debt data(DMX)!AB123:Input 3 - Macro-Debt data(DMX)!AQ123', 'Input 3 - Macro-Debt data(DMX)!AB124:Input 3 - Macro-Debt data(DMX)!AQ124', 'Input 3 - Macro-Debt data(DMX)!AB125:Input 3 - Macro-Debt data(DMX)!AQ125', 'Input 3 - Macro-Debt data(DMX)!AB126:Input 3 - Macro-Debt data(DMX)!AQ126', 'Input 3 - Macro-Debt data(DMX)!AB128:Input 3 - Macro-Debt data(DMX)!AQ128', 'Input 3 - Macro-Debt data(DMX)!AB129:Input 3 - Macro-Debt data(DMX)!AQ131', 'Input 3 - Macro-Debt data(DMX)!AB12:Input 3 - Macro-Debt data(DMX)!AQ13', 'Input 3 - Macro-Debt data(DMX)!AB132:Input 3 - Macro-Debt data(DMX)!AQ132', 'Input 3 - Macro-Debt data(DMX)!AB141:Input 3 - Macro-Debt data(DMX)!AQ144', 'Input 3 - Macro-Debt data(DMX)!AB155:Input 3 - Macro-Debt data(DMX)!AQ155', 'Input 3 - Macro-Debt data(DMX)!AB157:Input 3 - Macro-Debt data(DMX)!AQ157', 'Input 3 - Macro-Debt data(DMX)!AB166:Input 3 - Macro-Debt data(DMX)!AQ169', 'Input 3 - Macro-Debt data(DMX)!AB175:Input 3 - Macro-Debt data(DMX)!AQ175', 'Input 3 - Macro-Debt data(DMX)!AB177:Input 3 - Macro-Debt data(DMX)!AQ178', 'Input 3 - Macro-Debt data(DMX)!AB180:Input 3 - Macro-Debt data(DMX)!AQ180', 'Input 3 - Macro-Debt data(DMX)!AB19:Input 3 - Macro-Debt data(DMX)!AQ20', 'Input 3 - Macro-Debt data(DMX)!AB22:Input 3 - Macro-Debt data(DMX)!AQ22', 'Input 3 - Macro-Debt data(DMX)!AB24:Input 3 - Macro-Debt data(DMX)!AQ24', 'Input 3 - Macro-Debt data(DMX)!AB26:Input 3 - Macro-Debt data(DMX)!AQ27', 'Input 3 - Macro-Debt data(DMX)!AB28:Input 3 - Macro-Debt data(DMX)!AQ29', 'Input 3 - Macro-Debt data(DMX)!AB30:Input 3 - Macro-Debt data(DMX)!AQ30', 'Input 3 - Macro-Debt data(DMX)!AB34:Input 3 - Macro-Debt data(DMX)!AQ35', 'Input 3 - Macro-Debt data(DMX)!AB38:Input 3 - Macro-Debt data(DMX)!AQ38', 'Input 3 - Macro-Debt data(DMX)!AB41:Input 3 - Macro-Debt data(DMX)!AQ41', 'Input 3 - Macro-Debt data(DMX)!AB43:Input 3 - Macro-Debt data(DMX)!AQ43', 'Input 3 - Macro-Debt data(DMX)!AB52:Input 3 - Macro-Debt data(DMX)!AQ52', 'Input 3 - Macro-Debt data(DMX)!AB55:Input 3 - Macro-Debt data(DMX)!AQ55', 'Input 3 - Macro-Debt data(DMX)!AB57:Input 3 - Macro-Debt data(DMX)!AQ59', 'Input 3 - Macro-Debt data(DMX)!AB65:Input 3 - Macro-Debt data(DMX)!AQ65', 'Input 3 - Macro-Debt data(DMX)!AB70:Input 3 - Macro-Debt data(DMX)!AQ70', 'Input 3 - Macro-Debt data(DMX)!AB72:Input 3 - Macro-Debt data(DMX)!AQ72', 'Input 3 - Macro-Debt data(DMX)!AB74:Input 3 - Macro-Debt data(DMX)!AQ74', 'Input 3 - Macro-Debt data(DMX)!AB77:Input 3 - Macro-Debt data(DMX)!AQ77', 'Input 3 - Macro-Debt data(DMX)!AB81:Input 3 - Macro-Debt data(DMX)!AQ81', 'Input 3 - Macro-Debt data(DMX)!AB83:Input 3 - Macro-Debt data(DMX)!AQ83', 'Input 3 - Macro-Debt data(DMX)!AB87:Input 3 - Macro-Debt data(DMX)!AQ87', 'Input 3 - Macro-Debt data(DMX)!AB89:Input 3 - Macro-Debt data(DMX)!AQ89', 'Input 3 - Macro-Debt data(DMX)!AB93:Input 3 - Macro-Debt data(DMX)!AQ93', 'Input 3 - Macro-Debt data(DMX)!AB95:Input 3 - Macro-Debt data(DMX)!AQ95', 'Input 3 - Macro-Debt data(DMX)!AR100', 'Input 3 - Macro-Debt data(DMX)!AR101:Input 3 - Macro-Debt data(DMX)!AR108', 'Input 3 - Macro-Debt data(DMX)!AR109', 'Input 3 - Macro-Debt data(DMX)!AR111', 'Input 3 - Macro-Debt data(DMX)!AR112', 'Input 3 - Macro-Debt data(DMX)!AR113', 'Input 3 - Macro-Debt data(DMX)!AR116', 'Input 3 - Macro-Debt data(DMX)!AR120', 'Input 3 - Macro-Debt data(DMX)!AR122', 'Input 3 - Macro-Debt data(DMX)!AR123', 'Input 3 - Macro-Debt data(DMX)!AR124', 'Input 3 - Macro-Debt data(DMX)!AR125', 'Input 3 - Macro-Debt data(DMX)!AR126', 'Input 3 - Macro-Debt data(DMX)!AR128', 'Input 3 - Macro-Debt data(DMX)!AR129:Input 3 - Macro-Debt data(DMX)!AR131', 'Input 3 - Macro-Debt data(DMX)!AR12:Input 3 - Macro-Debt data(DMX)!AR13', 'Input 3 - Macro-Debt data(DMX)!AR132', 'Input 3 - Macro-Debt data(DMX)!AR141:Input 3 - Macro-Debt data(DMX)!AR144', 'Input 3 - Macro-Debt data(DMX)!AR147', 'Input 3 - Macro-Debt data(DMX)!AR155', 'Input 3 - Macro-Debt data(DMX)!AR157', 'Input 3 - Macro-Debt data(DMX)!AR166:Input 3 - Macro-Debt data(DMX)!AR169', 'Input 3 - Macro-Debt data(DMX)!AR175', 'Input 3 - Macro-Debt data(DMX)!AR177:Input 3 - Macro-Debt data(DMX)!AR178', 'Input 3 - Macro-Debt data(DMX)!AR180', 'Input 3 - Macro-Debt data(DMX)!AR19:Input 3 - Macro-Debt data(DMX)!AR20', 'Input 3 - Macro-Debt data(DMX)!AR22', 'Input 3 - Macro-Debt data(DMX)!AR24', 'Input 3 - Macro-Debt data(DMX)!AR26:Input 3 - Macro-Debt data(DMX)!AR27', 'Input 3 - Macro-Debt data(DMX)!AR28:Input 3 - Macro-Debt data(DMX)!AR29', 'Input 3 - Macro-Debt data(DMX)!AR30', 'Input 3 - Macro-Debt data(DMX)!AR34:Input 3 - Macro-Debt data(DMX)!AR35', 'Input 3 - Macro-Debt data(DMX)!AR38', 'Input 3 - Macro-Debt data(DMX)!AR41', 'Input 3 - Macro-Debt data(DMX)!AR43', 'Input 3 - Macro-Debt data(DMX)!AR52', 'Input 3 - Macro-Debt data(DMX)!AR55', 'Input 3 - Macro-Debt data(DMX)!AR57:Input 3 - Macro-Debt data(DMX)!AR59', 'Input 3 - Macro-Debt data(DMX)!AR65', 'Input 3 - Macro-Debt data(DMX)!AR70', 'Input 3 - Macro-Debt data(DMX)!AR72', 'Input 3 - Macro-Debt data(DMX)!AR74', 'Input 3 - Macro-Debt data(DMX)!AR77', 'Input 3 - Macro-Debt data(DMX)!AR81', 'Input 3 - Macro-Debt data(DMX)!AR83', 'Input 3 - Macro-Debt data(DMX)!AR87', 'Input 3 - Macro-Debt data(DMX)!AR89', 'Input 3 - Macro-Debt data(DMX)!AR93', 'Input 3 - Macro-Debt data(DMX)!AR95', 'Input 3 - Macro-Debt data(DMX)!BP65', 'Input 3 - Macro-Debt data(DMX)!BP70', 'Input 3 - Macro-Debt data(DMX)!BP72', 'Input 3 - Macro-Debt data(DMX)!BP74', 'Input 3 - Macro-Debt data(DMX)!BP77', 'Input 3 - Macro-Debt data(DMX)!BP81', 'Input 3 - Macro-Debt data(DMX)!BP83', 'Input 3 - Macro-Debt data(DMX)!BP87', 'Input 3 - Macro-Debt data(DMX)!BP89', 'Input 3 - Macro-Debt data(DMX)!BP93', 'Input 3 - Macro-Debt data(DMX)!M12:Input 3 - Macro-Debt data(DMX)!M13', 'Input 3 - Macro-Debt data(DMX)!M35', 'Input 3 - Macro-Debt data(DMX)!N12:Input 3 - Macro-Debt data(DMX)!N13', 'Input 3 - Macro-Debt data(DMX)!O12:Input 3 - Macro-Debt data(DMX)!U13', 'Input 3 - Macro-Debt data(DMX)!N142', 'Input 3 - Macro-Debt data(DMX)!N166:Input 3 - Macro-Debt data(DMX)!N167', 'Input 3 - Macro-Debt data(DMX)!N20', 'Input 3 - Macro-Debt data(DMX)!N34:Input 3 - Macro-Debt data(DMX)!N35', 'Input 3 - Macro-Debt data(DMX)!N41', 'Input 3 - Macro-Debt data(DMX)!N43', 'Input 3 - Macro-Debt data(DMX)!N53', 'Input 3 - Macro-Debt data(DMX)!N59', 'Input 3 - Macro-Debt data(DMX)!V12:Input 3 - Macro-Debt data(DMX)!V13', 'Input 3 - Macro-Debt data(DMX)!V20', 'Input 3 - Macro-Debt data(DMX)!V35', 'Input 3 - Macro-Debt data(DMX)!W12:Input 3 - Macro-Debt data(DMX)!W13', 'Input 3 - Macro-Debt data(DMX)!W138:Input 3 - Macro-Debt data(DMX)!W139', 'Input 3 - Macro-Debt data(DMX)!W142', 'Input 3 - Macro-Debt data(DMX)!W161:Input 3 - Macro-Debt data(DMX)!W164', 'Input 3 - Macro-Debt data(DMX)!W166:Input 3 - Macro-Debt data(DMX)!W167', 'Input 3 - Macro-Debt data(DMX)!W19:Input 3 - Macro-Debt data(DMX)!W20', 'Input 3 - Macro-Debt data(DMX)!W34:Input 3 - Macro-Debt data(DMX)!W35', 'Input 3 - Macro-Debt data(DMX)!W41', 'Input 3 - Macro-Debt data(DMX)!W43', 'Input 3 - Macro-Debt data(DMX)!W51:Input 3 - Macro-Debt data(DMX)!W53', 'Input 3 - Macro-Debt data(DMX)!W55', 'Input 3 - Macro-Debt data(DMX)!W57:Input 3 - Macro-Debt data(DMX)!W59', 'Input 3 - Macro-Debt data(DMX)!X100', 'Input 3 - Macro-Debt data(DMX)!X101:Input 3 - Macro-Debt data(DMX)!X108', 'Input 3 - Macro-Debt data(DMX)!X109', 'Input 3 - Macro-Debt data(DMX)!X111', 'Input 3 - Macro-Debt data(DMX)!X112', 'Input 3 - Macro-Debt data(DMX)!X113', 'Input 3 - Macro-Debt data(DMX)!X116', 'Input 3 - Macro-Debt data(DMX)!X120', 'Input 3 - Macro-Debt data(DMX)!X122', 'Input 3 - Macro-Debt data(DMX)!X123', 'Input 3 - Macro-Debt data(DMX)!X124', 'Input 3 - Macro-Debt data(DMX)!X125', 'Input 3 - Macro-Debt data(DMX)!X126', 'Input 3 - Macro-Debt data(DMX)!X128', 'Input 3 - Macro-Debt data(DMX)!X129:Input 3 - Macro-Debt data(DMX)!X131', 'Input 3 - Macro-Debt data(DMX)!X12:Input 3 - Macro-Debt data(DMX)!X13', 'Input 3 - Macro-Debt data(DMX)!X132', 'Input 3 - Macro-Debt data(DMX)!X141:Input 3 - Macro-Debt data(DMX)!X144', 'Input 3 - Macro-Debt data(DMX)!X147', 'Input 3 - Macro-Debt data(DMX)!X149:Input 3 - Macro-Debt data(DMX)!X150', 'Input 3 - Macro-Debt data(DMX)!X152', 'Input 3 - Macro-Debt data(DMX)!X154:Input 3 - Macro-Debt data(DMX)!X155', 'Input 3 - Macro-Debt data(DMX)!X157', 'Input 3 - Macro-Debt data(DMX)!X166:Input 3 - Macro-Debt data(DMX)!X169', 'Input 3 - Macro-Debt data(DMX)!X172:Input 3 - Macro-Debt data(DMX)!X173', 'Input 3 - Macro-Debt data(DMX)!X175', 'Input 3 - Macro-Debt data(DMX)!X177:Input 3 - Macro-Debt data(DMX)!X178', 'Input 3 - Macro-Debt data(DMX)!X180', 'Input 3 - Macro-Debt data(DMX)!X19:Input 3 - Macro-Debt data(DMX)!X20', 'Input 3 - Macro-Debt data(DMX)!X22', 'Input 3 - Macro-Debt data(DMX)!X24', 'Input 3 - Macro-Debt data(DMX)!X26:Input 3 - Macro-Debt data(DMX)!X27', 'Input 3 - Macro-Debt data(DMX)!X28:Input 3 - Macro-Debt data(DMX)!X29', 'Input 3 - Macro-Debt data(DMX)!X30', 'Input 3 - Macro-Debt data(DMX)!X35', 'Input 3 - Macro-Debt data(DMX)!X41', 'Input 3 - Macro-Debt data(DMX)!X52', 'Input 3 - Macro-Debt data(DMX)!X55', 'Input 3 - Macro-Debt data(DMX)!X57:Input 3 - Macro-Debt data(DMX)!X58', 'Input 3 - Macro-Debt data(DMX)!X65', 'Input 3 - Macro-Debt data(DMX)!X70', 'Input 3 - Macro-Debt data(DMX)!X72', 'Input 3 - Macro-Debt data(DMX)!X74', 'Input 3 - Macro-Debt data(DMX)!X77', 'Input 3 - Macro-Debt data(DMX)!X81', 'Input 3 - Macro-Debt data(DMX)!X83', 'Input 3 - Macro-Debt data(DMX)!X87', 'Input 3 - Macro-Debt data(DMX)!X89', 'Input 3 - Macro-Debt data(DMX)!X93', 'Input 3 - Macro-Debt data(DMX)!X95', 'Input 3 - Macro-Debt data(DMX)!Y100:Input 3 - Macro-Debt data(DMX)!AA100', 'Input 3 - Macro-Debt data(DMX)!Y101:Input 3 - Macro-Debt data(DMX)!AA108', 'Input 3 - Macro-Debt data(DMX)!Y109:Input 3 - Macro-Debt data(DMX)!AA109', 'Input 3 - Macro-Debt data(DMX)!Y111:Input 3 - Macro-Debt data(DMX)!AA111', 'Input 3 - Macro-Debt data(DMX)!Y112:Input 3 - Macro-Debt data(DMX)!AA112', 'Input 3 - Macro-Debt data(DMX)!Y113:Input 3 - Macro-Debt data(DMX)!AA113', 'Input 3 - Macro-Debt data(DMX)!Y116:Input 3 - Macro-Debt data(DMX)!AA116', 'Input 3 - Macro-Debt data(DMX)!Y120:Input 3 - Macro-Debt data(DMX)!AA120', 'Input 3 - Macro-Debt data(DMX)!Y122:Input 3 - Macro-Debt data(DMX)!AA122', 'Input 3 - Macro-Debt data(DMX)!Y123:Input 3 - Macro-Debt data(DMX)!AA123', 'Input 3 - Macro-Debt data(DMX)!Y124:Input 3 - Macro-Debt data(DMX)!AA124', 'Input 3 - Macro-Debt data(DMX)!Y125:Input 3 - Macro-Debt data(DMX)!AA125', 'Input 3 - Macro-Debt data(DMX)!Y126:Input 3 - Macro-Debt data(DMX)!AA126', 'Input 3 - Macro-Debt data(DMX)!Y128:Input 3 - Macro-Debt data(DMX)!AA132', 'Input 3 - Macro-Debt data(DMX)!Y12:Input 3 - Macro-Debt data(DMX)!AA13', 'Input 3 - Macro-Debt data(DMX)!Y141:Input 3 - Macro-Debt data(DMX)!AA144', 'Input 3 - Macro-Debt data(DMX)!Y155:Input 3 - Macro-Debt data(DMX)!AA155', 'Input 3 - Macro-Debt data(DMX)!Y157:Input 3 - Macro-Debt data(DMX)!AA157', 'Input 3 - Macro-Debt data(DMX)!Y166:Input 3 - Macro-Debt data(DMX)!AA169', 'Input 3 - Macro-Debt data(DMX)!Y175:Input 3 - Macro-Debt data(DMX)!AA175', 'Input 3 - Macro-Debt data(DMX)!Y177:Input 3 - Macro-Debt data(DMX)!AA178', 'Input 3 - Macro-Debt data(DMX)!Y180:Input 3 - Macro-Debt data(DMX)!AA180', 'Input 3 - Macro-Debt data(DMX)!Y19:Input 3 - Macro-Debt data(DMX)!AA20', 'Input 3 - Macro-Debt data(DMX)!Y22:Input 3 - Macro-Debt data(DMX)!AA22', 'Input 3 - Macro-Debt data(DMX)!Y24:Input 3 - Macro-Debt data(DMX)!AA24', 'Input 3 - Macro-Debt data(DMX)!Y26:Input 3 - Macro-Debt data(DMX)!AA27', 'Input 3 - Macro-Debt data(DMX)!Y28:Input 3 - Macro-Debt data(DMX)!AA29', 'Input 3 - Macro-Debt data(DMX)!Y30:Input 3 - Macro-Debt data(DMX)!AA30', 'Input 3 - Macro-Debt data(DMX)!Y34:Input 3 - Macro-Debt data(DMX)!AA35', 'Input 3 - Macro-Debt data(DMX)!Y38:Input 3 - Macro-Debt data(DMX)!AA38', 'Input 3 - Macro-Debt data(DMX)!Y41:Input 3 - Macro-Debt data(DMX)!AA41', 'Input 3 - Macro-Debt data(DMX)!Y43:Input 3 - Macro-Debt data(DMX)!AA43', 'Input 3 - Macro-Debt data(DMX)!Y52:Input 3 - Macro-Debt data(DMX)!AA52', 'Input 3 - Macro-Debt data(DMX)!Y55:Input 3 - Macro-Debt data(DMX)!AA55', 'Input 3 - Macro-Debt data(DMX)!Y57:Input 3 - Macro-Debt data(DMX)!AA59', 'Input 3 - Macro-Debt data(DMX)!Y65:Input 3 - Macro-Debt data(DMX)!AA65', 'Input 3 - Macro-Debt data(DMX)!Y70:Input 3 - Macro-Debt data(DMX)!AA70', 'Input 3 - Macro-Debt data(DMX)!Y72:Input 3 - Macro-Debt data(DMX)!AA72', 'Input 3 - Macro-Debt data(DMX)!Y74:Input 3 - Macro-Debt data(DMX)!AA74', 'Input 3 - Macro-Debt data(DMX)!Y77:Input 3 - Macro-Debt data(DMX)!AA77', 'Input 3 - Macro-Debt data(DMX)!Y81:Input 3 - Macro-Debt data(DMX)!AA81', 'Input 3 - Macro-Debt data(DMX)!Y83:Input 3 - Macro-Debt data(DMX)!AA83', 'Input 3 - Macro-Debt data(DMX)!Y87:Input 3 - Macro-Debt data(DMX)!AA87', 'Input 3 - Macro-Debt data(DMX)!Y89:Input 3 - Macro-Debt data(DMX)!AA89', 'Input 3 - Macro-Debt data(DMX)!Y93:Input 3 - Macro-Debt data(DMX)!AA93', 'Input 3 - Macro-Debt data(DMX)!Y95:Input 3 - Macro-Debt data(DMX)!AA95', 'Input 4 - External Financing!AG10:Input 4 - External Financing!AM10', 'Input 4 - External Financing!AG19:Input 4 - External Financing!AM19', 'Input 4 - External Financing!AG21:Input 4 - External Financing!AM21', 'Input 4 - External Financing!AG23:Input 4 - External Financing!AM23', 'Input 4 - External Financing!AG26:Input 4 - External Financing!AM26', 'Input 4 - External Financing!AG30:Input 4 - External Financing!AM30', 'Input 4 - External Financing!AG32:Input 4 - External Financing!AM32', 'Input 4 - External Financing!AG36:Input 4 - External Financing!AM36', 'Input 4 - External Financing!AG38:Input 4 - External Financing!AM38', 'Input 4 - External Financing!AG42:Input 4 - External Financing!AM42', 'Input 4 - External Financing!L18:Input 4 - External Financing!Q18', 'Input 4 - External Financing!L20:Input 4 - External Financing!Q20', 'Input 4 - External Financing!L24:Input 4 - External Financing!Q25', 'Input 4 - External Financing!L31:Input 4 - External Financing!Q31', 'Input 4 - External Financing!L37:Input 4 - External Financing!Q37', 'Input 4 - External Financing!L43:Input 4 - External Financing!Q43', 'Input 4 - External Financing!M44:Input 4 - External Financing!Q45', 'Input 4 - External Financing!L46:Input 4 - External Financing!Q47', 'Input 4 - External Financing!M11', 'Input 4 - External Financing!N14:Input 4 - External Financing!N15', 'Input 4 - External Financing!M16:Input 4 - External Financing!O16', 'Input 4 - External Financing!M17:Input 4 - External Financing!O17', 'Input 4 - External Financing!F10', 'Input 4 - External Financing!F19', 'Input 4 - External Financing!F21', 'Input 4 - External Financing!F22', 'Input 4 - External Financing!F23', 'Input 4 - External Financing!F26', 'Input 4 - External Financing!F30', 'Input 4 - External Financing!F32', 'Input 4 - External Financing!F36', 'Input 4 - External Financing!F38:Input 4 - External Financing!F42', 'Input 4 - External Financing!F45', 'Input 4 - External Financing!G10:Input 4 - External Financing!H10', 'Input 4 - External Financing!G19:Input 4 - External Financing!H19', 'Input 4 - External Financing!G21:Input 4 - External Financing!H21', 'Input 4 - External Financing!G23:Input 4 - External Financing!H23', 'Input 4 - External Financing!G26:Input 4 - External Financing!H26', 'Input 4 - External Financing!G30:Input 4 - External Financing!H30', 'Input 4 - External Financing!G32:Input 4 - External Financing!H32', 'Input 4 - External Financing!G36:Input 4 - External Financing!H36', 'Input 4 - External Financing!G38:Input 4 - External Financing!H42', 'Input 5 - Local-debt Financing!AB250', 'Input 5 - Local-debt Financing!AB274', 'Input 5 - Local-debt Financing!AB298', 'Input 5 - Local-debt Financing!AB322', 'Input 5 - Local-debt Financing!AB488', 'Input 5 - Local-debt Financing!AB512', 'Input 5 - Local-debt Financing!AB581', 'Input 5 - Local-debt Financing!AB63', 'Input 5 - Local-debt Financing!AC63', 'Input 5 - Local-debt Financing!AD108', 'Input 5 - Local-debt Financing!AD110', 'Input 5 - Local-debt Financing!AD188', 'Input 5 - Local-debt Financing!AD191', 'Input 5 - Local-debt Financing!AD193', 'Input 5 - Local-debt Financing!AD93', 'Input 5 - Local-debt Financing!AD95', 'Input 5 - Local-debt Financing!AE108', 'Input 5 - Local-debt Financing!AE110', 'Input 5 - Local-debt Financing!AE250', 'Input 5 - Local-debt Financing!AE254', 'Input 5 - Local-debt Financing!AE274', 'Input 5 - Local-debt Financing!AE278', 'Input 5 - Local-debt Financing!AE298', 'Input 5 - Local-debt Financing!AE302', 'Input 5 - Local-debt Financing!AE322', 'Input 5 - Local-debt Financing!AE392', 'Input 5 - Local-debt Financing!AE461', 'Input 5 - Local-debt Financing!AE93', 'Input 5 - Local-debt Financing!AE95', 'Input 5 - Local-debt Financing!AF108', 'Input 5 - Local-debt Financing!AF110', 'Input 5 - Local-debt Financing!AF250', 'Input 5 - Local-debt Financing!AF274', 'Input 5 - Local-debt Financing!AF298', 'Input 5 - Local-debt Financing!AF322', 'Input 5 - Local-debt Financing!AF392', 'Input 5 - Local-debt Financing!AF461', 'Input 5 - Local-debt Financing!AF488', 'Input 5 - Local-debt Financing!AF512', 'Input 5 - Local-debt Financing!AF93', 'Input 5 - Local-debt Financing!AF95', 'Input 5 - Local-debt Financing!AG108:Input 5 - Local-debt Financing!AJ108', 'Input 5 - Local-debt Financing!AG110:Input 5 - Local-debt Financing!AJ110', 'Input 5 - Local-debt Financing!AG250:Input 5 - Local-debt Financing!AJ250', 'Input 5 - Local-debt Financing!AG254:Input 5 - Local-debt Financing!AJ254', 'Input 5 - Local-debt Financing!AG274:Input 5 - Local-debt Financing!AJ274', 'Input 5 - Local-debt Financing!AG278:Input 5 - Local-debt Financing!AJ278', 'Input 5 - Local-debt Financing!AG298:Input 5 - Local-debt Financing!AJ298', 'Input 5 - Local-debt Financing!AG302:Input 5 - Local-debt Financing!AJ302', 'Input 5 - Local-debt Financing!AG322:Input 5 - Local-debt Financing!AJ322', 'Input 5 - Local-debt Financing!AG392:Input 5 - Local-debt Financing!AJ392', 'Input 5 - Local-debt Financing!AG461:Input 5 - Local-debt Financing!AJ461', 'Input 5 - Local-debt Financing!AG468:Input 5 - Local-debt Financing!AJ468', 'Input 5 - Local-debt Financing!AG488:Input 5 - Local-debt Financing!AJ488', 'Input 5 - Local-debt Financing!AG492:Input 5 - Local-debt Financing!AJ492', 'Input 5 - Local-debt Financing!AG512:Input 5 - Local-debt Financing!AJ512', 'Input 5 - Local-debt Financing!AG93:Input 5 - Local-debt Financing!AJ93', 'Input 5 - Local-debt Financing!AG95:Input 5 - Local-debt Financing!AJ95', 'Input 5 - Local-debt Financing!AK250:Input 5 - Local-debt Financing!AX250', 'Input 5 - Local-debt Financing!AK254:Input 5 - Local-debt Financing!AX254', 'Input 5 - Local-debt Financing!AK274:Input 5 - Local-debt Financing!AX274', 'Input 5 - Local-debt Financing!AK278:Input 5 - Local-debt Financing!AX278', 'Input 5 - Local-debt Financing!AK298:Input 5 - Local-debt Financing!AX298', 'Input 5 - Local-debt Financing!AK302:Input 5 - Local-debt Financing!AX302', 'Input 5 - Local-debt Financing!AK322:Input 5 - Local-debt Financing!AX322', 'Input 5 - Local-debt Financing!AK392:Input 5 - Local-debt Financing!AX392', 'Input 5 - Local-debt Financing!AK461:Input 5 - Local-debt Financing!AX461', 'Input 5 - Local-debt Financing!AK468:Input 5 - Local-debt Financing!AX468', 'Input 5 - Local-debt Financing!AK488:Input 5 - Local-debt Financing!AX488', 'Input 5 - Local-debt Financing!AK492:Input 5 - Local-debt Financing!AX492', 'Input 5 - Local-debt Financing!AK512:Input 5 - Local-debt Financing!AX512', 'Input 5 - Local-debt Financing!AY254', 'Input 5 - Local-debt Financing!AY278', 'Input 5 - Local-debt Financing!AY302', 'Input 5 - Local-debt Financing!AY392', 'Input 5 - Local-debt Financing!AY468', 'Input 5 - Local-debt Financing!AY492', 'Input 5 - Local-debt Financing!BA250', 'Input 5 - Local-debt Financing!BA274', 'Input 5 - Local-debt Financing!BA298', 'Input 5 - Local-debt Financing!BA322', 'Input 5 - Local-debt Financing!BA392', 'Input 5 - Local-debt Financing!BA463', 'Input 5 - Local-debt Financing!BB248:Input 5 - Local-debt Financing!BT253', 'Input 5 - Local-debt Financing!BB260:Input 5 - Local-debt Financing!BT277', 'Input 5 - Local-debt Financing!BB284:Input 5 - Local-debt Financing!BT301', 'Input 5 - Local-debt Financing!BB308:Input 5 - Local-debt Financing!BT326', 'Input 5 - Local-debt Financing!BB333:Input 5 - Local-debt Financing!BT348', 'Input 5 - Local-debt Financing!BB355:Input 5 - Local-debt Financing!BT370', 'Input 5 - Local-debt Financing!BB377:Input 5 - Local-debt Financing!BT396', 'Input 5 - Local-debt Financing!BB403:Input 5 - Local-debt Financing!BT418', 'Input 5 - Local-debt Financing!BB425:Input 5 - Local-debt Financing!BT467', 'Input 5 - Local-debt Financing!BB474:Input 5 - Local-debt Financing!BT491', 'Input 5 - Local-debt Financing!BB498:Input 5 - Local-debt Financing!BT516', 'Input 5 - Local-debt Financing!BU392', 'Input 5 - Local-debt Financing!BU463', 'Input 5 - Local-debt Financing!C10', 'Input 5 - Local-debt Financing!C100:Input 5 - Local-debt Financing!C101', 'Input 5 - Local-debt Financing!C104:Input 5 - Local-debt Financing!C106', 'Input 5 - Local-debt Financing!C108:Input 5 - Local-debt Financing!C110', 'Input 5 - Local-debt Financing!C16', 'Input 5 - Local-debt Financing!C18', 'Input 5 - Local-debt Financing!C20', 'Input 5 - Local-debt Financing!C22', 'Input 5 - Local-debt Financing!C78', 'Input 5 - Local-debt Financing!C83', 'Input 5 - Local-debt Financing!C86', 'Input 5 - Local-debt Financing!C89:Input 5 - Local-debt Financing!C91', 'Input 5 - Local-debt Financing!C93:Input 5 - Local-debt Financing!C95', 'Input 5 - Local-debt Financing!D10', 'Input 5 - Local-debt Financing!D104', 'Input 5 - Local-debt Financing!D106', 'Input 5 - Local-debt Financing!D108', 'Input 5 - Local-debt Financing!D110', 'Input 5 - Local-debt Financing!D16', 'Input 5 - Local-debt Financing!D18', 'Input 5 - Local-debt Financing!D20', 'Input 5 - Local-debt Financing!D22', 'Input 5 - Local-debt Financing!D93', 'Input 5 - Local-debt Financing!D95', 'Input 5 - Local-debt Financing!E104', 'Input 5 - Local-debt Financing!E106', 'Input 5 - Local-debt Financing!E108', 'Input 5 - Local-debt Financing!E110', 'Input 5 - Local-debt Financing!E93', 'Input 5 - Local-debt Financing!E95', 'Input 5 - Local-debt Financing!F104', 'Input 5 - Local-debt Financing!F106', 'Input 5 - Local-debt Financing!F108', 'Input 5 - Local-debt Financing!F110', 'Input 5 - Local-debt Financing!F83', 'Input 5 - Local-debt Financing!F93', 'Input 5 - Local-debt Financing!F95', 'Input 5 - Local-debt Financing!H230', 'Input 5 - Local-debt Financing!H254', 'Input 5 - Local-debt Financing!H278', 'Input 5 - Local-debt Financing!H302', 'Input 5 - Local-debt Financing!H327', 'Input 5 - Local-debt Financing!H397', 'Input 5 - Local-debt Financing!I16', 'Input 5 - Local-debt Financing!I18', 'Input 5 - Local-debt Financing!I20', 'Input 5 - Local-debt Financing!I22', 'Input 5 - Local-debt Financing!I461', 'Input 5 - Local-debt Financing!I488', 'Input 5 - Local-debt Financing!I581', 'Input 5 - Local-debt Financing!I63', 'Input 5 - Local-debt Financing!J488:Input 5 - Local-debt Financing!M488', 'Input 5 - Local-debt Financing!J581:Input 5 - Local-debt Financing!M581', 'Input 5 - Local-debt Financing!J63:Input 5 - Local-debt Financing!M63', 'Input 5 - Local-debt Financing!N16', 'Input 5 - Local-debt Financing!N18', 'Input 5 - Local-debt Financing!N20', 'Input 5 - Local-debt Financing!N22', 'Input 5 - Local-debt Financing!N488', 'Input 5 - Local-debt Financing!N581', 'Input 5 - Local-debt Financing!N63', 'Input 5 - Local-debt Financing!O488:Input 5 - Local-debt Financing!AA488', 'Input 5 - Local-debt Financing!O581:Input 5 - Local-debt Financing!AA581', 'Input 5 - Local-debt Financing!O63:Input 5 - Local-debt Financing!AA63', 'Input 6 - Tailored Tests!C6', 'Input 6(optional)-Standard Test!C17', 'Input 6(optional)-Standard Test!C4:Input 6(optional)-Standard Test!C5', 'Input 6(optional)-Standard Test!C7:Input 6(optional)-Standard Test!C8', 'Input 6(optional)-Standard Test!D18', 'Input 6(optional)-Standard Test!D8:Input 6(optional)-Standard Test!D9', 'Input 8 - SDR!AG37', 'Input 8 - SDR!B6:Input 8 - SDR!B7', 'Input 8 - SDR!C11:Input 8 - SDR!C12', 'Input 8 - SDR!D11:Input 8 - SDR!V12', 'Input 8 - SDR!D14:Input 8 - SDR!V14', 'Input 8 - SDR!W14', 'Input 8 - SDR!X27', 'Input 8 - SDR!Y28', 'PV Stress!D147', 'PV Stress!D161', 'PV Stress!D4', 'PV Stress!E161:PV Stress!G161', 'PV Stress!H147:PV Stress!X147', 'PV Stress!Y148:PV Stress!AF148', 'PV Stress!Y162:PV Stress!AF162', 'PV Stress!Y30:PV Stress!AF30', 'PV_LC_NR1!Y6:PV_LC_NR1!AE6', 'PV_LC_NR1!Y7:PV_LC_NR1!BG7', 'PV_LC_NR3!Y6:PV_LC_NR3!AE6', 'PV_LC_NR3!Y7:PV_LC_NR3!BG7', 'PV_baseline_com!H110:PV_baseline_com!AE110', 'PV_baseline_com!H136:PV_baseline_com!AE136', 'PV_baseline_com!H32:PV_baseline_com!AE32', 'PV_baseline_com!H58:PV_baseline_com!AE58', 'PV_baseline_com!H84:PV_baseline_com!AE84', 'PV_stress_com!H114:PV_stress_com!AE114', 'PV_stress_com!H140:PV_stress_com!AE140', 'PV_stress_com!H36:PV_stress_com!AE36', 'PV_stress_com!H62:PV_stress_com!AE62', 'PV_stress_com!H88:PV_stress_com!AE88', 'translation!C451:translation!C452', 'translation!D451:translation!F452', 'translation!D898:translation!F898']
+
+
+def check_constraints(constraints: type[TypedDict]) -> None:
+    missing = _get_missing_constraints(REQUIRED_CONSTRAINTS, constraints)
+    if missing:
+        raise ValueError(f"Missing constraints for: {missing}")
+
+
+check_constraints(LicDsfConstraints)
 
 
 # ---------------------------------------------------------------------------
