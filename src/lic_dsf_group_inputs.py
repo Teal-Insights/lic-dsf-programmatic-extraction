@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Literal
 
-import openpyxl.utils.cell
+import fastpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
 
 from .lic_dsf_config import ensure_workbook_available, validate_workbook_metadata
@@ -166,7 +166,7 @@ def iter_input_cells(
         if not isinstance(row_labels, list) or not isinstance(column_labels, list):
             continue
 
-        col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+        col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
         address = _format_address(node.sheet, node.address)
 
         inputs.append(
@@ -317,8 +317,8 @@ def _rectangular_range(cells: list[InputCell]) -> tuple[dict[str, int], str, tup
                 return None
 
     sheet = cells[0].sheet
-    start = f"{openpyxl.utils.cell.get_column_letter(min_col)}{min_row}"
-    end = f"{openpyxl.utils.cell.get_column_letter(max_col)}{max_row}"
+    start = f"{fastpyxl.utils.cell.get_column_letter(min_col)}{min_row}"
+    end = f"{fastpyxl.utils.cell.get_column_letter(max_col)}{max_row}"
     range_a1 = f"{_format_sheet_name(sheet)}!{start}:{end}"
     shape = (max_row - min_row + 1, max_col - min_col + 1)
     bbox = {

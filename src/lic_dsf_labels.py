@@ -11,10 +11,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Literal, TypedDict
 
-import openpyxl
-import openpyxl.utils.cell
+import fastpyxl
+import fastpyxl.utils.cell
 from excel_grapher.grapher import DependencyGraph
-from openpyxl.worksheet.worksheet import Worksheet
+from fastpyxl.worksheet.worksheet import Worksheet
 
 
 # Region-based label configuration
@@ -262,7 +262,7 @@ def detect_year_offset_headers(
             if m:
                 ref_col_letter, ref_row_str = m.group(1), m.group(2)
                 if int(ref_row_str) == header_row:
-                    ref_col = openpyxl.utils.cell.column_index_from_string(
+                    ref_col = fastpyxl.utils.cell.column_index_from_string(
                         ref_col_letter
                     )
                     if ref_col in offsets:
@@ -273,7 +273,7 @@ def detect_year_offset_headers(
             if m:
                 ref_col_letter, ref_row_str = m.group(1), m.group(2)
                 if int(ref_row_str) == header_row:
-                    ref_col = openpyxl.utils.cell.column_index_from_string(
+                    ref_col = fastpyxl.utils.cell.column_index_from_string(
                         ref_col_letter
                     )
                     if ref_col in offsets:
@@ -312,7 +312,7 @@ def detect_year_offset_headers(
             m = _ROW_COPY_RE.match(f)
             if m:
                 ref_col_letter, ref_row_str = m.group(1), m.group(2)
-                ref_col = openpyxl.utils.cell.column_index_from_string(ref_col_letter)
+                ref_col = fastpyxl.utils.cell.column_index_from_string(ref_col_letter)
                 ref_row = int(ref_row_str)
                 if ref_row != header_row and ref_col == col and col in values:
                     row_copy_candidates[col] = values[col]
@@ -396,11 +396,11 @@ def find_region_config(
         min_col = config.get("min_col")
         max_col = config.get("max_col")
         if min_col is not None:
-            min_col_idx = openpyxl.utils.cell.column_index_from_string(min_col)
+            min_col_idx = fastpyxl.utils.cell.column_index_from_string(min_col)
             if col < min_col_idx:
                 continue
         if max_col is not None:
-            max_col_idx = openpyxl.utils.cell.column_index_from_string(max_col)
+            max_col_idx = fastpyxl.utils.cell.column_index_from_string(max_col)
             if col > max_col_idx:
                 continue
 
@@ -437,7 +437,7 @@ def get_labels_from_region_config(
     # Get row labels from specified label columns
     label_columns = config.get("label_columns", [])
     for col_letter in label_columns:
-        label_col_idx = openpyxl.utils.cell.column_index_from_string(col_letter)
+        label_col_idx = fastpyxl.utils.cell.column_index_from_string(col_letter)
 
         # Prepend ancestor labels from the hierarchy if available
         hierarchy = label_hierarchies.get(col_letter, {})
@@ -566,15 +566,15 @@ def enrich_graph_with_labels(
     graph: DependencyGraph,
     wb_path: Path,
     *,
-    wb_values: openpyxl.Workbook | None = None,
-    wb_formulas: openpyxl.Workbook | None = None,
+    wb_values: fastpyxl.Workbook | None = None,
+    wb_formulas: fastpyxl.Workbook | None = None,
     region_config: list[RegionConfig] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """
     Enrich nodes in the graph with row and column labels.
     """
-    values_wb = wb_values or openpyxl.load_workbook(wb_path, data_only=True)
-    formulas_wb = wb_formulas or openpyxl.load_workbook(wb_path)
+    values_wb = wb_values or fastpyxl.load_workbook(wb_path, data_only=True)
+    formulas_wb = wb_formulas or fastpyxl.load_workbook(wb_path)
     try:
         # Cache worksheets by name for efficiency
         worksheets: dict[str, Worksheet] = {}
@@ -619,7 +619,7 @@ def enrich_graph_with_labels(
                 if col_letter in no_hierarchy:
                     continue
                 if col_letter not in sheet_cache:
-                    col_idx = openpyxl.utils.cell.column_index_from_string(col_letter)
+                    col_idx = fastpyxl.utils.cell.column_index_from_string(col_letter)
                     sheet_cache[col_letter] = build_label_hierarchy(
                         ws_h,
                         col_idx,
@@ -645,7 +645,7 @@ def enrich_graph_with_labels(
             ws = worksheets[node.sheet]
 
             # Get column index from column letter
-            col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+            col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
 
             # Check for region-based configuration first
             matched_region = find_region_config(node.sheet, node.row, col_idx, region_config)
@@ -771,7 +771,7 @@ def discover_formula_cells_in_rows(
     values are not required to be numeric, so discovery works when the template
     has no pre-filled data (e.g. base year empty, formulas evaluate to errors).
     """
-    wb_formulas = openpyxl.load_workbook(wb_path)
+    wb_formulas = fastpyxl.load_workbook(wb_path)
     try:
         if sheet_name not in wb_formulas.sheetnames:
             print(f"  Warning: Sheet '{sheet_name}' not found")
@@ -792,7 +792,7 @@ def discover_formula_cells_in_rows(
                 if isinstance(
                     cell_formula.value, str
                 ) and cell_formula.value.startswith("="):
-                    col_letter = openpyxl.utils.cell.get_column_letter(col_idx)
+                    col_letter = fastpyxl.utils.cell.get_column_letter(col_idx)
                     targets.append(f"{sheet_name}!{col_letter}{row}")
 
         return targets

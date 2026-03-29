@@ -18,9 +18,9 @@ import warnings
 from string import Template
 from typing import Mapping
 
-import openpyxl
-import openpyxl.utils.cell
-from openpyxl.worksheet.worksheet import Worksheet
+import fastpyxl
+import fastpyxl.utils.cell
+from fastpyxl.worksheet.worksheet import Worksheet
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import get_calc_settings
 
@@ -450,8 +450,8 @@ def generate_setters_module(
     *,
     workbook: Path,
     groups: list[dict],
-    wb_values: openpyxl.Workbook | None = None,
-    wb_formulas: openpyxl.Workbook | None = None,
+    wb_values: fastpyxl.Workbook | None = None,
+    wb_formulas: fastpyxl.Workbook | None = None,
 ) -> str:
     """
     Generate a `setters.py` module for the exported package.
@@ -467,8 +467,8 @@ def generate_setters_module(
     if not groups:
         return "from __future__ import annotations\n\n# No setters were generated.\n"
 
-    wb = wb_values or openpyxl.load_workbook(workbook, data_only=True)
-    wb_formulas = wb_formulas or openpyxl.load_workbook(workbook)
+    wb = wb_values or fastpyxl.load_workbook(workbook, data_only=True)
+    wb_formulas = wb_formulas or fastpyxl.load_workbook(workbook)
     try:
         # Precompute offset maps per (sheet, header_row)
         _offset_cache: dict[str, dict[int, dict[int, int]]] = {}
@@ -539,7 +539,7 @@ def generate_setters_module(
                         continue
                     col_letter, row_str = m.group(1), m.group(2)
                     r = int(row_str)
-                    c = openpyxl.utils.cell.column_index_from_string(col_letter)
+                    c = fastpyxl.utils.cell.column_index_from_string(col_letter)
 
                     y = year_for_row(ws, r, c, sheet_offset_maps)
                     if y is None:
@@ -632,7 +632,7 @@ def generate_setters_module(
                             if o in offset_to_address:
                                 ok = False
                                 break
-                            col_letter = openpyxl.utils.cell.get_column_letter(col)
+                            col_letter = fastpyxl.utils.cell.get_column_letter(col)
                             addr = format_address(sheet, f"{col_letter}{row}")
                             offset_to_address[int(o)] = addr
                             offsets.append(int(o))
@@ -655,7 +655,7 @@ def generate_setters_module(
                         meta_seg_index += 1
                         addresses: list[str] = []
                         for col in range(seg_start, seg_end + 1):
-                            col_letter = openpyxl.utils.cell.get_column_letter(col)
+                            col_letter = fastpyxl.utils.cell.get_column_letter(col)
                             addresses.append(
                                 format_address(sheet, f"{col_letter}{row}")
                             )
@@ -677,7 +677,7 @@ def generate_setters_module(
                 addresses: list[str] = []
                 for r in range(row, row + rows):
                     for c in range(start_col, start_col + cols):
-                        col_letter = openpyxl.utils.cell.get_column_letter(c)
+                        col_letter = fastpyxl.utils.cell.get_column_letter(c)
                         addresses.append(format_address(sheet, f"{col_letter}{r}"))
 
                 if not addresses:
@@ -795,12 +795,12 @@ def generate_setters_module(
             "def _read_inputs_from_workbook(workbook_path: str) -> dict[str, CellValue]:"
         )
         lines.append("    try:")
-        lines.append("        import openpyxl")
+        lines.append("        import fastpyxl")
         lines.append("    except ImportError as exc:")
         lines.append(
-            '        raise ImportError("openpyxl is required to read inputs from a workbook") from exc'
+            '        raise ImportError("fastpyxl is required to read inputs from a workbook") from exc'
         )
-        lines.append("    wb = openpyxl.load_workbook(workbook_path, data_only=True)")
+        lines.append("    wb = fastpyxl.load_workbook(workbook_path, data_only=True)")
         lines.append("    try:")
         lines.append("        updates: dict[str, CellValue] = {}")
         lines.append("        ws_cache: dict[str, object] = {}")
@@ -1338,14 +1338,14 @@ def main(argv: list[str] | None = None) -> None:
     string_constant_excludes = cfg.STRING_CONSTANT_EXCLUDES
     blank_constant_excludes = cfg.BLANK_CONSTANT_EXCLUDES
 
-    wb_values: openpyxl.Workbook | None = None
-    wb_formulas: openpyxl.Workbook | None = None
+    wb_values: fastpyxl.Workbook | None = None
+    wb_formulas: fastpyxl.Workbook | None = None
     keep_vba = workbook.suffix.lower() == ".xlsm"
     try:
-        wb_formulas = openpyxl.load_workbook(
+        wb_formulas = fastpyxl.load_workbook(
             workbook, data_only=False, keep_vba=keep_vba
         )
-        wb_values = openpyxl.load_workbook(workbook, data_only=True, keep_vba=keep_vba)
+        wb_values = fastpyxl.load_workbook(workbook, data_only=True, keep_vba=keep_vba)
 
         print("\nBuilding dependency graph...")
         _t0 = _time.monotonic()

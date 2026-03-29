@@ -25,8 +25,8 @@ from urllib.request import urlopen
 from dotenv import load_dotenv
 import llm
 from openai import AsyncOpenAI, OpenAI
-import openpyxl
-import openpyxl.utils.cell
+import fastpyxl
+import fastpyxl.utils.cell
 import sqlite_utils
 
 from excel_grapher.grapher import DependencyGraph
@@ -226,7 +226,7 @@ def get_annotation_key(
     col: int,
     axis: Literal["row", "column", "cell"],
 ) -> str:
-    col_letter = openpyxl.utils.cell.get_column_letter(col)
+    col_letter = fastpyxl.utils.cell.get_column_letter(col)
     if axis == "row":
         return f"{sheet}!row{row}"
     if axis == "column":
@@ -248,7 +248,7 @@ def group_nodes_by_annotation_key(
         if node is None:
             continue
 
-        col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+        col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
 
         region_config = find_region_config(node.sheet, node.row, col_idx)
         if region_config and "annotation_axis" in region_config:
@@ -378,7 +378,7 @@ def get_parent_child_summaries(
         node = graph.get_node(pk)
         if node is None:
             continue
-        col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+        col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
         data = enrichment_results.get(pk, {})
         axis = detect_annotation_axis(
             data.get("column_labels", []),
@@ -395,7 +395,7 @@ def get_parent_child_summaries(
         node = graph.get_node(ck)
         if node is None:
             continue
-        col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+        col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
         data = enrichment_results.get(ck, {})
         axis = detect_annotation_axis(
             data.get("column_labels", []),

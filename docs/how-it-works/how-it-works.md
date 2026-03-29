@@ -149,7 +149,7 @@ basics.
     - As you’ll see below, I had to partially implement a few functions in the `excel-grapher` repo to support cycle detection and dynamic range resolution. Maybe having had access to the full formula AST during dependency detection would have made it easier to handle those edge cases.
 2. **Canonicalizing named ranges**
     - Excel lets users define “named ranges” (aliases for Excel addresses) and use them in formulas.
-    - `openpyxl` offers a helper for getting the full list of named ranges for the workbook.
+    - `fastpyxl` offers a helper for getting the full list of named ranges for the workbook.
     - We construct a dictionary of named ranges to their canonical addresses, and then substitute the canonical addresses in the `normalized_formula` field of each `Node` during extraction.
 3. **Callback hooks for adding node metadata**
     - Since I knew we’d later want to do some things like detect row and column labels and add them to the node, I added a `metadata` field to the `Node` class.
@@ -384,7 +384,7 @@ There are currently 16 targets (four rows for each of the three stress test tabs
 ### Architectural decisions
 
 1. **Self-contained library**
-    - We permit dependencies on third-party open-source libraries like openpyxl and numpy, but not on the pipeline libraries (which are internal-only, not public). This lets us keep our edge (the proprietary technology we invented for Excel reverse-engineering) out of the open-source end-product.
+    - We permit dependencies on third-party open-source libraries like fastpyxl and numpy, but not on the pipeline libraries (which are internal-only, not public). This lets us keep our edge (the proprietary technology we invented for Excel reverse-engineering) out of the open-source end-product.
 2. **Time-series setters accept either a year-value dictionary or a numpy array with a start year**
 
 ```python

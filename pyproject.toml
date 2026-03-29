@@ -6,15 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "excel-grapher",
+    "fastpyxl",
     "llm>=0.28",
     "numpy",
     "openai>=2.15.0",
-    "openpyxl>=3.1.5",
     "python-dotenv>=1.2.1",
 ]
 
 [tool.uv.sources]
 excel-grapher = { git = "https://github.com/Teal-Insights/excel-grapher" }
+fastpyxl = { git = "https://github.com/Promptly-Technologies-LLC/fastpyxl" }
 
 [dependency-groups]
 dev = [

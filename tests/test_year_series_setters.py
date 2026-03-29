@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import openpyxl.utils.cell
+import fastpyxl.utils.cell
 import pytest
 
 from src.configs import load_template_config
@@ -31,8 +31,8 @@ def test_build_wide_year_series_spec_ext_debt_data_row10() -> None:
         workbook_path="workbooks/lic-dsf-template-2026-01-31.xlsm",
         sheet="Ext_Debt_Data",
         row=10,
-        start_col=openpyxl.utils.cell.column_index_from_string("E"),
-        end_col=openpyxl.utils.cell.column_index_from_string("H"),
+        start_col=fastpyxl.utils.cell.column_index_from_string("E"),
+        end_col=fastpyxl.utils.cell.column_index_from_string("H"),
         region_config=_REGION,
     )
 

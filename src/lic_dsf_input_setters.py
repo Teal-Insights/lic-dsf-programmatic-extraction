@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol, Sequence, TypeAlias
 
-import openpyxl
-import openpyxl.utils.cell
-from openpyxl.worksheet.worksheet import Worksheet
+import fastpyxl
+import fastpyxl.utils.cell
+from fastpyxl.worksheet.worksheet import Worksheet
 
 from .lic_dsf_labels import (
     RegionConfig,
@@ -141,8 +141,8 @@ def build_wide_year_series_spec(
     from pathlib import Path
 
     wb_path = Path(workbook_path)
-    wb_values = openpyxl.load_workbook(wb_path, data_only=True)
-    wb_formulas = openpyxl.load_workbook(wb_path)
+    wb_values = fastpyxl.load_workbook(wb_path, data_only=True)
+    wb_formulas = fastpyxl.load_workbook(wb_path)
     try:
         ws_v = wb_values[sheet]
 
@@ -161,19 +161,19 @@ def build_wide_year_series_spec(
                 ws_v, row, col, offset_maps, region_config=region_config
             )
             if len(values) != 1:
-                col_letter = openpyxl.utils.cell.get_column_letter(col)
+                col_letter = fastpyxl.utils.cell.get_column_letter(col)
                 raise ValueError(
                     f"Ambiguous year label for {sheet}!{col_letter}{row}: {values}"
                 )
 
             o = values[0]
             if o in offset_to_address:
-                col_letter = openpyxl.utils.cell.get_column_letter(col)
+                col_letter = fastpyxl.utils.cell.get_column_letter(col)
                 raise ValueError(
                     f"Duplicate offset {o} in series (also mapped earlier); at {sheet}!{col_letter}{row}"
                 )
 
-            addr = f"{sheet}!{openpyxl.utils.cell.get_column_letter(col)}{row}"
+            addr = f"{sheet}!{fastpyxl.utils.cell.get_column_letter(col)}{row}"
             offset_to_address[o] = addr
             ordered_offsets.append(o)
 

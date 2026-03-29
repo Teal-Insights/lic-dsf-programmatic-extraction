@@ -12,13 +12,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import openpyxl
-import openpyxl.utils.cell
+import fastpyxl
+import fastpyxl.utils.cell
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import DependencyGraph, Node, create_dependency_graph
-from openpyxl import Workbook
+from fastpyxl import Workbook
 
-from openpyxl.worksheet.worksheet import Worksheet
+from fastpyxl.worksheet.worksheet import Worksheet
 
 from excel_grapher.grapher import DynamicRefConfig
 _SAFE_SHEET_NAME_RE = re.compile(r"^[A-Za-z_][0-9A-Za-z_]*$")
@@ -160,7 +160,7 @@ def populate_leaf_values(
     Code generation only needs `node.value` for leaf cells; formulas are emitted
     from `node.formula`.
     """
-    wb = wb_values or openpyxl.load_workbook(workbook, data_only=True)
+    wb = wb_values or fastpyxl.load_workbook(workbook, data_only=True)
     try:
         worksheets: dict[str, Worksheet] = {}
         for key in graph:
@@ -172,7 +172,7 @@ def populate_leaf_values(
                     continue
                 worksheets[node.sheet] = wb[node.sheet]
             ws = worksheets[node.sheet]
-            col_idx = openpyxl.utils.cell.column_index_from_string(node.column)
+            col_idx = fastpyxl.utils.cell.column_index_from_string(node.column)
             node.value = ws.cell(row=node.row, column=col_idx).value
     finally:
         if wb_values is None:

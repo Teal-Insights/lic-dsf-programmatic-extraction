@@ -18,7 +18,7 @@ import zipfile
 from pathlib import Path
 from typing import Literal, TypedDict
 
-import openpyxl.utils.cell
+import fastpyxl.utils.cell
 from excel_grapher import format_cell_key
 
 
@@ -187,10 +187,10 @@ def cells_in_range(sheet: str, range_a1: str) -> list[str]:
     else:
         start_a1 = end_a1 = range_a1.strip()
 
-    c1, r1 = openpyxl.utils.cell.coordinate_from_string(start_a1)
-    c2, r2 = openpyxl.utils.cell.coordinate_from_string(end_a1)
-    start_col_idx = openpyxl.utils.cell.column_index_from_string(c1)
-    end_col_idx = openpyxl.utils.cell.column_index_from_string(c2)
+    c1, r1 = fastpyxl.utils.cell.coordinate_from_string(start_a1)
+    c2, r2 = fastpyxl.utils.cell.coordinate_from_string(end_a1)
+    start_col_idx = fastpyxl.utils.cell.column_index_from_string(c1)
+    end_col_idx = fastpyxl.utils.cell.column_index_from_string(c2)
     rlo, rhi = (r1, r2) if r1 <= r2 else (r2, r1)
     clo, chi = (start_col_idx, end_col_idx) if start_col_idx <= end_col_idx else (
         end_col_idx,
@@ -200,7 +200,7 @@ def cells_in_range(sheet: str, range_a1: str) -> list[str]:
     out: list[str] = []
     for row in range(rlo, rhi + 1):
         for col_idx in range(clo, chi + 1):
-            col_letter = openpyxl.utils.cell.get_column_letter(col_idx)
+            col_letter = fastpyxl.utils.cell.get_column_letter(col_idx)
             out.append(format_cell_key(sheet, col_letter, row))
     return out
 
