@@ -1,32 +1,77 @@
+#!/usr/bin/env python3
 """
-Template-specific configuration for LIC-DSF template 2025-08-12.
+Map dependencies for LIC-DSF indicator rows using excel-grapher.
 
-This module contains all configuration that is specific to this template version:
-workbook path, export ranges, region config, constraints, and constant excludes.
+This script traces the dependency closure for key indicators across sheets
+and validates against calcChain.xml.
+
+Dynamic refs (OFFSET/INDIRECT) are resolved via a constraint-based config.
+Iterative workflow: run the script; if DynamicRefError is raised, the message
+includes the formula cell that needs a constraint. Inspect that cell and the
+row/column headers in the workbook to decide plausible input domains, add the
+address to LicDsfConstraints (with Annotated[int, Between(lo, hi)], Annotated[float, RealBetween(...)], or
+Literal[...]), then re-run until the graph
+builds.
 """
 
-from __future__ import annotations
-
+import logging
+import time
 from pathlib import Path
-from typing import Any, Literal, TypedDict, Annotated, cast, get_type_hints
+from typing import (  # noqa: F401 - Annotated/Literal used when adding constraints
+    Annotated,
+    Any,
+    Literal,
+    TypedDict,
+    cast,
+)
 
 import fastpyxl
-from fastpyxl.utils.cell import range_boundaries, get_column_letter
-from fastpyxl.worksheet.formula import ArrayFormula
+import fastpyxl.utils.cell
+from fastpyxl.utils import range_boundaries
+from fastpyxl.utils.cell import get_column_letter
 
-from excel_grapher import RealBetween, constrain
-from excel_grapher.grapher import DynamicRefConfig
-from excel_grapher.grapher.dynamic_refs import format_key
-from excel_grapher.core.cell_types import Between, GreaterThanCell
-
-from src.lic_dsf_config import (
-    ExportRangeConfig,
-    WorkbookMetadata,
-    cells_in_range,
-    parse_range_spec,
+from excel_grapher import (
+    CycleError,
+    DynamicRefConfig,
+    DynamicRefError,
+    GreaterThanCell,
+    constrain,
+    create_dependency_graph,
+    format_cell_key,
+    format_key,
+    get_calc_settings,
+    to_graphviz,
+    validate_graph,
 )
-from src.lic_dsf_labels import RegionConfig
+from excel_grapher.core.cell_types import (  # noqa: F401 - used when adding constraints
+    Between,
+    RealBetween,
+)
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(name)s %(message)s",
+    datefmt="%H:%M:%S",
+    force=True,
+)
+logging.getLogger("excel_grapher.grapher.dynamic_refs").setLevel(logging.INFO)
+
+
+class ExportRangeConfig(TypedDict):
+    """
+    Explicit range specification for export/annotation targets.
+
+    Attributes:
+        label: Human-readable label for the range (used for reporting only).
+        range_spec: Sheet-qualified A1 range, e.g. "'Chart Data'!D10:D17".
+        entrypoint_mode: Controls how export entrypoints are grouped for this
+            range: "row_group" (one entrypoint per row) or "per_cell" (one
+            entrypoint per cell, no row grouping).
+    """
+
+    label: str
+    range_spec: str
+    entrypoint_mode: Literal["row_group", "per_cell"]
 
 # ---------------------------------------------------------------------------
 # Workbook
@@ -36,11 +81,10 @@ WORKBOOK_PATH = Path("workbooks/lic-dsf-template-2025-08-12.xlsm")
 WORKBOOK_TEMPLATE_URL = (
     "https://thedocs.worldbank.org/en/doc/f0ade6bcf85b6f98dbeb2c39a2b7770c-0360012025/original/LIC-DSF-IDA21-Template-08-12-2025-vf.xlsm"
 )
-WORKBOOK_METADATA: WorkbookMetadata = {
-    "creator": "spalazzo",
-    "created": "2002-02-01",
-    "modified": "2025-09-18T22:03:17",
-}
+
+# Set True to resolve OFFSET/INDIRECT from cached workbook values (no constraints).
+# Set False to use constraint-based resolution; add address-style keys below as you hit DynamicRefError.
+USE_CACHED_DYNAMIC_REFS = False
 
 # ---------------------------------------------------------------------------
 # Export package
@@ -179,202 +223,6 @@ def _export_chart_data_ranges() -> list[ExportRangeConfig]:
 EXPORT_RANGES: list[ExportRangeConfig] = _export_chart_data_ranges()
 
 # ---------------------------------------------------------------------------
-# Region config (label extraction)
-# ---------------------------------------------------------------------------
-
-REGION_CONFIG: list[RegionConfig] = [
-    {
-        "sheet": "Input 5 - Local-debt Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [5],
-        "label_columns": ["A", "B"],
-    },
-    {
-        "sheet": "Ext_Debt_Data",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [1, 9],
-        "label_columns": ["A"],
-    },
-    {
-        "sheet": "PV_Base",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [7],
-        "label_columns": ["A", "C"],
-    },
-    {
-        "sheet": "PV_LC_NR1",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    {
-        "sheet": "PV_LC_NR2",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    {
-        "sheet": "PV_LC_NR3",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    {
-        "sheet": "Input 3 - Macro-Debt data(DMX)",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [7],
-        "label_columns": ["A", "B", "C"],
-    },
-    {
-        "sheet": "Input 4 - External Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [6],
-        "label_columns": ["B"],
-    },
-    {
-        "sheet": "Baseline - external",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B"],
-    },
-    {
-        "sheet": "Baseline - public",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [7],
-        "label_columns": ["B"],
-    },
-    {
-        "sheet": "Input 8 - SDR",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [9],
-        "label_columns": ["A"],
-    },
-    {
-        "sheet": "B1_GDP_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    {
-        "sheet": "B3_Exports_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    {
-        "sheet": "B4_other flows_ext",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [8],
-        "label_columns": ["B", "Z"],
-    },
-    {
-        "sheet": "Macro-Debt_Data",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [1, 5],
-        "label_columns": ["B", "E"],
-    },
-    {
-        "sheet": "PV Stress",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [3],
-        "label_columns": ["A", "C"],
-    },
-    {
-        "sheet": "Input 6(optional)-Standard Test",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B", "C"],
-    },
-    {
-        "sheet": "Input 7 - Residual Financing",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["B"],
-    },
-    {
-        "sheet": "START",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-    {
-        "sheet": "lookup",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-    {
-        "sheet": "translation",
-        "min_row": None,
-        "max_row": None,
-        "min_col": None,
-        "max_col": None,
-        "header_rows": [],
-        "label_columns": ["A", "B"],
-    },
-]
-
-# ---------------------------------------------------------------------------
 # Constraints (OFFSET / INDIRECT resolution)
 # ---------------------------------------------------------------------------
 
@@ -383,9 +231,7 @@ Dynamic refs (OFFSET/INDIRECT/INDEX) are resolved via a constraint-based config.
 
 Then re-run until the graph builds. Note that if row/column labels or intentionally blank cells show up in error output, they have been referenced by a dynamic ref and must be constrained for the graph to resolve. Blank cells can be set to `Literal[None]`.
 
-The goal is to set sensible constraints that reflect the range of sane values we will allow for the cells. To determine the plausible range of input values, investigate the cells by using enrichment_audit.json (or the heuristic label-scanning tools in src/lic_dsf_labels.py) to see their labels, and fastpyxl to check their current values. In addition to the empty template workbook, workbooks/lic-dsf-template-2025-08-12.xlsm, we also have one filled out with illustrative data: workbooks/dsf-uga.xlsm.
-
-When the template workbook is present, ``check_constraints`` scans constrained cells on sheets that are expected to hold values (not PV/COM/DMX calculation sheets) and raises if any of those cells contain an Excel formula, aside from the documented VLOOKUP exception on START!L10.
+The goal is to set sensible constraints that reflect the range of sane values we will allow for the cells. To determine the plausible range of input values, investigate the cells by using example/enrichment_audit.json (or the heuristic label-scanning tools in example/lic_dsf_labels.py) to see their labels, and fastpyxl to check their current values. In addition to the empty template workbook, workbooks/lic-dsf-template-2025-08-12.xlsm, we also have one filled out with illustrative data: workbooks/dsf-uga.xlsm.
 """
 
 LiteralType = cast(Any, Literal)
@@ -1596,9 +1442,9 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
         Literal["Linear interpolation swap curve"],
     )
     constrain(constraints, f"{q_blend}!M9", Literal["Year"])
-    for _blend_m_r, _blend_m_v in zip(range(10, 15), range(1, 6)):
+    for _blend_m_r, _blend_m_v in zip(range(10, 15), range(1, 6), strict=True):
         constrain(constraints, f"{q_blend}!M{_blend_m_r}", Literal[_blend_m_v])  # ty: ignore[invalid-type-form]
-    for _blend_m_r, _blend_m_v in zip(range(15, 40), range(6, 31)):
+    for _blend_m_r, _blend_m_v in zip(range(15, 40), range(6, 31), strict=True):
         constrain(constraints, f"{q_blend}!M{_blend_m_r}", Literal[_blend_m_v])  # ty: ignore[invalid-type-form]
     constrain(constraints, f"{q_blend}!O6", Literal[None])
     constrain(constraints, f"{q_blend}!O7", Literal[None])
@@ -1682,67 +1528,6 @@ constrain(LicDsfConstraints, "translation!D898", Literal["Projections"])
 constrain(LicDsfConstraints, "translation!E898", Literal["Projecções"])
 constrain(LicDsfConstraints, "translation!F898", Literal["Proyecciones"])
 
-def _workbook_cell_raw_is_formula(raw: object) -> bool:
-    """Match :func:`create_dependency_graph` formula detection (string or ArrayFormula)."""
-    if isinstance(raw, ArrayFormula):
-        text = raw.text or ""
-        if text and not text.startswith("="):
-            text = f"={text}"
-        return isinstance(text, str) and text.startswith("=")
-    return isinstance(raw, str) and raw.startswith("=")
-
-
-def verify_lic_dsf_constraints_target_leaves(
-    workbook_path: Path,
-    constraints_type: type[Any],
-) -> None:
-    """Fail fast if any constrained address is a formula cell in the template.
-
-    OFFSET/INDIRECT/INDEX resolution expects constraints on leaf inputs only.
-    """
-    if not workbook_path.is_file():
-        return
-
-    hints = get_type_hints(constraints_type, include_extras=True)
-    if not hints:
-        return
-
-    keep_vba = workbook_path.suffix.lower() == ".xlsm"
-    wb = fastpyxl.load_workbook(workbook_path, data_only=False, keep_vba=keep_vba)
-    try:
-        formula_cells: list[str] = []
-        missing: list[str] = []
-        for spec_key in hints:
-            sheet_name, range_a1 = parse_range_spec(spec_key)
-            for cell_key in cells_in_range(sheet_name, range_a1):
-                sh, coord = parse_range_spec(cell_key)
-                if sh not in wb.sheetnames:
-                    missing.append(cell_key)
-                    continue
-                raw = wb[sh][coord].value
-                if _workbook_cell_raw_is_formula(raw):
-                    formula_cells.append(cell_key)
-    finally:
-        wb.close()
-
-    if missing or formula_cells:
-        parts: list[str] = []
-        if formula_cells:
-            sample = ", ".join(sorted(formula_cells)[:20])
-            more = f" (+{len(formula_cells) - 20} more)" if len(formula_cells) > 20 else ""
-            parts.append(
-                "constrained cells that contain formulas (constraints must target leaves only): "
-                f"{sample}{more}"
-            )
-        if missing:
-            ms = ", ".join(sorted(missing)[:20])
-            mmore = f" (+{len(missing) - 20} more)" if len(missing) > 20 else ""
-            parts.append(f"constrained cells on missing sheets: {ms}{mmore}")
-        raise ValueError(
-            "LicDsfConstraints validation failed: " + "; ".join(parts) + "."
-        )
-
-
 def _get_missing_constraints(specs: list[str], constraints: type[Any]) -> list[str]:
     def _normalize_sheet(sheet: str) -> str:
         """Strip surrounding single-quotes so format_key can re-add them consistently."""
@@ -1790,27 +1575,208 @@ def get_dynamic_ref_config() -> DynamicRefConfig:
     )
 
 
-# ---------------------------------------------------------------------------
-# Constant excludes (for input classification)
-# ---------------------------------------------------------------------------
+def parse_range_spec(spec: str) -> tuple[str, str]:
+    """
+    Parse a sheet-qualified range spec into (sheet_name, range_a1).
 
-STRING_CONSTANT_EXCLUDES = {
-    "START!K10",
-    "'BLEND floating calculations WB'!B5",
-    "'BLEND floating calculations WB'!B6",
-    "'BLEND floating calculations WB'!C6",
-    "'Input 6(optional)-Standard Test'!C4",
-    "'Input 6(optional)-Standard Test'!C5",
-    "'Input 6(optional)-Standard Test'!C7",
-    "'Input 6(optional)-Standard Test'!C8",
-    "'Input 6(optional)-Standard Test'!D18",
-    "'Input 6(optional)-Standard Test'!D26",
-    "'Input 6(optional)-Standard Test'!D30",
-    "'Input 6(optional)-Standard Test'!D33",
-    "'Input 6(optional)-Standard Test'!D8",
-    "'Input 6(optional)-Standard Test'!D9",
-}
-BLANK_CONSTANT_EXCLUDES = {
-    "'Input 6(optional)-Standard Test'!D8",
-    "'Input 6(optional)-Standard Test'!D9",
-}
+    Accepts specs like "'Chart Data'!D10:D17" or "Sheet1!A1:B2".
+    """
+    if "!" not in spec:
+        raise ValueError(f"Range spec must contain '!': {spec!r}")
+    sheet_part, range_part = spec.split("!", 1)
+    sheet_part = sheet_part.strip()
+    if sheet_part.startswith("'") and sheet_part.endswith("'"):
+        sheet_part = sheet_part[1:-1].replace("''", "'")
+    return sheet_part, range_part.strip()
+
+
+def cells_in_range(sheet: str, range_a1: str) -> list[str]:
+    """
+    Expand an A1 range to a list of sheet-qualified cell keys.
+
+    range_a1 may be a single cell ("D10") or a range ("D10:D17", "D239:X252").
+    """
+    if ":" in range_a1:
+        start_a1, end_a1 = range_a1.split(":", 1)
+        start_a1 = start_a1.strip()
+        end_a1 = end_a1.strip()
+    else:
+        start_a1 = end_a1 = range_a1.strip()
+
+    c1, r1 = fastpyxl.utils.cell.coordinate_from_string(start_a1)
+    c2, r2 = fastpyxl.utils.cell.coordinate_from_string(end_a1)
+    start_col_idx = fastpyxl.utils.cell.column_index_from_string(c1)
+    end_col_idx = fastpyxl.utils.cell.column_index_from_string(c2)
+    rlo, rhi = (r1, r2) if r1 <= r2 else (r2, r1)
+    clo, chi = (start_col_idx, end_col_idx) if start_col_idx <= end_col_idx else (end_col_idx, start_col_idx)
+
+    out: list[str] = []
+    for row in range(rlo, rhi + 1):
+        for col_idx in range(clo, chi + 1):
+            col_letter = fastpyxl.utils.cell.get_column_letter(col_idx)
+            out.append(format_cell_key(sheet, col_letter, row))
+    return out
+
+
+def main() -> None:
+    print("=" * 70)
+    print("LIC-DSF Indicator Dependency Mapping")
+    print("=" * 70)
+    
+    if not WORKBOOK_PATH.exists():
+        print(f"Error: Workbook not found at {WORKBOOK_PATH}")
+        return
+
+    # Discover targets: explicit ranges (all cells) and indicator rows (formula cells only)
+    print("\n1. Collecting target cells...")
+    all_targets: list[str] = []
+
+    for entry in EXPORT_RANGES:
+        label = entry["label"]
+        spec = entry["range_spec"]
+        sheet_name, range_a1 = parse_range_spec(spec)
+        targets = cells_in_range(sheet_name, range_a1)
+        print(f"   {label}: {spec} -> {len(targets)} cells")
+        all_targets.extend(targets)
+
+    print(f"\n   Total targets: {len(all_targets)}")
+    
+    if not all_targets:
+        print("No formula cells found. Exiting.")
+        return
+    
+    # Build dependency graph (constraint-based or cached for OFFSET/INDIRECT)
+    print("\n2. Building dependency graph...", flush=True)
+    dynamic_refs: DynamicRefConfig | None = None
+    if not USE_CACHED_DYNAMIC_REFS:
+        t_cfg = time.perf_counter()
+        print("   Building DynamicRefConfig from constraints + workbook...", flush=True)
+        dynamic_refs = DynamicRefConfig.from_constraints_and_workbook(
+            LicDsfConstraints,
+            WORKBOOK_PATH,
+        )
+        print(f"   DynamicRefConfig built in {time.perf_counter() - t_cfg:.2f}s", flush=True)
+    t_build = time.perf_counter()
+    print("   Starting create_dependency_graph...", flush=True)
+    try:
+        graph = create_dependency_graph(
+            WORKBOOK_PATH,
+            all_targets,
+            load_values=False,
+            max_depth=50,
+            dynamic_refs=dynamic_refs,
+            use_cached_dynamic_refs=USE_CACHED_DYNAMIC_REFS,
+        )
+    except DynamicRefError as e:
+        print(f"\n   DynamicRefError: {e}")
+        print(
+            "   Add the reported cell's argument cells to LicDsfConstraints (address-style keys)"
+            " using Annotated[..., Between(...)] or Annotated[..., RealBetween(...)] / Annotated[..., FromWorkbook()] as needed,"
+            " then re-run. Or set USE_CACHED_DYNAMIC_REFS=True to resolve from cached values."
+        )
+        raise
+
+    build_s = time.perf_counter() - t_build
+    print(f"   Graph build time: {build_s:.2f}s")
+
+    print(f"   Nodes in graph: {len(graph)}")
+    print(f"   Leaf nodes: {sum(1 for _ in graph.leaves())}")
+    print(f"   Formula nodes: {len(graph) - sum(1 for _ in graph.leaves())}")
+    
+    # Group nodes by sheet
+    sheets: dict[str, int] = {}
+    for key in graph:
+        node = graph.get_node(key)
+        if node:
+            sheets[node.sheet] = sheets.get(node.sheet, 0) + 1
+    
+    print("\n   Nodes by sheet:")
+    for sheet_name in sorted(sheets.keys()):
+        print(f"      {sheet_name}: {sheets[sheet_name]}")
+
+    # Workbook calc settings (useful context for interpreting cycles)
+    print("\n3. Workbook calculation settings...")
+    settings = get_calc_settings(WORKBOOK_PATH)
+    print(f"   Iterate enabled: {settings.iterate_enabled}")
+    print(f"   Iterate count:   {settings.iterate_count}")
+    print(f"   Iterate delta:   {settings.iterate_delta}")
+
+    # Cycle analysis (must-cycle vs may-cycle)
+    print("\n4. Cycle analysis...")
+    report = graph.cycle_report()
+    print(f"   Must-cycles: {len(report.must_cycles)}")
+    print(f"   May-cycles:  {len(report.may_cycles)}")
+    if report.example_must_cycle_path:
+        print(
+            f"   Example must-cycle path: {' -> '.join(report.example_must_cycle_path)}"
+        )
+    if report.example_may_cycle_path:
+        print(
+            f"   Example may-cycle path:  {' -> '.join(report.example_may_cycle_path)}"
+        )
+    
+    # Validate against calcChain.xml
+    print("\n5. Validating against calcChain.xml...")
+    scope = {parse_range_spec(entry["range_spec"])[0] for entry in EXPORT_RANGES}
+    result = validate_graph(graph, WORKBOOK_PATH, scope=scope)
+    
+    print(f"   Valid: {result.is_valid}")
+    for msg in result.messages:
+        print(f"   {msg}")
+    
+    if result.in_graph_not_in_chain:
+        print(
+            f"\n   Cells in graph but not in calcChain ({len(result.in_graph_not_in_chain)}):"
+        )
+        for cell in sorted(result.in_graph_not_in_chain)[:10]:
+            print(f"      {cell}")
+        if len(result.in_graph_not_in_chain) > 10:
+            print(f"      ... and {len(result.in_graph_not_in_chain) - 10} more")
+    
+    # Evaluation order stats
+    print("\n6. Computing evaluation order...")
+    try:
+        # Non-strict mode will warn and exclude nodes involved in may-cycles, but
+        # still fails on must-cycles.
+        order = graph.evaluation_order(strict=False)
+        print(f"   Evaluation order computed: {len(order)} nodes")
+        print(f"   First 5 (leaves): {order[:5]}")
+        print(f"   Last 5 (targets): {order[-5:]}")
+    except CycleError as e:
+        kind = "must-cycle" if e.is_must_cycle else "may-cycle"
+        print(f"   Error ({kind}): {e}")
+        if e.cycle_path:
+            print(f"   Cycle path: {' -> '.join(e.cycle_path)}")
+    
+    # Optional: save a small subgraph visualization
+    print("\n7. Sample visualization (first target's immediate deps)...")
+    if all_targets:
+        sample_target = all_targets[0]
+        sample_deps = graph.dependencies(sample_target)
+        print(f"   {sample_target} depends on {len(sample_deps)} cells:")
+        for dep in sorted(sample_deps)[:5]:
+            guard = graph.edge_attrs(sample_target, dep).get("guard")
+            if guard is None:
+                print(f"      {dep}")
+            else:
+                print(f"      {dep}  [guarded: {guard}]")
+        if len(sample_deps) > 5:
+            print(f"      ... and {len(sample_deps) - 5} more")
+
+        # Emit a DOT snippet for quick inspection (guarded edges render dashed + labeled).
+        try:
+            dot = to_graphviz(graph, highlight={sample_target}, rankdir="LR")
+            print("\n   GraphViz DOT (truncated to first ~40 lines):")
+            for line in dot.splitlines()[:40]:
+                print(f"      {line}")
+            if len(dot.splitlines()) > 40:
+                print("      ...")
+        except Exception as e:
+            print(f"   Could not render GraphViz DOT: {e}")
+    
+    print("\n" + "=" * 70)
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()
