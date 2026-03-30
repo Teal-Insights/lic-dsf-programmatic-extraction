@@ -1282,7 +1282,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def _template_description(template_date: str) -> str:
-    """Convert a template date like '2026-01-31' to a human-friendly label like 'Jan 2026'."""
+    """Convert a template date like '2025-08-12' to a human-friendly label like 'Aug 2025'."""
     from datetime import datetime
 
     dt = datetime.strptime(template_date, "%Y-%m-%d")

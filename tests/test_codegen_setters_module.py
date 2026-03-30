@@ -11,12 +11,12 @@ from src.lic_dsf_export import (
     load_input_groups,
 )
 
-_cfg = load_template_config("2026-01-31")
+_cfg = load_template_config("2025-08-12")
 _INPUT_GROUPS_PATH = (
     Path(__file__).resolve().parents[1]
     / "src"
     / "configs"
-    / "2026-01-31"
+    / "2025-08-12"
     / "input_groups.json"
 )
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH

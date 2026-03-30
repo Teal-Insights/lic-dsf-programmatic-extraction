@@ -12,7 +12,7 @@ from src.lic_dsf_labels import (
     detect_year_offset_headers,
 )
 
-_cfg = load_template_config("2026-01-31")
+_cfg = load_template_config("2025-08-12")
 WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
 

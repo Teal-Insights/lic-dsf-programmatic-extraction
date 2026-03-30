@@ -9,19 +9,19 @@ from src.configs import load_template_config
 from src.lic_dsf_export import generate_setter_method_name, load_input_groups
 from src.lic_dsf_input_setters import build_wide_year_series_spec
 
-_cfg = load_template_config("2026-01-31")
+_cfg = load_template_config("2025-08-12")
 _INPUT_GROUPS_PATH = (
     Path(__file__).resolve().parents[1]
     / "src"
     / "configs"
-    / "2026-01-31"
+    / "2025-08-12"
     / "input_groups.json"
 )
 _WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 _EXPORT_DIR = _cfg.EXPORT_DIR
 _REGION = _cfg.REGION_CONFIG
 
-_EXPORT_PKG_INIT = _EXPORT_DIR / "lic_dsf_2026_01_31" / "__init__.py"
+_EXPORT_PKG_INIT = _EXPORT_DIR / "lic_dsf_2025_08_12" / "__init__.py"
 
 pytestmark = [
     pytest.mark.slow,
@@ -54,7 +54,7 @@ def _normalize_address(address: str) -> str:
 
 def test_exported_package_has_year_series_setter() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
-    import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
+    import lic_dsf_2025_08_12 as lic_dsf  # type: ignore
 
     groups = load_input_groups(_INPUT_GROUPS_PATH)
     target = _pick_wide_year_series(groups)
@@ -113,7 +113,7 @@ def test_exported_package_has_year_series_setter() -> None:
 
 def test_exported_package_exports_range_assignment() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
-    import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
+    import lic_dsf_2025_08_12 as lic_dsf  # type: ignore
 
     assert hasattr(lic_dsf, "RangeAssignment")
     assert "RangeAssignment" in getattr(lic_dsf, "__all__", [])
@@ -121,7 +121,7 @@ def test_exported_package_exports_range_assignment() -> None:
 
 def test_exported_package_exports_context_with_setters() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
-    import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
+    import lic_dsf_2025_08_12 as lic_dsf  # type: ignore
 
     assert hasattr(lic_dsf, "LicDsfContext")
     assert "LicDsfContext" in getattr(lic_dsf, "__all__", [])
@@ -129,7 +129,7 @@ def test_exported_package_exports_context_with_setters() -> None:
 
 def test_exported_package_exports_year_row_assignment() -> None:
     sys.path.insert(0, str(_EXPORT_DIR.resolve()))
-    import lic_dsf_2026_01_31 as lic_dsf  # type: ignore
+    import lic_dsf_2025_08_12 as lic_dsf  # type: ignore
 
     assert hasattr(lic_dsf, "YearRowAssignment")
     assert "YearRowAssignment" in getattr(lic_dsf, "__all__", [])

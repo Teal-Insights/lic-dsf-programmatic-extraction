@@ -22,13 +22,9 @@ src/configs/
     config.py          # workbook path, export ranges, constraints, region config, etc.
     input_groups.json   # generated artifact
     enrichment_audit.json
-  2026-01-31/
-    config.py
-    input_groups.json
-    enrichment_audit.json
 ```
 
-Each template version produces an **independent PyPI package** (e.g. `lic-dsf-2026-01-31`) so that
+Each template version produces an **independent PyPI package** (e.g. `lic-dsf-2025-08-12`) so that
 users on different template versions can coexist. When a new template is released:
 
 1. Add the workbook to `workbooks/`
@@ -87,12 +83,12 @@ templates are auto-discovered from `src/configs/`.
 Builds a dependency graph, enriches nodes with row/column labels, and writes an audit JSON.
 
 ```bash
-uv run python -m src.lic_dsf_export --template 2026-01-31 --audit-only
+uv run python -m src.lic_dsf_export --template 2025-08-12 --audit-only
 ```
 
-**Inputs**: workbook and configuration from `src/configs/2026-01-31/config.py`
+**Inputs**: workbook and configuration from `src/configs/2025-08-12/config.py`
 
-**Output**: `src/configs/2026-01-31/enrichment_audit.json` (overwritten on every run)
+**Output**: `src/configs/2025-08-12/enrichment_audit.json` (overwritten on every run)
 
 ### Script 2: Export formulas to standalone Python code
 
@@ -100,47 +96,47 @@ Discovers targets, builds a dependency graph, and uses `excel-grapher`'s `CodeGe
 standalone Python package.
 
 ```bash
-uv run python -m src.lic_dsf_export --template 2026-01-31
+uv run python -m src.lic_dsf_export --template 2025-08-12
 ```
 
-**Output**: `dist/lic-dsf-2026-01-31/lic_dsf_2026_01_31/` (overwritten on every run)
+**Output**: `dist/lic-dsf-2025-08-12/lic_dsf_2025_08_12/` (overwritten on every run)
 
 ### Script 3: Group inputs for setter generation
 
 Groups hardcoded input cells into semantically labeled clusters for setter code generation.
 
 ```bash
-uv run python -m src.lic_dsf_group_inputs --template 2026-01-31
+uv run python -m src.lic_dsf_group_inputs --template 2025-08-12
 ```
 
-**Output**: `src/configs/2026-01-31/input_groups.json` (overwritten on every run)
+**Output**: `src/configs/2025-08-12/input_groups.json` (overwritten on every run)
 
 ### Script 4: RAG-based annotation (Guidance Note + DeepSeek)
 
 Retrieves guidance-note context via embeddings and calls DeepSeek to generate concise annotations.
 
 ```bash
-uv run python -m src.lic_dsf_annotate --template 2026-01-31
+uv run python -m src.lic_dsf_annotate --template 2025-08-12
 ```
 
 **Inputs**: workbook, guidance note text (`guidance_note/lic-dsf-guidance-note.txt`), `DEEPSEEK_API_KEY`
 
-**Output**: `src/configs/2026-01-31/annotations.json` (overwritten on every run)
+**Output**: `src/configs/2025-08-12/annotations.json` (overwritten on every run)
 
 ## Recommended sequence
 
 ```bash
 # 1. (Optional) Generate enrichment audit
-uv run python -m src.lic_dsf_export --template 2026-01-31 --audit-only
+uv run python -m src.lic_dsf_export --template 2025-08-12 --audit-only
 
 # 2. (Optional) Generate input groups for setters
-uv run python -m src.lic_dsf_group_inputs --template 2026-01-31
+uv run python -m src.lic_dsf_group_inputs --template 2025-08-12
 
 # 3. (Optional) Generate annotations
-uv run python -m src.lic_dsf_annotate --template 2026-01-31
+uv run python -m src.lic_dsf_annotate --template 2025-08-12
 
 # 4. Core export step — generates the Python package
-uv run python -m src.lic_dsf_export --template 2026-01-31
+uv run python -m src.lic_dsf_export --template 2025-08-12
 ```
 
 ## Using generated input setters
@@ -153,7 +149,7 @@ The generated package exposes a context object with helper setters derived from 
 Example:
 
 ```python
-import lic_dsf_2026_01_31 as lic_dsf
+import lic_dsf_2025_08_12 as lic_dsf
 
 ctx = lic_dsf.make_context()
 
@@ -164,7 +160,7 @@ assignment = ctx.set_ext_debt_data_external_debt_excluding_locally_issued_debt({
 ctx.set_ext_debt_data_ida_new_60_year_credits([1] * 14)
 
 # Load all inputs from a filled-out template (requires optional fastpyxl)
-ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2026-01-31.xlsm")
+ctx.load_inputs_from_workbook("workbooks/lic-dsf-template-2025-08-12.xlsm")
 ```
 
 ## Embeddings store (how it works)
@@ -193,5 +189,5 @@ uv run llm collections delete lic-dsf-guidance
 Then rerun:
 
 ```bash
-uv run python -m src.lic_dsf_annotate --template 2026-01-31
+uv run python -m src.lic_dsf_annotate --template 2025-08-12
 ```

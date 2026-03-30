@@ -2,7 +2,7 @@
 Template configuration loader.
 
 Each subdirectory under ``src/configs/`` corresponds to a template version
-(named by date, e.g. ``2026-01-31``). This module provides utilities for
+(named by date, e.g. ``2025-08-12``). This module provides utilities for
 discovering available templates and loading their configuration.
 """
 
