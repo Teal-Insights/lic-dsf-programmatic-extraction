@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import sys
 import types
+from typing import Any, cast
 
 from src.configs import load_template_config
 
@@ -10,9 +11,9 @@ from src.configs import load_template_config
 def test_2026_config_includes_figure_1_2_data_rows() -> None:
     # The template config imports excel_grapher for dynamic-ref wiring, but this
     # test only validates static export-range specs.
-    excel_grapher_pkg = types.ModuleType("excel_grapher")
+    excel_grapher_pkg = cast(Any, types.ModuleType("excel_grapher"))
     excel_grapher_pkg.format_cell_key = lambda sheet, col, row: f"{sheet}!{col}{row}"
-    excel_grapher_grapher = types.ModuleType("excel_grapher.grapher")
+    excel_grapher_grapher = cast(Any, types.ModuleType("excel_grapher.grapher"))
     excel_grapher_grapher.DynamicRefConfig = object
     excel_grapher_grapher.DependencyGraph = object
     sys.modules.setdefault("excel_grapher", excel_grapher_pkg)

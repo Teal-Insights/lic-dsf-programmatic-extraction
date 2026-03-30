@@ -5,14 +5,15 @@ from __future__ import annotations
 from typing import Mapping
 from unittest.mock import MagicMock
 
-from src.configs import load_template_config
-
-_cfg = load_template_config("2026-01-31")
-WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 import pytest
+
+from src.configs import load_template_config
 from src.lic_dsf_labels import (
     detect_year_offset_headers,
 )
+
+_cfg = load_template_config("2026-01-31")
+WORKBOOK_PATH = _cfg.WORKBOOK_PATH
 
 
 def _mock_ws(

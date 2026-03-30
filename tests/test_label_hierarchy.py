@@ -7,7 +7,6 @@ from unittest.mock import MagicMock
 from src.lic_dsf_labels import (
     build_label_hierarchy,
     get_effective_indent,
-    is_valid_label,
 )
 
 

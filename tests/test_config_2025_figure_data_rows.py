@@ -1,23 +1,11 @@
 from __future__ import annotations
 
 import re
-import sys
-import types
 
 from src.configs import load_template_config
 
 
 def test_2025_config_includes_figure_1_2_data_rows() -> None:
-    # The template config imports excel_grapher for dynamic-ref wiring, but this
-    # test only validates static export-range specs.
-    excel_grapher_pkg = types.ModuleType("excel_grapher")
-    excel_grapher_pkg.format_cell_key = lambda sheet, col, row: f"{sheet}!{col}{row}"
-    excel_grapher_grapher = types.ModuleType("excel_grapher.grapher")
-    excel_grapher_grapher.DynamicRefConfig = object
-    excel_grapher_grapher.DependencyGraph = object
-    sys.modules.setdefault("excel_grapher", excel_grapher_pkg)
-    sys.modules["excel_grapher.grapher"] = excel_grapher_grapher
-
     cfg = load_template_config("2025-08-12")
 
     row_re = re.compile(r"^'Chart Data'!D(\d+):X\1$")
