@@ -386,7 +386,9 @@ REGION_CONFIG: list[RegionConfig] = [
 """
 Dynamic refs (OFFSET/INDIRECT/INDEX) are resolved via a constraint-based config. Iterative workflow: run the script; if DynamicRefError is raised, the message includes the formula cell whose inputs need constraints. Inspect that cell and the row/column headers in the workbook to decide plausible input domains, use `constrain` to set a constraint (e.g., `constrain(LicDsfConstraints, "'Sheet Name'!A965", Literal["value"])` for a constant or `Annotated[float, RealBetween(min=0)]` for a real-valued numeric range; use `Annotated[int, Between(lo, hi)]` for discrete integer bounds).
 
-Then re-run until the graph builds. Note that if row/column labels or intentionally blank cells show up in error output, they have been referenced by a dynamic ref and must be constrained for the graph to resolve. Blank cells can be set to `Literal[None]`.
+Then re-run until the graph builds. To list **all** missing leaf addresses in one pass (sorted), use ``uv run -m src.lic_dsf_export --template <date> --list-dynamic-ref-gaps``; that runs excel-grapher's collect-and-continue scan without building the full graph.
+
+Note that if row/column labels or intentionally blank cells show up in error output, they have been referenced by a dynamic ref and must be constrained for the graph to resolve. Blank cells can be set to `Literal[None]`.
 
 The goal is to set sensible constraints that reflect the range of sane values we will allow for the cells. To determine the plausible range of input values, investigate the cells by using enrichment_audit.json (or the heuristic label-scanning tools in src/lic_dsf_labels.py) to see their labels, and fastpyxl to check their current values. In addition to the empty template workbook, workbooks/lic-dsf-template-2025-08-12.xlsm, we also have one filled out with illustrative data: workbooks/dsf-uga.xlsm. This may be helpful for identifying which cells are structurally blank (will be blank in the demo workbook) as opposed to template input blanks meant to be filled in by users.
 
@@ -593,6 +595,19 @@ def _constrain_pv_stress_and_pv_base_index_cells(constraints: type[Any]) -> None
         (44, "IDA NEW 60-year credits"),
     ):
         constrain(constraints, f"PV_Base!B{_br}", LiteralType[_bv])  # ty: ignore[invalid-type-form]
+    constrain(constraints, "PV_Base!B40", Literal[None])
+    for _br_blank in range(45, 50):
+        constrain(constraints, f"PV_Base!B{_br_blank}", Literal[None])
+    for _cr, _cv in (
+        (35, "Small economy"),
+        (36, "Regular"),
+        (37, "Blend"),
+        (38, "SML"),
+        (39, "50Y loans"),
+    ):
+        constrain(constraints, f"PV_Base!C{_cr}", LiteralType[_cv])  # ty: ignore[invalid-type-form]
+    for _cr_blank in range(40, 50):
+        constrain(constraints, f"PV_Base!C{_cr_blank}", Literal[None])
 
     constrain(constraints, "'PV Stress'!D147", unit_rate)
     constrain(constraints, "'PV Stress'!D161", financial_type)
@@ -800,6 +815,7 @@ _constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR3")
 # definition (data validation lookup!X4:X5).
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C18", Annotated[int, Between(1990, 2100)])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C25", Annotated[float, RealBetween(0, 1)])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C31", Literal[20])
 constrain(
     LicDsfConstraints,
     "'Input 1 - Basics'!C33",
@@ -1443,6 +1459,10 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
     q8 = "'Input 8 - SDR'"
 
     constrain(constraints, f"{q6t}!C6", Literal["On", "Off"])
+    constrain(constraints, f"{q6t}!E38", Literal["No"])
+    constrain(constraints, f"{q6t}!E39", Literal["Yes"])
+    constrain(constraints, f"{q6t}!E40", Literal["No"])
+    constrain(constraints, f"{q6t}!E41", Literal["Yes"])
 
     constrain(constraints, f"{q6o}!C4", Literal["New", "Old"])
     constrain(constraints, f"{q6o}!C5", _threshold)
@@ -1452,6 +1472,9 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
     constrain(constraints, f"{q6o}!D8", Literal[None])
     constrain(constraints, f"{q6o}!D9", Literal[None])
     constrain(constraints, f"{q6o}!D18", _threshold)
+    constrain(constraints, f"{q6o}!D26", _threshold)
+    constrain(constraints, f"{q6o}!D30", _threshold)
+    constrain(constraints, f"{q6o}!D33", _threshold)
 
     constrain(constraints, f"{q8}!B6:B7", financial)
     constrain(constraints, f"{q8}!C11:C12", financial_signed)
@@ -1653,14 +1676,14 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
             for _br in range(10, 40):
                 constrain(constraints, format_key(_blend, f"O{_br}"), _swap_rate)
 
-        # Input 8 - SDR: columns T–Z include many OFFSET-adjacent blanks outside D:V bands.
+        # Input 8 - SDR: columns I–AG include OFFSET-adjacent blanks outside the main D:V entry bands.
         _q8_ov = "Input 8 - SDR"
         if _q8_ov in wb.sheetnames:
             ws8 = wb[_q8_ov]
-            _v_i8 = column_index_from_string("T")
-            _z_i8 = column_index_from_string("Z")
+            _v_i8 = column_index_from_string("I")
+            _ag_i8 = column_index_from_string("AG")
             for _r8 in range(11, 45):
-                for _ci8 in range(_v_i8, _z_i8 + 1):
+                for _ci8 in range(_v_i8, _ag_i8 + 1):
                     _a8 = f"{get_column_letter(_ci8)}{_r8}"
                     _rv8 = ws8[_a8].value
                     if not _workbook_cell_raw_is_formula(_rv8):
@@ -1712,12 +1735,12 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
         add_range(_q4, "I62:I94", Literal[None])
         # Column O: same block mixes blanks, formulas, and template rate/scalar literals.
         add_range(_q4, "O62:O94", financial)
-        # Columns N–AT: creditor / rate ladder leaves (per-cell skip for formulas).
+        # Columns H–BP: creditor / rate ladder leaves (per-cell skip for formulas).
         ws_i4 = wb[_q4]
-        _n_i4 = column_index_from_string("N")
-        _at_i4 = column_index_from_string("AT")
+        _h_i4 = column_index_from_string("H")
+        _bp_i4 = column_index_from_string("BP")
         for _r4x in range(62, 95):
-            for _ci4x in range(_n_i4, _at_i4 + 1):
+            for _ci4x in range(_h_i4, _bp_i4 + 1):
                 _a4x = f"{get_column_letter(_ci4x)}{_r4x}"
                 _rv4x = ws_i4[_a4x].value
                 if not _workbook_cell_raw_is_formula(_rv4x):
@@ -1787,11 +1810,12 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
         add_cell(_q5, "I461", financial)
         add_range(_q5, "I461:AA520", financial)
 
-        # PV_stress_com: commercial debt under stress scenarios—D column mixes calendar years,
-        # index bases (100), and cash-flow scalars; H:AE time-series; AR:BP debt-service grid
-        # (per-cell skip keeps formula bands); AF/BD block totals.
-        if "PV_stress_com" in wb.sheetnames:
-            ws_ps = wb["PV_stress_com"]
+        # PV_stress_com / PV Stress: same layout—D column scalars; H:AE time-series; AR:BP grid;
+        # AF/BD bands; AF:BG rectangle (per-cell skip keeps formula bands).
+        def _apply_pv_stress_style_leaf_overlay(sheet: str) -> None:
+            if sheet not in wb.sheetnames:
+                return
+            ws_ps = wb[sheet]
             for r in range(9, 141):
                 addr = f"D{r}"
                 raw = ws_ps[addr].value
@@ -1803,7 +1827,7 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
                     ann = Literal[100]
                 else:
                     ann = financial
-                constrain(constraints, format_key("PV_stress_com", addr), ann)
+                constrain(constraints, format_key(sheet, addr), ann)
             _cols_ps = (
                 "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                 "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE",
@@ -1812,33 +1836,35 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
                 for r in range(36, 141):
                     addr = f"{col}{r}"
                     if not _workbook_cell_raw_is_formula(ws_ps[addr].value):
-                        constrain(constraints, format_key("PV_stress_com", addr), financial)
+                        constrain(constraints, format_key(sheet, addr), financial)
             for r in range(37, 142):
                 addr = f"AF{r}"
                 if not _workbook_cell_raw_is_formula(ws_ps[addr].value):
-                    constrain(constraints, format_key("PV_stress_com", addr), financial)
+                    constrain(constraints, format_key(sheet, addr), financial)
             for r in range(27, 132):
                 addr = f"BD{r}"
                 if not _workbook_cell_raw_is_formula(ws_ps[addr].value):
-                    constrain(constraints, format_key("PV_stress_com", addr), financial)
+                    constrain(constraints, format_key(sheet, addr), financial)
             _ar_i = column_index_from_string("AR")
             _bp_ps = column_index_from_string("BP")
             for _r in range(27, 142):
                 for _ci in range(_ar_i, _bp_ps + 1):
                     _addr_ar = f"{get_column_letter(_ci)}{_r}"
                     if not _workbook_cell_raw_is_formula(ws_ps[_addr_ar].value):
-                        constrain(constraints, format_key("PV_stress_com", _addr_ar), financial)
-            # Some OFFSET paths reference columns past AE; sweep AF:BG for remaining leaves.
-            add_range("PV_stress_com", "AF36:BG140", financial)
+                        constrain(constraints, format_key(sheet, _addr_ar), financial)
+            add_range(sheet, "AF36:BG140", financial)
 
-        # PV_Base: AM:BP amortization / projection band; sweep leaves through row 900 (OFFSET targets).
-        # Rows below 130 include structural blanks (e.g. BC75) beside formula ladders.
+        _apply_pv_stress_style_leaf_overlay("PV_stress_com")
+        _apply_pv_stress_style_leaf_overlay("PV Stress")
+
+        # PV_Base: AD:BP amortization / projection band; sweep leaves through row 900 (OFFSET targets).
+        # Rows 35–64 include structural blanks beside formula ladders; AD–AL precede the AM block.
         if "PV_Base" in wb.sheetnames:
             ws_pb = wb["PV_Base"]
-            _am_pb = column_index_from_string("AM")
+            _aj_pb = column_index_from_string("AD")
             _bp_pb = column_index_from_string("BP")
-            for _rpb in range(65, 901):
-                for _cipb in range(_am_pb, _bp_pb + 1):
+            for _rpb in range(35, 901):
+                for _cipb in range(_aj_pb, _bp_pb + 1):
                     _apb = f"{get_column_letter(_cipb)}{_rpb}"
                     _rpbv = ws_pb[_apb].value
                     if not _workbook_cell_raw_is_formula(_rpbv):

@@ -15,7 +15,12 @@ from typing import Any
 import fastpyxl
 import fastpyxl.utils.cell
 from excel_grapher.exporter import CodeGenerator
-from excel_grapher.grapher import DependencyGraph, Node, create_dependency_graph
+from excel_grapher.grapher import (
+    DependencyGraph,
+    Node,
+    create_dependency_graph,
+    list_dynamic_ref_constraint_candidates,
+)
 from fastpyxl import Workbook
 
 from fastpyxl.worksheet.worksheet import Worksheet
@@ -125,6 +130,30 @@ def discover_targets(export_ranges: list) -> list[str]:
     from .lic_dsf_config import discover_targets_from_ranges
 
     return discover_targets_from_ranges(export_ranges)
+
+
+def list_missing_dynamic_ref_leaves(
+    workbook: Path,
+    targets: list[str],
+    max_depth: int,
+    *,
+    wb_formulas: Workbook | None = None,
+    dynamic_refs: DynamicRefConfig | None = None,
+    max_range_cells: int = 5000,
+) -> list[str]:
+    """
+    Sorted leaf addresses that feed OFFSET/INDIRECT/INDEX arguments but have no
+    entry in ``dynamic_refs.cell_type_env`` when ``dynamic_refs`` is set; see
+    :func:`list_dynamic_ref_constraint_candidates`.
+    """
+    source: Path | Workbook = wb_formulas if wb_formulas is not None else workbook
+    return list_dynamic_ref_constraint_candidates(
+        source,
+        targets,
+        dynamic_refs=dynamic_refs,
+        max_depth=max_depth,
+        max_range_cells=max_range_cells,
+    )
 
 
 def build_graph(

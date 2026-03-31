@@ -7,10 +7,12 @@ and validates against calcChain.xml.
 
 Dynamic refs (OFFSET/INDIRECT) are resolved via a constraint-based config.
 Iterative workflow: run the script; if DynamicRefError is raised, the message
-includes the formula cell that needs a constraint. Inspect that cell and the
-row/column headers in the workbook to decide plausible input domains, add the
-address to LicDsfConstraints (with Annotated[int, Between(lo, hi)], Annotated[float, RealBetween(...)], or
-Literal[...]), then re-run until the graph
+includes the formula cell that needs a constraint. To list every missing
+dynamic-ref leaf in one sorted pass, run
+``uv run -m src.lic_dsf_export --template 2025-08-12 --list-dynamic-ref-gaps``
+(see ``list_dynamic_ref_constraint_candidates`` in excel-grapher). Inspect cells
+and add the address to LicDsfConstraints (with Annotated[int, Between(lo, hi)],
+Annotated[float, RealBetween(...)], or Literal[...]), then re-run until the graph
 builds.
 """
 
@@ -1719,6 +1721,10 @@ def main() -> None:
         )
     except DynamicRefError as e:
         print(f"\n   DynamicRefError: {e}")
+        print(
+            "   For a sorted list of all missing dynamic-ref leaves in one pass, run:"
+            " uv run -m src.lic_dsf_export --template 2025-08-12 --list-dynamic-ref-gaps"
+        )
         print(
             "   Add the reported cell's argument cells to LicDsfConstraints (address-style keys)"
             " using Annotated[..., Between(...)] or Annotated[..., RealBetween(...)] / Annotated[..., FromWorkbook()] as needed,"

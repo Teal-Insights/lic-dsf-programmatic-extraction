@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 import argparse
 import ast
+import sys
 import json
 import re
 import warnings
@@ -47,6 +48,7 @@ from .lic_dsf_pipeline import (
     export_enrichment_audit,
     export_graph_json,
     iter_string_constant_addresses,
+    list_missing_dynamic_ref_leaves,
     populate_leaf_values,
 )
 from .lic_dsf_group_inputs import build_input_groups_payload, iter_input_cells
@@ -1250,6 +1252,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Path for dependency graph JSON output (default: graph.json in config dir)",
     )
     parser.add_argument(
+        "--list-dynamic-ref-gaps",
+        action="store_true",
+        help=(
+            "Scan targets for OFFSET/INDIRECT/INDEX leaves missing from the constraint "
+            "environment, print all addresses (sorted), and exit (1 if any gaps). "
+            "Skips full graph build and value load."
+        ),
+    )
+    parser.add_argument(
         "--audit-only",
         action="store_true",
         help="Generate enrichment audit only; skip export generation",
@@ -1337,6 +1348,38 @@ def main(argv: list[str] | None = None) -> None:
     region_config = cfg.REGION_CONFIG
     string_constant_excludes = cfg.STRING_CONSTANT_EXCLUDES
     blank_constant_excludes = cfg.BLANK_CONSTANT_EXCLUDES
+
+    if args.list_dynamic_ref_gaps:
+        import time as _time
+
+        keep_vba = workbook.suffix.lower() == ".xlsm"
+        wb_gap = fastpyxl.load_workbook(workbook, data_only=False, keep_vba=keep_vba)
+        try:
+            _t0 = _time.monotonic()
+            gaps = list_missing_dynamic_ref_leaves(
+                workbook,
+                targets,
+                max_depth=args.max_depth,
+                wb_formulas=wb_gap,
+                dynamic_refs=dynamic_refs,
+            )
+            print(
+                f"[TIMING] list_missing_dynamic_ref_leaves: "
+                f"{_time.monotonic() - _t0:.2f}s"
+            )
+            if gaps:
+                print(
+                    "\nMissing dynamic-ref leaf constraints "
+                    "(add constrain(LicDsfConstraints, ...) for each):"
+                )
+                for addr in gaps:
+                    print(f"  {addr}")
+                print(f"\nTotal: {len(gaps)}")
+                sys.exit(1)
+            print("\nNo missing dynamic-ref leaf constraints.")
+        finally:
+            wb_gap.close()
+        sys.exit(0)
 
     wb_values: fastpyxl.Workbook | None = None
     wb_formulas: fastpyxl.Workbook | None = None
