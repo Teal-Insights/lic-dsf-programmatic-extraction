@@ -95,7 +95,7 @@ wheels = [
 [[package]]
 name = "excel-grapher"
 version = "0.1.0"
-source = { git = "https://github.com/Teal-Insights/excel-grapher#bc017461028ac9595ddc66d36b3e414df04b0e2d" }
+source = { git = "https://github.com/Teal-Insights/excel-grapher#9028cc6ac0e6e3881c1211261291b7eec05b4e76" }
 dependencies = [
     { name = "fastpyxl" },
     { name = "numpy" },
@@ -103,8 +103,8 @@ dependencies = [
 
 [[package]]
 name = "fastpyxl"
-version = "1.0.1"
-source = { git = "https://github.com/Promptly-Technologies-LLC/fastpyxl#48bf61860bd9d9b24ff34e6cc899239e7eaf4c5d" }
+version = "1.0.6"
+source = { git = "https://github.com/Promptly-Technologies-LLC/fastpyxl#c9783c1a6381fe4b950074b355ae21c3346e0b2d" }
 dependencies = [
     { name = "et-xmlfile" },
 ]
