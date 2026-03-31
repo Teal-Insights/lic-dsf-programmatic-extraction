@@ -181,6 +181,18 @@ def _export_chart_data_ranges() -> list[ExportRangeConfig]:
     return out
 
 
+def _chart_data_offset_overlay_rows() -> list[int]:
+    """Rows on Chart Data that carry Y–AG / extended blanks for OFFSET (matches export row closure)."""
+    rows: set[int] = set(range(35, 47))
+    for _metric_label, start_row in STRESS_TEST_BLOCKS:
+        for i, row_label in enumerate(STRESS_TEST_ROW_LABELS):
+            if not row_label:
+                continue
+            rows.add(start_row + i)
+    rows.update(FIGURE_DATA_ROWS)
+    return sorted(rows)
+
+
 EXPORT_RANGES: list[ExportRangeConfig] = _export_chart_data_ranges()
 
 # ---------------------------------------------------------------------------
@@ -410,12 +422,18 @@ class LicDsfConstraints(TypedDict, total=False):
 # Lookup switches; treat as constants
 constrain(LicDsfConstraints, "lookup!AF4", Literal["New"])
 constrain(LicDsfConstraints, "lookup!AF5", Literal["Old"])
+# On/Off column beside New/Old (AH3 label); template AH4=On, AH5=Off.
+_lookup_on_off_switch = Literal["On", "Off"]
+constrain(LicDsfConstraints, "lookup!AH4", _lookup_on_off_switch)
+constrain(LicDsfConstraints, "lookup!AH5", _lookup_on_off_switch)
 
 # Marker to use for applicable tailored stress test; we can treat as a constant
 constrain(LicDsfConstraints, "'Chart Data'!I21", Literal[1])
 
 # Year header slot on row 35 (empty in template; W35/X35 are 2043/2044); feeds Chart Data dynamic refs.
 constrain(LicDsfConstraints, "'Chart Data'!Y35", Annotated[int | None, Between(1990, 2100)])
+# Blank leaves right of the D:X export band; referenced by chart dynamic OFFSET paths.
+constrain(LicDsfConstraints, "'Chart Data'!AC46", Literal[None])
 
 # PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965 (fixed).
 # Treat these as constants derived from the current workbook values.
@@ -813,6 +831,85 @@ _constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR3")
 
 # enrichment_audit.json: first projection year; discount rate (template 0.05); ext/dom
 # definition (data validation lookup!X4:X5).
+_input1_c7_countries = LiteralType[
+    (
+        "Afghanistan",
+        "Bangladesh",
+        "Benin",
+        "Bhutan",
+        "Burkina Faso",
+        "Burundi",
+        "Cabo Verde",
+        "Cambodia",
+        "Cameroon",
+        "Central African Republic",
+        "Chad",
+        "Comoros",
+        "Congo, DR",
+        "Congo, Republic of",
+        "Cote d'Ivoire",
+        "Djibouti",
+        "Dominica",
+        "Eritrea",
+        "Ethiopia",
+        "Gambia, The",
+        "Ghana",
+        "Grenada",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Honduras",
+        "Kenya",
+        "Kiribati",
+        "Kyrgyz Republic",
+        "Lao PDR",
+        "Lesotho",
+        "Liberia",
+        "Madagascar",
+        "Malawi",
+        "Maldives",
+        "Mali",
+        "Marshall Islands",
+        "Mauritania",
+        "Micronesia",
+        "Moldova",
+        "Mozambique",
+        "Myanmar",
+        "Nepal",
+        "Nicaragua",
+        "Niger",
+        "Papua New Guinea",
+        "Rwanda",
+        "Samoa",
+        "Sao Tome & Principe",
+        "Senegal",
+        "Sierra Leone",
+        "Solomon Islands",
+        "Somalia",
+        "South Sudan",
+        "St. Lucia",
+        "St. Vincent & the Grenadines",
+        "Sudan",
+        "Tajikistan",
+        "Tanzania",
+        "Timor-Leste",
+        "Togo",
+        "Tonga",
+        "Tuvalu",
+        "Uganda",
+        "Uzbekistan",
+        "Vanuatu",
+        "Yemen, Republic of",
+        "Zambia",
+        "Zimbabwe",
+    )
+]
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C7", _input1_c7_countries)
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C8", Annotated[int, Between(1, 9999)])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C9", Literal[None])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C10", Literal["Yes", "No"])
+constrain(LicDsfConstraints, "'Input 1 - Basics'!C11", Literal["Yes", "No"])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C18", Annotated[int, Between(1990, 2100)])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C25", Annotated[float, RealBetween(0, 1)])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C31", Literal[20])
@@ -1468,16 +1565,71 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
     constrain(constraints, f"{q6o}!C5", _threshold)
     constrain(constraints, f"{q6o}!C7", _threshold)
     constrain(constraints, f"{q6o}!C8", Literal["On", "Off"])
-    constrain(constraints, f"{q6o}!C17", Annotated[float, RealBetween(0, 10)])
+    # Standardized stress block: # of std devs (C) paired with threshold rule (next row).
+    _std_cnt = Annotated[int, Between(0, 50)]
+    constrain(constraints, f"{q6o}!C17", _std_cnt)
+    constrain(constraints, f"{q6o}!C18", _threshold)
+    constrain(constraints, f"{q6o}!C21", _std_cnt)
+    constrain(constraints, f"{q6o}!C22", _threshold)
+    constrain(constraints, f"{q6o}!C25", _std_cnt)
+    constrain(constraints, f"{q6o}!C26", _threshold)
+    constrain(constraints, f"{q6o}!C29", _std_cnt)
+    constrain(constraints, f"{q6o}!C30", _threshold)
+    constrain(constraints, f"{q6o}!C32", _std_cnt)
+    constrain(constraints, f"{q6o}!C33", _threshold)
+    constrain(constraints, f"{q6o}!C36", Annotated[float, RealBetween(0, 100)])
+    constrain(constraints, f"{q6o}!C37", Annotated[float, RealBetween(0, 500)])
     constrain(constraints, f"{q6o}!D8", Literal[None])
     constrain(constraints, f"{q6o}!D9", Literal[None])
     constrain(constraints, f"{q6o}!D18", _threshold)
     constrain(constraints, f"{q6o}!D26", _threshold)
     constrain(constraints, f"{q6o}!D30", _threshold)
     constrain(constraints, f"{q6o}!D33", _threshold)
+    constrain(constraints, f"{q6o}!D14", Literal["User defined"])
+    constrain(constraints, f"{q6o}!D17", _std_cnt)
+    constrain(constraints, f"{q6o}!D18", _threshold)
+    constrain(constraints, f"{q6o}!D21", _std_cnt)
+    constrain(constraints, f"{q6o}!D22", _threshold)
+    constrain(constraints, f"{q6o}!D25", _std_cnt)
+    constrain(constraints, f"{q6o}!D29", _std_cnt)
+    constrain(constraints, f"{q6o}!D32", _std_cnt)
+    constrain(constraints, f"{q6o}!D37", Annotated[float, RealBetween(0, 500)])
+    constrain(constraints, f"{q6o}!D38", Annotated[float, RealBetween(0, 500)])
+    _half = Annotated[float, RealBetween(0, 1)]
+    constrain(constraints, f"{q6o}!D41", _half)
+    constrain(constraints, f"{q6o}!D42", _threshold)
+    constrain(constraints, f"{q6o}!D44", _half)
+    constrain(constraints, f"{q6o}!D45", _threshold)
+    constrain(constraints, f"{q6o}!D47", _half)
+    constrain(constraints, f"{q6o}!D48", _threshold)
+    constrain(constraints, f"{q6o}!D50", _half)
+    constrain(constraints, f"{q6o}!D51", _threshold)
+    constrain(constraints, f"{q6o}!D53", _half)
+    constrain(constraints, f"{q6o}!D54", _threshold)
+    constrain(constraints, f"{q6o}!I3", Literal["OLD:"])
+    constrain(constraints, f"{q6o}!I4", Literal["NEW:"])
+    constrain(constraints, f"{q6o}!H14", Literal["User defined"])
+    constrain(constraints, f"{q6o}!H22", _threshold)
+    constrain(constraints, f"{q6o}!H48", _threshold)
+    constrain(constraints, f"{q6o}!I22", _threshold)
+    _h_br = Annotated[float, RealBetween(0, 1_000)]
+    constrain(constraints, f"{q6o}!H17", _h_br)
+    constrain(constraints, f"{q6o}!H21", _h_br)
+    constrain(constraints, f"{q6o}!H25", _h_br)
+    constrain(constraints, f"{q6o}!H36", _h_br)
+    constrain(constraints, f"{q6o}!H37", _h_br)
+    constrain(constraints, f"{q6o}!H38", _h_br)
+    constrain(constraints, f"{q6o}!H41", _h_br)
+    constrain(constraints, f"{q6o}!H44", _h_br)
+    constrain(constraints, f"{q6o}!H47", _h_br)
+    constrain(constraints, f"{q6o}!H56", _h_br)
+    constrain(constraints, f"{q6o}!H57", _h_br)
+    constrain(constraints, f"{q6o}!I20", _h_br)
+    constrain(constraints, f"{q6o}!I21", _h_br)
 
     constrain(constraints, f"{q8}!B6:B7", financial)
     constrain(constraints, f"{q8}!C11:C12", financial_signed)
+    constrain(constraints, f"{q8}!C14", financial_signed)
     constrain(constraints, f"{q8}!D11:V12", financial_signed)
     constrain(constraints, f"{q8}!D14:V14", financial_signed)
     constrain(constraints, f"{q8}!W14", unit_rate)
@@ -1668,6 +1820,34 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
                     financial,
                 )
 
+        # Chart Data: Y–AG only on export-related rows (full 35–399 sweep balloons INDEX inference).
+        _cd_ov = "Chart Data"
+        if _cd_ov in wb.sheetnames:
+            ws_cd = wb[_cd_ov]
+            _y_cd = column_index_from_string("Y")
+            _ag_cd = column_index_from_string("AG")
+            for _rcd in _chart_data_offset_overlay_rows():
+                for _cicd in range(_y_cd, _ag_cd + 1):
+                    _acdo = f"{get_column_letter(_cicd)}{_rcd}"
+                    _rvo = ws_cd[_acdo].value
+                    if _workbook_cell_raw_is_formula(_rvo):
+                        continue
+                    if _rvo is None or _rvo == "":
+                        _an_cd: Any = Literal[None]
+                    elif isinstance(_rvo, str):
+                        _an_cd = LiteralType[tuple([_rvo])]
+                    else:
+                        _an_cd = financial
+                    constrain(constraints, format_key(_cd_ov, _acdo), _an_cd)
+            # Row 46: template has structural blanks from AH–BZ for dynamic refs (single-row sweep).
+            _ah0 = column_index_from_string("AH")
+            _bz0 = column_index_from_string("BZ")
+            for _c46 in range(_ah0, _bz0 + 1):
+                _a46 = f"{get_column_letter(_c46)}46"
+                _v46 = ws_cd[_a46].value
+                if not _workbook_cell_raw_is_formula(_v46):
+                    constrain(constraints, format_key(_cd_ov, _a46), Literal[None])
+
         # BLEND floating sheet: column O is the swap curve used in blend calculations; stored as array
         # formulas but the grapher still needs a rate domain (decimal 0–1) per tenor row.
         _blend = "BLEND floating calculations WB"
@@ -1690,19 +1870,24 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
                         _ann8: Any = Literal[None] if _rv8 is None else financial
                         constrain(constraints, format_key(_q8_ov, _a8), _ann8)
 
-        # Input 3 DMX: columns O–BZ include macro inputs not listed in enrichment_audit AB:AQ ranges.
+        # Input 3 DMX: columns N–BZ include macro inputs not listed in enrichment_audit AB:AQ ranges.
         _q3 = "Input 3 - Macro-Debt data(DMX)"
         _dmx_wide = Annotated[float | None, RealBetween(-1e15, 1e15)]
         if _q3 in wb.sheetnames:
             ws3 = wb[_q3]
-            _o_i = column_index_from_string("O")
+            _n_i = column_index_from_string("N")
             _bz_i = column_index_from_string("BZ")
             for _r3 in range(1, 300):
-                for _ci3 in range(_o_i, _bz_i + 1):
+                for _ci3 in range(_n_i, _bz_i + 1):
                     _dmx_a1 = f"{get_column_letter(_ci3)}{_r3}"
                     _rv3 = ws3[_dmx_a1].value
                     if not _workbook_cell_raw_is_formula(_rv3):
-                        _ann3: Any = Literal[None] if _rv3 is None else _dmx_wide
+                        if _rv3 is None or _rv3 == "":
+                            _ann3: Any = Literal[None]
+                        elif isinstance(_rv3, str):
+                            _ann3 = LiteralType[tuple([_rv3])]
+                        else:
+                            _ann3 = _dmx_wide
                         constrain(constraints, format_key(_q3, _dmx_a1), _ann3)
 
         # Input 4: L–AT ladder and related cells are user entry points for external financing
@@ -1870,6 +2055,181 @@ def _apply_lic_dsf_workbook_leaf_overlays(constraints: type[Any]) -> None:
                     if not _workbook_cell_raw_is_formula(_rpbv):
                         _ann_pb: Any = Literal[None] if _rpbv is None else financial
                         constrain(constraints, format_key("PV_Base", _apb), _ann_pb)
+
+        # PV_Base-add.cost.mkt: additional market financing cost PV (narrower sheet; C:BP leaves).
+        _pb_mkt = "PV_Base-add.cost.mkt"
+        if _pb_mkt in wb.sheetnames:
+            wpx = wb[_pb_mkt]
+            _cx = column_index_from_string("C")
+            _bpx = column_index_from_string("BP")
+            _rx_hi = min(max(wpx.max_row or 0, 145) + 5, 901)
+            for _rx in range(1, _rx_hi):
+                for _cix in range(_cx, _bpx + 1):
+                    _ax = f"{get_column_letter(_cix)}{_rx}"
+                    _vx = wpx[_ax].value
+                    if _workbook_cell_raw_is_formula(_vx):
+                        continue
+                    if _vx is None or _vx == "":
+                        _ann_x: Any = Literal[None]
+                    elif isinstance(_vx, str):
+                        _ann_x = LiteralType[tuple([_vx])]
+                    else:
+                        _ann_x = financial
+                    constrain(constraints, format_key(_pb_mkt, _ax), _ann_x)
+
+        # PV_ResFin_pub: C:BP through row 900 (template year ladder D7:G7, label column C, projection block).
+        if "PV_ResFin_pub" in wb.sheetnames:
+            ws_rf = wb["PV_ResFin_pub"]
+            _c_rf = column_index_from_string("C")
+            _bp_rf = column_index_from_string("BP")
+            for _rrf in range(1, 901):
+                for _cirf in range(_c_rf, _bp_rf + 1):
+                    _arf = f"{get_column_letter(_cirf)}{_rrf}"
+                    _vrf = ws_rf[_arf].value
+                    if _workbook_cell_raw_is_formula(_vrf):
+                        continue
+                    if _vrf is None or _vrf == "":
+                        _ann_rf: Any = Literal[None]
+                    elif isinstance(_vrf, str):
+                        _ann_rf = LiteralType[tuple([_vrf])]
+                    else:
+                        _ann_rf = financial
+                    constrain(constraints, format_key("PV_ResFin_pub", _arf), _ann_rf)
+
+        # PV_ResFin-add.int.cost - mkt: header literals A2/A5–A7, scalars B6:B7, C5:C7 labels, then H:BP band.
+        _rf_mkt = "PV_ResFin-add.int.cost - mkt"
+        if _rf_mkt in wb.sheetnames:
+            add_cell(
+                _rf_mkt,
+                "A2",
+                Literal[
+                    "Assessing the impacts associated with an increase in borrowing "
+                    "costs - i.e., additional INTEREST costs only. An increase in PV of "
+                    "external debt is assumed to be zero given a shock is given to "
+                    "commercial debt only.)"
+                ],
+            )
+            add_cell(_rf_mkt, "A5", Literal["Additional borrowing costs (domestic)"])
+            add_cell(_rf_mkt, "A6", Literal["Additional borrowing costs (external)"])
+            add_cell(_rf_mkt, "A7", Literal["or"])
+            add_cell(_rf_mkt, "B6", Annotated[float, RealBetween(0, 1_000)])
+            add_cell(_rf_mkt, "B7", Annotated[float, RealBetween(0, 1_000)])
+            add_cell(_rf_mkt, "C5", Literal["bps/ppt"])
+            add_cell(_rf_mkt, "C6", Literal["bps/ppt"])
+            add_cell(_rf_mkt, "C7", Literal["bps/ppt"])
+            add_cell(_rf_mkt, "E22", Literal["Year"])
+            add_cell(_rf_mkt, "F23", financial)
+            ws_mkt = wb[_rf_mkt]
+            # F:BP: projection grid (H:BP) plus F–G numeric/zero columns; D–E are row labels (separate literals).
+            _f_mkt = column_index_from_string("F")
+            _bp_mkt = column_index_from_string("BP")
+            _mkt_hi = min(max(ws_mkt.max_row or 0, 374) + 10, 901)
+            for _rm in range(1, _mkt_hi):
+                for _cim in range(_f_mkt, _bp_mkt + 1):
+                    _am = f"{get_column_letter(_cim)}{_rm}"
+                    _vm = ws_mkt[_am].value
+                    if not _workbook_cell_raw_is_formula(_vm):
+                        if _vm is None or _vm == "":
+                            _ann_m: Any = Literal[None]
+                        elif isinstance(_vm, str):
+                            continue
+                        else:
+                            _ann_m = financial
+                        constrain(constraints, format_key(_rf_mkt, _am), _ann_m)
+            _d_mkt = column_index_from_string("D")
+            _e_mkt = column_index_from_string("E")
+            for _rm in range(1, _mkt_hi):
+                for _cim in (_d_mkt, _e_mkt):
+                    _am = f"{get_column_letter(_cim)}{_rm}"
+                    _vm = ws_mkt[_am].value
+                    if not _workbook_cell_raw_is_formula(_vm):
+                        if _vm is None or _vm == "":
+                            _ann_de: Any = Literal[None]
+                        elif isinstance(_vm, str):
+                            _ann_de = LiteralType[tuple([_vm])]
+                        else:
+                            _ann_de = financial
+                        constrain(constraints, format_key(_rf_mkt, _am), _ann_de)
+
+        # lookup: country/risk tables (through row ~119); row 6 includes blanks (F6) beside IDA metadata.
+        _lk = "lookup"
+        if _lk in wb.sheetnames:
+            ws_lk = wb[_lk]
+            _lk_r = max(ws_lk.max_row or 0, 119) + 1
+            _lk_c = max(ws_lk.max_column or 0, 55) + 1
+            for _lr in range(1, _lk_r):
+                for _lc in range(1, _lk_c):
+                    _la = f"{get_column_letter(_lc)}{_lr}"
+                    _lv = ws_lk[_la].value
+                    if _workbook_cell_raw_is_formula(_lv):
+                        continue
+                    if _lv is None or _lv == "":
+                        _an_lk: Any = Literal[None]
+                    elif isinstance(_lv, str):
+                        _an_lk = LiteralType[tuple([_lv])]
+                    else:
+                        _an_lk = financial
+                    constrain(constraints, format_key(_lk, _la), _an_lk)
+
+        # Imported data: reference tables (to col ~48, row ~270); B251 etc. feed chart/OFFSET paths.
+        _imp = "Imported data"
+        if _imp in wb.sheetnames:
+            ws_im = wb[_imp]
+            _im_r = max(ws_im.max_row or 0, 270) + 1
+            _im_c = max(ws_im.max_column or 0, 48) + 1
+            for _ir in range(1, _im_r):
+                for _ic in range(1, _im_c):
+                    _ia = f"{get_column_letter(_ic)}{_ir}"
+                    _iv = ws_im[_ia].value
+                    if _workbook_cell_raw_is_formula(_iv):
+                        continue
+                    if _iv is None or _iv == "":
+                        _an_im: Any = Literal[None]
+                    elif isinstance(_iv, str):
+                        _an_im = LiteralType[tuple([_iv])]
+                    else:
+                        _an_im = financial
+                    constrain(constraints, format_key(_imp, _ia), _an_im)
+
+        # Input 2 - Debt Coverage: small indicator sheet (dynamic refs into column D etc.).
+        _i2 = "Input 2 - Debt Coverage"
+        if _i2 in wb.sheetnames:
+            ws_i2 = wb[_i2]
+            _i2_r = max(ws_i2.max_row or 0, 45) + 1
+            _i2_c = max(ws_i2.max_column or 0, 23) + 1
+            for _i2r in range(1, _i2_r):
+                for _i2c in range(1, _i2_c):
+                    _i2a = f"{get_column_letter(_i2c)}{_i2r}"
+                    _i2v = ws_i2[_i2a].value
+                    if _workbook_cell_raw_is_formula(_i2v):
+                        continue
+                    if _i2v is None or _i2v == "":
+                        _anni2: Any = Literal[None]
+                    elif isinstance(_i2v, str):
+                        _anni2 = LiteralType[tuple([_i2v])]
+                    else:
+                        _anni2 = financial
+                    constrain(constraints, format_key(_i2, _i2a), _anni2)
+
+        # Trigger: compact macro/switch sheet (template to col 40, row ~84); OFFSET leaves are sparse.
+        _trg = "Trigger"
+        if _trg in wb.sheetnames:
+            ws_t = wb[_trg]
+            _t_hi_r = max(ws_t.max_row or 0, 84) + 1
+            _t_hi_c = max(ws_t.max_column or 0, 40)
+            for _rt in range(1, _t_hi_r):
+                for _ct in range(1, _t_hi_c + 1):
+                    _at = f"{get_column_letter(_ct)}{_rt}"
+                    _vt = ws_t[_at].value
+                    if _workbook_cell_raw_is_formula(_vt):
+                        continue
+                    if _vt is None or _vt == "":
+                        _antt: Any = Literal[None]
+                    elif isinstance(_vt, str):
+                        _antt = LiteralType[tuple([_vt])]
+                    else:
+                        _antt = financial
+                    constrain(constraints, format_key(_trg, _at), _antt)
 
         # Local-currency new loan sheets: D (block +5) stock input; AF:BG for OFFSET blanks (excludes
         # Y:AE where year-index ladders compare to column C—broad domains there explode IF fallbacks).
