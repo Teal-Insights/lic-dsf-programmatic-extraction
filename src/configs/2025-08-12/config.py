@@ -87,6 +87,7 @@ STRESS_TEST_BLOCKS: list[tuple[str, int]] = [
 FIGURE_DATA_ROWS: list[int] = [
     # Figure 1 (Output 2-1 Stress_Charts_Ex)
     51,
+    88,
     61,
     62,
     63,
