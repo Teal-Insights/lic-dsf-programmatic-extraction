@@ -15,7 +15,7 @@ import fastpyxl
 from fastpyxl.utils.cell import column_index_from_string, range_boundaries, get_column_letter
 from fastpyxl.worksheet.formula import ArrayFormula
 
-from excel_grapher import RealBetween, constrain
+from excel_grapher import NotEqualCell, RealBetween, constrain
 from excel_grapher.grapher import DynamicRefConfig
 from excel_grapher.grapher.dynamic_refs import format_key
 from excel_grapher.core.cell_types import Between
@@ -407,6 +407,8 @@ The goal is to set sensible constraints that reflect the range of sane values we
 
 When the template workbook is present, ``verify_lic_dsf_constraints_target_leaves`` scans every constrained cell in the template and raises if any contain an Excel formula. Constraints are applied only to leaves.
 
+For local development, ``check_constraints(LicDsfConstraints)`` additionally checks that every address implied by ``REQUIRED_CONSTRAINTS`` has an annotation, then runs the same leaf scan. It is not invoked at import time.
+
 Please include comments to explain decisions about plausible cell domains in terms of what they represent in the workbook.
 """
 
@@ -435,6 +437,12 @@ constrain(LicDsfConstraints, "'Chart Data'!I21", Literal[1])
 constrain(LicDsfConstraints, "'Chart Data'!Y35", Annotated[int | None, Between(1990, 2100)])
 # Blank leaves right of the D:X export band; referenced by chart dynamic OFFSET paths.
 constrain(LicDsfConstraints, "'Chart Data'!AC46", Literal[None])
+# AH88 — blank structural leaf on row 88 (Y–AG band); feeds OFFSET/INDIRECT like AC46.
+constrain(LicDsfConstraints, "'Chart Data'!AH88", Literal[None])
+# F17:F19 label the C2–C4 tailored stress rows (“Natural disaster” … “Market financing”) for chart refs.
+constrain(LicDsfConstraints, "'Chart Data'!F17", Literal["Natural disaster"])
+constrain(LicDsfConstraints, "'Chart Data'!F18", Literal["Commodity price"])
+constrain(LicDsfConstraints, "'Chart Data'!F19", Literal["Market financing"])
 
 # PV_Base!B9xx = CONCAT("$", A9xx, "$", $A$<row>) → INDIRECT($B9xx). Row-index cells A917, A941, A965 (fixed).
 # Treat these as constants derived from the current workbook values.
@@ -630,6 +638,9 @@ def _constrain_pv_stress_and_pv_base_index_cells(constraints: type[Any]) -> None
 
     constrain(constraints, "'PV Stress'!D147", unit_rate)
     constrain(constraints, "'PV Stress'!D161", financial_type)
+    # Interest lines under “Total debt service” for successive forex blocks (USD); template 0.
+    constrain(constraints, "'PV Stress'!D153", financial_type)
+    constrain(constraints, "'PV Stress'!D167", financial_type)
     constrain(constraints, "'PV Stress'!D4", financial_type)
     constrain(constraints, "'PV Stress'!E161:G161", financial_type)
     constrain(constraints, "'PV Stress'!H147:X147", unit_rate)
@@ -820,6 +831,17 @@ def _constrain_pv_lc_nr(constraints: type[Any], sheet: str) -> None:
         # offset 5: stock row is a formula in the template (not a leaf).
         # offset 8: interest in USD (empty in D column)
         constrain(constraints, f"{sheet}!D{_block_start + 8}", financial_type)
+        # The maturity mirror cannot equal the paired grace-period mirror, otherwise
+        # the stock formula in this block divides by zero.
+        constrain(
+            constraints,
+            f"{sheet}!B{_block_start + 8}",
+            Annotated[
+                int | None,
+                Between(1, 100),
+                NotEqualCell(format_key(sheet, f"B{_block_start + 7}")),
+            ],
+        )
 
 
 _constrain_pv_lc_nr(LicDsfConstraints, "PV_LC_NR1")
@@ -907,7 +929,6 @@ _input1_c7_countries = LiteralType[
     )
 ]
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C7", _input1_c7_countries)
-constrain(LicDsfConstraints, "'Input 1 - Basics'!C8", Annotated[int, Between(1, 9999)])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C9", Literal[None])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C10", Literal["Yes", "No"])
 constrain(LicDsfConstraints, "'Input 1 - Basics'!C11", Literal["Yes", "No"])
@@ -1346,6 +1367,7 @@ def _constrain_input4_external_financing(constraints: type[Any]) -> None:
     # G/H: PV_Base B2n/B2n+1 pairs reference the same Input 4 row for G/H; denominators use (H−G).
     # Literals match the template data_only snapshot; structurally blank grace/maturity rows use small
     # integers so (H−G) is never zero under numeric abstract analysis.
+    _input4_gh_formula_rows = frozenset({11, 12, 13, 14, 15, 16, 17, 54, 55, 56, 59, 60, 61})
     for _gr, _gv, _hv in (
         (10, 5, 10),
         (11, 6, 38),
@@ -1385,6 +1407,8 @@ def _constrain_input4_external_financing(constraints: type[Any]) -> None:
         (29, 1, 2),
         (57, 0, 2),
     ):
+        if _gr in _input4_gh_formula_rows:
+            continue
         constrain(constraints, f"{q}!G{_gr}", LiteralType[_gv])
         constrain(constraints, f"{q}!H{_gr}", LiteralType[_hv])
 
@@ -1569,62 +1593,27 @@ def _constrain_input6_input8(constraints: type[Any]) -> None:
     # Standardized stress block: # of std devs (C) paired with threshold rule (next row).
     _std_cnt = Annotated[int, Between(0, 50)]
     constrain(constraints, f"{q6o}!C17", _std_cnt)
-    constrain(constraints, f"{q6o}!C18", _threshold)
     constrain(constraints, f"{q6o}!C21", _std_cnt)
-    constrain(constraints, f"{q6o}!C22", _threshold)
     constrain(constraints, f"{q6o}!C25", _std_cnt)
-    constrain(constraints, f"{q6o}!C26", _threshold)
     constrain(constraints, f"{q6o}!C29", _std_cnt)
-    constrain(constraints, f"{q6o}!C30", _threshold)
     constrain(constraints, f"{q6o}!C32", _std_cnt)
-    constrain(constraints, f"{q6o}!C33", _threshold)
-    constrain(constraints, f"{q6o}!C36", Annotated[float, RealBetween(0, 100)])
-    constrain(constraints, f"{q6o}!C37", Annotated[float, RealBetween(0, 500)])
     constrain(constraints, f"{q6o}!D8", Literal[None])
     constrain(constraints, f"{q6o}!D9", Literal[None])
     constrain(constraints, f"{q6o}!D18", _threshold)
     constrain(constraints, f"{q6o}!D26", _threshold)
     constrain(constraints, f"{q6o}!D30", _threshold)
     constrain(constraints, f"{q6o}!D33", _threshold)
-    constrain(constraints, f"{q6o}!D14", Literal["User defined"])
-    constrain(constraints, f"{q6o}!D17", _std_cnt)
-    constrain(constraints, f"{q6o}!D18", _threshold)
-    constrain(constraints, f"{q6o}!D21", _std_cnt)
     constrain(constraints, f"{q6o}!D22", _threshold)
-    constrain(constraints, f"{q6o}!D25", _std_cnt)
-    constrain(constraints, f"{q6o}!D29", _std_cnt)
-    constrain(constraints, f"{q6o}!D32", _std_cnt)
-    constrain(constraints, f"{q6o}!D37", Annotated[float, RealBetween(0, 500)])
-    constrain(constraints, f"{q6o}!D38", Annotated[float, RealBetween(0, 500)])
-    _half = Annotated[float, RealBetween(0, 1)]
-    constrain(constraints, f"{q6o}!D41", _half)
     constrain(constraints, f"{q6o}!D42", _threshold)
-    constrain(constraints, f"{q6o}!D44", _half)
     constrain(constraints, f"{q6o}!D45", _threshold)
-    constrain(constraints, f"{q6o}!D47", _half)
     constrain(constraints, f"{q6o}!D48", _threshold)
-    constrain(constraints, f"{q6o}!D50", _half)
     constrain(constraints, f"{q6o}!D51", _threshold)
-    constrain(constraints, f"{q6o}!D53", _half)
     constrain(constraints, f"{q6o}!D54", _threshold)
     constrain(constraints, f"{q6o}!I3", Literal["OLD:"])
     constrain(constraints, f"{q6o}!I4", Literal["NEW:"])
-    constrain(constraints, f"{q6o}!H14", Literal["User defined"])
     constrain(constraints, f"{q6o}!H22", _threshold)
-    constrain(constraints, f"{q6o}!H48", _threshold)
     constrain(constraints, f"{q6o}!I22", _threshold)
     _h_br = Annotated[float, RealBetween(0, 1_000)]
-    constrain(constraints, f"{q6o}!H17", _h_br)
-    constrain(constraints, f"{q6o}!H21", _h_br)
-    constrain(constraints, f"{q6o}!H25", _h_br)
-    constrain(constraints, f"{q6o}!H36", _h_br)
-    constrain(constraints, f"{q6o}!H37", _h_br)
-    constrain(constraints, f"{q6o}!H38", _h_br)
-    constrain(constraints, f"{q6o}!H41", _h_br)
-    constrain(constraints, f"{q6o}!H44", _h_br)
-    constrain(constraints, f"{q6o}!H47", _h_br)
-    constrain(constraints, f"{q6o}!H56", _h_br)
-    constrain(constraints, f"{q6o}!H57", _h_br)
     constrain(constraints, f"{q6o}!I20", _h_br)
     constrain(constraints, f"{q6o}!I21", _h_br)
 
@@ -1681,10 +1670,264 @@ _constrain_input6_input8(LicDsfConstraints)
 # ---------------------------------------------------------------------------
 
 # Translation labels referenced by dynamic formulas (OFFSET/INDIRECT).
-# Column C = English, D–F = other languages (Spanish, Portuguese, French per workbook layout).
+# Column C = English, D = French, E = Portuguese, F = Spanish (IMF template text; spacing as in workbook).
+
+constrain(LicDsfConstraints, "translation!C1764", Literal["I. Baseline Medium Term Projections"])
+constrain(LicDsfConstraints, "translation!C1770", Literal["PV of total public debt"])
+constrain(
+    LicDsfConstraints,
+    "translation!C1771",
+    Literal["Alternative Scenario 1: Key Variables at Historical Average"],
+)
+constrain(LicDsfConstraints, "translation!C1789", Literal["of which: external debt"])
+constrain(LicDsfConstraints, "translation!C1818", Literal["Bounds Test 1: Real GDP Growth Shock"])
+constrain(LicDsfConstraints, "translation!C196", Literal["EXTERNAL debt burden thresholds"])
+constrain(LicDsfConstraints, "translation!C198", Literal["Exports"])
+constrain(LicDsfConstraints, "translation!C199", Literal["GDP"])
+constrain(LicDsfConstraints, "translation!C202", Literal["Exports"])
+constrain(LicDsfConstraints, "translation!C203", Literal["Revenue"])
+constrain(LicDsfConstraints, "translation!C204", Literal["TOTAL public debt benchmark"])
+constrain(LicDsfConstraints, "translation!C205", Literal["PV of total public debt in percent of GDP"])
+constrain(
+    LicDsfConstraints,
+    "translation!C973",
+    Literal["(In percent of GDP, unless otherwise indicated)"],
+)
+constrain(LicDsfConstraints, "translation!C979", Literal["Public sector debt"])
+constrain(LicDsfConstraints, "translation!C983", Literal["Change in public sector debt"])
+constrain(LicDsfConstraints, "translation!C984", Literal["Identified debt-creating flows"])
+constrain(LicDsfConstraints, "translation!C985", Literal["Primary deficit"])
+constrain(LicDsfConstraints, "translation!C986", Literal["Revenue and grants"])
+constrain(LicDsfConstraints, "translation!C987", Literal["of which: grants"])
+constrain(LicDsfConstraints, "translation!C988", Literal["Primary (noninterest) expenditure"])
+constrain(LicDsfConstraints, "translation!C989", Literal["Automatic debt dynamics"])
+constrain(
+    LicDsfConstraints,
+    "translation!C990",
+    Literal["Contribution from interest rate/growth differential"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!C991",
+    Literal["of which: contribution from average real interest rate"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!C992",
+    Literal["of which: contribution from real GDP growth"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!C993",
+    Literal["Contribution from real exchange rate depreciation"],
+)
+constrain(LicDsfConstraints, "translation!C994", Literal["Denominator = 1+g"])
+constrain(LicDsfConstraints, "translation!C995", Literal["Other identified debt-creating flows"])
+constrain(LicDsfConstraints, "translation!C996", Literal["Privatization receipts (negative)"])
+
+constrain(LicDsfConstraints, "translation!D1765", Literal["Scénario de référence "])
+constrain(LicDsfConstraints, "translation!D1770", Literal["VA"])
+constrain(
+    LicDsfConstraints,
+    "translation!D1771",
+    Literal["Scénario de rechange  1 : Principales variables à leur moyenne historique "],
+)
+constrain(LicDsfConstraints, "translation!D1818", Literal["Test paramétré  1 : Choc de production réelle "])
+constrain(LicDsfConstraints, "translation!D196", Literal["Seuils d'endettement EXTÉRIEUR "])
+constrain(LicDsfConstraints, "translation!D198", Literal["Exportations"])
+constrain(LicDsfConstraints, "translation!D199", Literal["PIB"])
+constrain(LicDsfConstraints, "translation!D202", Literal["Exportations"])
+constrain(LicDsfConstraints, "translation!D203", Literal["Recettes "])
+constrain(LicDsfConstraints, "translation!D204", Literal["Repère dette publique TOTALE"])
+constrain(LicDsfConstraints, "translation!D205", Literal["VA du total de la dette publique en % du PIB "])
+constrain(
+    LicDsfConstraints,
+    "translation!D973",
+    Literal["(en pourcentage du PIB, sauf indication contraire)"],
+)
+constrain(LicDsfConstraints, "translation!D979", Literal["Dette du secteur public"])
+constrain(LicDsfConstraints, "translation!D983", Literal["Variation de la dette du secteur public"])
+constrain(LicDsfConstraints, "translation!D984", Literal["Flux générateurs d'endettement identifiés"])
+constrain(LicDsfConstraints, "translation!D985", Literal["Déficit primaire"])
+constrain(LicDsfConstraints, "translation!D986", Literal["Recettes et dons"])
+constrain(LicDsfConstraints, "translation!D987", Literal["dont : dons"])
+constrain(LicDsfConstraints, "translation!D988", Literal["Dépenses primaires (hors intérêts)"])
+constrain(LicDsfConstraints, "translation!D989", Literal["Dynamique automatique de la dette"])
+constrain(
+    LicDsfConstraints,
+    "translation!D990",
+    Literal["Contribution de l'écart de taux d'intérêt/croissance"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!D991",
+    Literal["dont : contribution du taux d'intérêt réel moyen"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!D992",
+    Literal["dont : contribution de la croissance du PIB réel"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!D993",
+    Literal["Contribution de la dépréciation du taux de change réel"],
+)
+constrain(LicDsfConstraints, "translation!D994", Literal["Dénominateur = 1+g"])
+constrain(
+    LicDsfConstraints,
+    "translation!D995",
+    Literal["Autres flux générateurs d'endettement identifiés"],
+)
+constrain(LicDsfConstraints, "translation!D996", Literal["Produit des privatisations (négatif)"])
+
+constrain(LicDsfConstraints, "translation!E1764", Literal["I. Caso Básico Projeções de mediano prazo"])
+constrain(LicDsfConstraints, "translation!E1770", Literal["VL"])
+constrain(
+    LicDsfConstraints,
+    "translation!E1771",
+    Literal["Cenário Alternativo 1: Principais Variáveis às Médias Históricas"],
+)
+constrain(LicDsfConstraints, "translation!E1818", Literal["Teste-Limite 1: Choque do Produto Real"])
+constrain(LicDsfConstraints, "translation!E196", Literal["Limiares da carga da dívida EXTERNA"])
+constrain(LicDsfConstraints, "translation!E198", Literal["Exportações"])
+constrain(LicDsfConstraints, "translation!E199", Literal["PIB"])
+constrain(LicDsfConstraints, "translation!E202", Literal["Exportações"])
+constrain(LicDsfConstraints, "translation!E203", Literal["Receitas"])
+constrain(LicDsfConstraints, "translation!E204", Literal["Nível indicativo da dívida pública TOTAL"])
+constrain(LicDsfConstraints, "translation!E205", Literal["VA da dívida pública total em % do PIB"])
+constrain(
+    LicDsfConstraints,
+    "translation!E973",
+    Literal["(Em percentagem do PIB, salvo indicação em contrário)"],
+)
+constrain(LicDsfConstraints, "translation!E979", Literal["Dívida do sector público"])
+constrain(LicDsfConstraints, "translation!E983", Literal["Variação da dívida do sector público"])
+constrain(LicDsfConstraints, "translation!E984", Literal["Fluxos geradores de dívida identificados"])
+constrain(LicDsfConstraints, "translation!E985", Literal["Défice primário"])
+constrain(LicDsfConstraints, "translation!E986", Literal["Receita e donativos"])
+constrain(LicDsfConstraints, "translation!E987", Literal["d/q: donativos"])
+constrain(LicDsfConstraints, "translation!E988", Literal["Despesas primárias (excl. juros)"])
+constrain(LicDsfConstraints, "translation!E989", Literal["Dinâmica automática da dívida"])
+constrain(
+    LicDsfConstraints,
+    "translation!E990",
+    Literal["Contributo do diferencial taxa de juro/crescimento"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!E991",
+    Literal["d/q: contributo da taxa de juro real média"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!E992",
+    Literal["d/q: contributo do crescimento do PIB real"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!E993",
+    Literal["Contributo da depreciação da taxa de câmbio real"],
+)
+constrain(LicDsfConstraints, "translation!E994", Literal["Denominador = 1+g"])
+constrain(
+    LicDsfConstraints,
+    "translation!E995",
+    Literal["Outros fluxos geradores de dívida identificados"],
+)
+constrain(LicDsfConstraints, "translation!E996", Literal["Receita de privatizações (negativa)"])
+
+constrain(LicDsfConstraints, "translation!F1764", Literal["I. Caso Base, Proyecciones de Mediano plazo"])
+constrain(LicDsfConstraints, "translation!F1770", Literal["VP"])
+constrain(
+    LicDsfConstraints,
+    "translation!F1771",
+    Literal["Escenario alternativo 1: Variables principales según promedio histórico"],
+)
+constrain(LicDsfConstraints, "translation!F1818", Literal["Prueba de tensión 1: Shock del producto real"])
+constrain(LicDsfConstraints, "translation!F196", Literal["Umbrales de carga de deuda EXTERNA"])
+constrain(LicDsfConstraints, "translation!F198", Literal["Exportaciones"])
+constrain(LicDsfConstraints, "translation!F199", Literal["PIB"])
+constrain(LicDsfConstraints, "translation!F202", Literal["Exportaciones"])
+constrain(LicDsfConstraints, "translation!F203", Literal["Ingresos"])
+constrain(LicDsfConstraints, "translation!F204", Literal["Referencia de deuda pública TOTAL"])
+constrain(
+    LicDsfConstraints,
+    "translation!F205",
+    Literal["VA de la deuda pública total en porcentaje del PIB"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!F973",
+    Literal["(Porcentaje del PIB  salvo indicación contraria)"],
+)
+constrain(LicDsfConstraints, "translation!F979", Literal["Deuda del sector público"])
+constrain(LicDsfConstraints, "translation!F983", Literal["Variación de la deuda del sector público"])
+constrain(
+    LicDsfConstraints,
+    "translation!F984",
+    Literal["Flujos netos generadores de deuda identificados"],
+)
+constrain(LicDsfConstraints, "translation!F985", Literal["Déficit primario"])
+constrain(LicDsfConstraints, "translation!F986", Literal["Ingresos y donaciones"])
+constrain(LicDsfConstraints, "translation!F987", Literal["de los cuales: donaciones"])
+constrain(
+    LicDsfConstraints,
+    "translation!F988",
+    Literal["Gasto primario (distinto de intereses)"],
+)
+constrain(LicDsfConstraints, "translation!F989", Literal["Dinámica de la deuda automática"])
+constrain(
+    LicDsfConstraints,
+    "translation!F990",
+    Literal["Contribución del diferencial tasa de interés/crecimiento"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!F991",
+    Literal["del cual: contribución de la tasa de interés real media"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!F992",
+    Literal["del cual: contribución del crecimiento del PIB real"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!F993",
+    Literal["Contribución de la depreciación del tipo de cambio real"],
+)
+constrain(LicDsfConstraints, "translation!F994", Literal["Denominador = 1+g"])
+constrain(
+    LicDsfConstraints,
+    "translation!F995",
+    Literal["Otros flujos netos generadores de deuda identificados"],
+)
+constrain(
+    LicDsfConstraints,
+    "translation!F996",
+    Literal["Ingresos por privatizaciones (negativo)"],
+)
+
+# ---------------------------------------------------------------------------
+# COM (commodity prices) sheet
+# ---------------------------------------------------------------------------
+
+# A3 — column header text for the date column in the commodity table (row 3); not user-edited input.
+constrain(LicDsfConstraints, "'COM'!A3", Literal["Date"])
+# B2 — "As of:" valuation date for commodity inputs, stored as an Excel serial (e.g. template ~2024, demo ~2018).
+constrain(LicDsfConstraints, "'COM'!B2", Annotated[int, Between(35000, 55000)])
+# G9 — unused cell under "% change" after the last listed commodity; blank in template and filled workbook.
+constrain(LicDsfConstraints, "'COM'!G9", Literal[None])
+
 # ---------------------------------------------------------------------------
 # Ext_Debt_Data constraints
 # ---------------------------------------------------------------------------
+
+# E279 — optional PV/magnitude beside "PV of new MLT debt" (column F holds the illustrated value; E may stay blank).
+constrain(LicDsfConstraints, "Ext_Debt_Data!E279", Annotated[float | None, RealBetween(0, 1e15)])
+# E382 — nominal or PV of short-term locally issued external debt (same scale as other Ext_Debt nominal inputs).
+constrain(LicDsfConstraints, "Ext_Debt_Data!E382", Annotated[float | None, RealBetween(0, 1e15)])
 
 # AA403:AG403 — "Exchange rate (pa)" projection columns (years); may also map to
 # creditor-row financial data depending on workbook layout.
@@ -2264,6 +2507,7 @@ _BLEND_O_CONSTRAINT_KEY = re.compile(
 _MARKET_FINANCING_INDIRECT_MIRROR_KEY = re.compile(
     r"^Market_financing![EFG](4[89]|5[0-3])$"
 )
+_PV_LC_MATURITY_MIRROR_KEY = re.compile(r"^PV_LC_NR[123]!B(31|50|69|88|107|126|145|164|183|202|221|240|259|278|297|316|335|354|373|392|411)$")
 
 
 def verify_lic_dsf_constraints_target_leaves(
@@ -2302,6 +2546,9 @@ def verify_lic_dsf_constraints_target_leaves(
                     # Legacy codename mirrors C4 formulas (see overlay); valid for dynamic-ref domain only.
                     if _MARKET_FINANCING_INDIRECT_MIRROR_KEY.match(cell_key):
                         continue
+                    # These formula mirrors carry the maturity != grace relation used by PV_LC_NR D33/E33.
+                    if _PV_LC_MATURITY_MIRROR_KEY.match(cell_key):
+                        continue
                     formula_cells.append(cell_key)
     finally:
         wb.close()
@@ -2323,6 +2570,379 @@ def verify_lic_dsf_constraints_target_leaves(
             "LicDsfConstraints validation failed: " + "; ".join(parts) + "."
         )
 
+
+# Baseline - public / CI Summary leaves referenced by dynamic refs (OFFSET/INDIRECT).
+# O6 is the row-6 header for the first projection-year column (“First year of proj.”).
+constrain(LicDsfConstraints, "'Baseline - public'!O6", Literal["First year of proj."])
+# B36 and O68:O72 / R67 are fixed layout text in the external-debt and public-debt benchmark tables.
+constrain(LicDsfConstraints, "'CI Summary'!B36", Literal["Debt service in % of"])
+constrain(LicDsfConstraints, "'CI Summary'!O68", Literal["Exports"])
+constrain(LicDsfConstraints, "'CI Summary'!O69", Literal["GDP"])
+constrain(LicDsfConstraints, "'CI Summary'!O71", Literal["Exports"])
+constrain(LicDsfConstraints, "'CI Summary'!O72", Literal["Revenue"])
+constrain(
+    LicDsfConstraints,
+    "'CI Summary'!R67",
+    Literal["PV of total public debt in percent of GDP"],
+)
+# E32 and H19:H21 label the external-threshold and CI-band columns/rows (Weak / Medium / Strong grid).
+constrain(LicDsfConstraints, "'CI Summary'!E32", Literal["Strong"])
+constrain(LicDsfConstraints, "'CI Summary'!H19", Literal["Weak"])
+constrain(LicDsfConstraints, "'CI Summary'!H20", Literal["Medium"])
+constrain(LicDsfConstraints, "'CI Summary'!H21", Literal["Strong"])
+# Probit regression coefficient cells (template stores calibrated values; allow a wide numeric band).
+_ci_summary_probit_coef = Annotated[float, RealBetween(-1_000, 1_000)]
+constrain(LicDsfConstraints, "'CI Summary'!C88", _ci_summary_probit_coef)
+constrain(LicDsfConstraints, "'CI Summary'!C93", _ci_summary_probit_coef)
+constrain(LicDsfConstraints, "'CI Summary'!F88", _ci_summary_probit_coef)
+constrain(LicDsfConstraints, "'CI Summary'!F93", _ci_summary_probit_coef)
+# Composite-indicator bounds used next to the Weak / Strong CI labels (template ~2.7–3.1).
+constrain(LicDsfConstraints, "'CI Summary'!J19", Annotated[float, RealBetween(-50, 50)])
+constrain(LicDsfConstraints, "'CI Summary'!J21", Annotated[float, RealBetween(-50, 50)])
+# A1_Historical_pub: spare top-left cells that dynamic refs still visit. Titles and units sit in B2:B3;
+# medium-term year headers are C7:K7. Column A and the listed B/I cells stay structurally empty in the
+# template and in dsf-uga.xlsm, so the only sane domain is blank.
+for _a1_hist_pub_header_blank in (
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "B1",
+    "B4",
+    "B5",
+    "B6",
+    "B7",
+    "B8",
+    "I3",
+    "I9",
+):
+    constrain(LicDsfConstraints, f"'A1_Historical_pub'!{_a1_hist_pub_header_blank}", Literal[None])
+
+# B1_GDP_pub: “Bounds Test 1” public-debt GDP-shock table. Titles and data sit in B2+ and row 7 onward;
+# the listed cells are layout padding, blank C slots beside the automatic-dynamics block (C15:C16, C21:C26),
+# and C91 inside a range touched by dynamic refs. E6 is excluded here because it is a formula mirror of
+# Baseline - public!O6 (already constrained). Template leaves are empty in lic-dsf-template and dsf-uga.xlsm.
+_b1_gdp_pub_projection_band_rows = (1, 2, 3, 4, 5, 6, 8, 9, 10, 14)
+for _b1_gdp_pub_blank in (
+    *(f"B{r}" for r in (1, 4, 5, 6, 7, 8, 10, 14)),
+    *(f"C{r}" for r in (1, 2, 3, 4, 5, 6, 8, 9, 10, 14, 15, 16, 21, 22, 23, 24, 25, 26, 91)),
+):
+    constrain(LicDsfConstraints, f"'B1_GDP_pub'!{_b1_gdp_pub_blank}", Literal[None])
+for _col in "DEFGHIJKLMNO":
+    _rows = tuple(
+        r for r in _b1_gdp_pub_projection_band_rows if not (_col == "E" and r == 6)
+    )
+    for _row in _rows:
+        constrain(LicDsfConstraints, f"'B1_GDP_pub'!{_col}{_row}", Literal[None])
+
+
+REQUIRED_CONSTRAINTS = [
+    "'Baseline - public'!O6",
+    "'CI Summary'!B36",
+    "'CI Summary'!C88",
+    "'CI Summary'!C93",
+    "'CI Summary'!E32",
+    "'CI Summary'!F88",
+    "'CI Summary'!F93",
+    "'CI Summary'!H19",
+    "'CI Summary'!H20",
+    "'CI Summary'!H21",
+    "'CI Summary'!J19",
+    "'CI Summary'!J21",
+    "'CI Summary'!O68",
+    "'CI Summary'!O69",
+    "'CI Summary'!O71",
+    "'CI Summary'!O72",
+    "'CI Summary'!R67",
+    "'Chart Data'!F17",
+    "'Chart Data'!F18",
+    "'Chart Data'!F19",
+    "'Chart Data'!AH88",
+    "'PV Stress'!D153",
+    "'PV Stress'!D167",
+    "'A1_Historical_pub'!A1",
+    "'A1_Historical_pub'!A2",
+    "'A1_Historical_pub'!A3",
+    "'A1_Historical_pub'!A4",
+    "'A1_Historical_pub'!A5",
+    "'A1_Historical_pub'!A6",
+    "'A1_Historical_pub'!A7",
+    "'A1_Historical_pub'!A8",
+    "'A1_Historical_pub'!A9",
+    "'A1_Historical_pub'!B1",
+    "'A1_Historical_pub'!B4",
+    "'A1_Historical_pub'!B5",
+    "'A1_Historical_pub'!B6",
+    "'A1_Historical_pub'!B7",
+    "'A1_Historical_pub'!B8",
+    "'A1_Historical_pub'!I3",
+    "'A1_Historical_pub'!I9",
+    "'B1_GDP_pub'!B1",
+    "'B1_GDP_pub'!B10",
+    "'B1_GDP_pub'!B14",
+    "'B1_GDP_pub'!B4",
+    "'B1_GDP_pub'!B5",
+    "'B1_GDP_pub'!B6",
+    "'B1_GDP_pub'!B7",
+    "'B1_GDP_pub'!B8",
+    "'B1_GDP_pub'!C1",
+    "'B1_GDP_pub'!C10",
+    "'B1_GDP_pub'!C14",
+    "'B1_GDP_pub'!C15",
+    "'B1_GDP_pub'!C16",
+    "'B1_GDP_pub'!C2",
+    "'B1_GDP_pub'!C21",
+    "'B1_GDP_pub'!C22",
+    "'B1_GDP_pub'!C23",
+    "'B1_GDP_pub'!C24",
+    "'B1_GDP_pub'!C25",
+    "'B1_GDP_pub'!C26",
+    "'B1_GDP_pub'!C3",
+    "'B1_GDP_pub'!C4",
+    "'B1_GDP_pub'!C5",
+    "'B1_GDP_pub'!C6",
+    "'B1_GDP_pub'!C8",
+    "'B1_GDP_pub'!C9",
+    "'B1_GDP_pub'!C91",
+    "'B1_GDP_pub'!D1",
+    "'B1_GDP_pub'!D10",
+    "'B1_GDP_pub'!D14",
+    "'B1_GDP_pub'!D2",
+    "'B1_GDP_pub'!D3",
+    "'B1_GDP_pub'!D4",
+    "'B1_GDP_pub'!D5",
+    "'B1_GDP_pub'!D6",
+    "'B1_GDP_pub'!D8",
+    "'B1_GDP_pub'!D9",
+    "'B1_GDP_pub'!E1",
+    "'B1_GDP_pub'!E10",
+    "'B1_GDP_pub'!E14",
+    "'B1_GDP_pub'!E2",
+    "'B1_GDP_pub'!E3",
+    "'B1_GDP_pub'!E4",
+    "'B1_GDP_pub'!E5",
+    "'B1_GDP_pub'!E8",
+    "'B1_GDP_pub'!E9",
+    "'B1_GDP_pub'!F1",
+    "'B1_GDP_pub'!F10",
+    "'B1_GDP_pub'!F14",
+    "'B1_GDP_pub'!F2",
+    "'B1_GDP_pub'!F3",
+    "'B1_GDP_pub'!F4",
+    "'B1_GDP_pub'!F5",
+    "'B1_GDP_pub'!F6",
+    "'B1_GDP_pub'!F8",
+    "'B1_GDP_pub'!F9",
+    "'B1_GDP_pub'!G1",
+    "'B1_GDP_pub'!G10",
+    "'B1_GDP_pub'!G14",
+    "'B1_GDP_pub'!G2",
+    "'B1_GDP_pub'!G3",
+    "'B1_GDP_pub'!G4",
+    "'B1_GDP_pub'!G5",
+    "'B1_GDP_pub'!G6",
+    "'B1_GDP_pub'!G8",
+    "'B1_GDP_pub'!G9",
+    "'B1_GDP_pub'!H1",
+    "'B1_GDP_pub'!H10",
+    "'B1_GDP_pub'!H14",
+    "'B1_GDP_pub'!H2",
+    "'B1_GDP_pub'!H3",
+    "'B1_GDP_pub'!H4",
+    "'B1_GDP_pub'!H5",
+    "'B1_GDP_pub'!H6",
+    "'B1_GDP_pub'!H8",
+    "'B1_GDP_pub'!H9",
+    "'B1_GDP_pub'!I1",
+    "'B1_GDP_pub'!I10",
+    "'B1_GDP_pub'!I14",
+    "'B1_GDP_pub'!I2",
+    "'B1_GDP_pub'!I3",
+    "'B1_GDP_pub'!I4",
+    "'B1_GDP_pub'!I5",
+    "'B1_GDP_pub'!I6",
+    "'B1_GDP_pub'!I8",
+    "'B1_GDP_pub'!I9",
+    "'B1_GDP_pub'!J1",
+    "'B1_GDP_pub'!J10",
+    "'B1_GDP_pub'!J14",
+    "'B1_GDP_pub'!J2",
+    "'B1_GDP_pub'!J3",
+    "'B1_GDP_pub'!J4",
+    "'B1_GDP_pub'!J5",
+    "'B1_GDP_pub'!J6",
+    "'B1_GDP_pub'!J8",
+    "'B1_GDP_pub'!J9",
+    "'B1_GDP_pub'!K1",
+    "'B1_GDP_pub'!K10",
+    "'B1_GDP_pub'!K14",
+    "'B1_GDP_pub'!K2",
+    "'B1_GDP_pub'!K3",
+    "'B1_GDP_pub'!K4",
+    "'B1_GDP_pub'!K5",
+    "'B1_GDP_pub'!K6",
+    "'B1_GDP_pub'!K8",
+    "'B1_GDP_pub'!K9",
+    "'B1_GDP_pub'!L1",
+    "'B1_GDP_pub'!L10",
+    "'B1_GDP_pub'!L14",
+    "'B1_GDP_pub'!L2",
+    "'B1_GDP_pub'!L3",
+    "'B1_GDP_pub'!L4",
+    "'B1_GDP_pub'!L5",
+    "'B1_GDP_pub'!L6",
+    "'B1_GDP_pub'!L8",
+    "'B1_GDP_pub'!L9",
+    "'B1_GDP_pub'!M1",
+    "'B1_GDP_pub'!M10",
+    "'B1_GDP_pub'!M14",
+    "'B1_GDP_pub'!M2",
+    "'B1_GDP_pub'!M3",
+    "'B1_GDP_pub'!M4",
+    "'B1_GDP_pub'!M5",
+    "'B1_GDP_pub'!M6",
+    "'B1_GDP_pub'!M8",
+    "'B1_GDP_pub'!M9",
+    "'B1_GDP_pub'!N1",
+    "'B1_GDP_pub'!N10",
+    "'B1_GDP_pub'!N14",
+    "'B1_GDP_pub'!N2",
+    "'B1_GDP_pub'!N3",
+    "'B1_GDP_pub'!N4",
+    "'B1_GDP_pub'!N5",
+    "'B1_GDP_pub'!N6",
+    "'B1_GDP_pub'!N8",
+    "'B1_GDP_pub'!N9",
+    "'B1_GDP_pub'!O1",
+    "'B1_GDP_pub'!O10",
+    "'B1_GDP_pub'!O14",
+    "'B1_GDP_pub'!O2",
+    "'B1_GDP_pub'!O3",
+    "'B1_GDP_pub'!O4",
+    "'B1_GDP_pub'!O5",
+    "'B1_GDP_pub'!O6",
+    "'B1_GDP_pub'!O8",
+    "'B1_GDP_pub'!O9",
+    "'COM'!A3",
+    "'COM'!B2",
+    "'COM'!G9",
+    "'Ext_Debt_Data'!E279",
+    "'Ext_Debt_Data'!E382",
+    "'translation'!C1764",
+    "'translation'!C1770",
+    "'translation'!C1771",
+    "'translation'!C1789",
+    "'translation'!C1818",
+    "'translation'!C196",
+    "'translation'!C198",
+    "'translation'!C199",
+    "'translation'!C202",
+    "'translation'!C203",
+    "'translation'!C204",
+    "'translation'!C205",
+    "'translation'!C973",
+    "'translation'!C979",
+    "'translation'!C983",
+    "'translation'!C984",
+    "'translation'!C985",
+    "'translation'!C986",
+    "'translation'!C987",
+    "'translation'!C988",
+    "'translation'!C989",
+    "'translation'!C990",
+    "'translation'!C991",
+    "'translation'!C992",
+    "'translation'!C993",
+    "'translation'!C994",
+    "'translation'!C995",
+    "'translation'!C996",
+    "'translation'!D1765",
+    "'translation'!D1770",
+    "'translation'!D1771",
+    "'translation'!D1818",
+    "'translation'!D196",
+    "'translation'!D198",
+    "'translation'!D199",
+    "'translation'!D202",
+    "'translation'!D203",
+    "'translation'!D204",
+    "'translation'!D205",
+    "'translation'!D973",
+    "'translation'!D979",
+    "'translation'!D983",
+    "'translation'!D984",
+    "'translation'!D985",
+    "'translation'!D986",
+    "'translation'!D987",
+    "'translation'!D988",
+    "'translation'!D989",
+    "'translation'!D990",
+    "'translation'!D991",
+    "'translation'!D992",
+    "'translation'!D993",
+    "'translation'!D994",
+    "'translation'!D995",
+    "'translation'!D996",
+    "'translation'!E1764",
+    "'translation'!E1770",
+    "'translation'!E1771",
+    "'translation'!E1818",
+    "'translation'!E196",
+    "'translation'!E198",
+    "'translation'!E199",
+    "'translation'!E202",
+    "'translation'!E203",
+    "'translation'!E204",
+    "'translation'!E205",
+    "'translation'!E973",
+    "'translation'!E979",
+    "'translation'!E983",
+    "'translation'!E984",
+    "'translation'!E985",
+    "'translation'!E986",
+    "'translation'!E987",
+    "'translation'!E988",
+    "'translation'!E989",
+    "'translation'!E990",
+    "'translation'!E991",
+    "'translation'!E992",
+    "'translation'!E993",
+    "'translation'!E994",
+    "'translation'!E995",
+    "'translation'!E996",
+    "'translation'!F1764",
+    "'translation'!F1770",
+    "'translation'!F1771",
+    "'translation'!F1818",
+    "'translation'!F196",
+    "'translation'!F198",
+    "'translation'!F199",
+    "'translation'!F202",
+    "'translation'!F203",
+    "'translation'!F204",
+    "'translation'!F205",
+    "'translation'!F973",
+    "'translation'!F979",
+    "'translation'!F983",
+    "'translation'!F984",
+    "'translation'!F985",
+    "'translation'!F986",
+    "'translation'!F987",
+    "'translation'!F988",
+    "'translation'!F989",
+    "'translation'!F990",
+    "'translation'!F991",
+    "'translation'!F992",
+    "'translation'!F993",
+    "'translation'!F994",
+    "'translation'!F995",
+    "'translation'!F996",
+]
 
 def _get_missing_constraints(specs: list[str], constraints: type[Any]) -> list[str]:
     def _normalize_sheet(sheet: str) -> str:
@@ -2362,6 +2982,19 @@ def _get_missing_constraints(specs: list[str], constraints: type[Any]) -> list[s
                 missing.append(spec)
                 break
     return missing
+
+
+def check_constraints(constraints: type[Any], required_constraints: list[str]) -> None:
+    """Dev helper that ensures `required_constraints` exist in annotations."""
+    missing_specs = _get_missing_constraints(required_constraints, constraints)
+    if missing_specs:
+        sample = ", ".join(missing_specs[:40])
+        more = f" (+{len(missing_specs) - 40} more)" if len(missing_specs) > 40 else ""
+        raise ValueError(
+            "LicDsfConstraints missing required entries for specs: " + sample + more
+        )
+    wb_path = WORKBOOK_PATH if WORKBOOK_PATH.is_absolute() else Path.cwd() / WORKBOOK_PATH
+    verify_lic_dsf_constraints_target_leaves(wb_path, constraints)
 
 
 def get_dynamic_ref_config() -> DynamicRefConfig:
