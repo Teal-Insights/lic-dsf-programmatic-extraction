@@ -439,6 +439,9 @@ constrain(LicDsfConstraints, "'Chart Data'!Y35", Annotated[int | None, Between(1
 constrain(LicDsfConstraints, "'Chart Data'!AC46", Literal[None])
 # AH88 — blank structural leaf on row 88 (Y–AG band); feeds OFFSET/INDIRECT like AC46.
 constrain(LicDsfConstraints, "'Chart Data'!AH88", Literal[None])
+# blank structural rows (extended band); feeds OFFSET/INDIRECT.
+constrain(LicDsfConstraints, "'Chart Data'!B130:AK130", Literal[None])
+constrain(LicDsfConstraints, "'Chart Data'!B172:AK172", Literal[None])
 # F17:F19 label the C2–C4 tailored stress rows (“Natural disaster” … “Market financing”) for chart refs.
 constrain(LicDsfConstraints, "'Chart Data'!F17", Literal["Natural disaster"])
 constrain(LicDsfConstraints, "'Chart Data'!F18", Literal["Commodity price"])
@@ -2574,6 +2577,7 @@ def verify_lic_dsf_constraints_target_leaves(
 # Baseline - public / CI Summary leaves referenced by dynamic refs (OFFSET/INDIRECT).
 # O6 is the row-6 header for the first projection-year column (“First year of proj.”).
 constrain(LicDsfConstraints, "'Baseline - public'!O6", Literal["First year of proj."])
+
 # B36 and O68:O72 / R67 are fixed layout text in the external-debt and public-debt benchmark tables.
 constrain(LicDsfConstraints, "'CI Summary'!B36", Literal["Debt service in % of"])
 constrain(LicDsfConstraints, "'CI Summary'!O68", Literal["Exports"])
@@ -2599,29 +2603,26 @@ constrain(LicDsfConstraints, "'CI Summary'!F93", _ci_summary_probit_coef)
 # Composite-indicator bounds used next to the Weak / Strong CI labels (template ~2.7–3.1).
 constrain(LicDsfConstraints, "'CI Summary'!J19", Annotated[float, RealBetween(-50, 50)])
 constrain(LicDsfConstraints, "'CI Summary'!J21", Annotated[float, RealBetween(-50, 50)])
-# A1_Historical_pub: spare top-left cells that dynamic refs still visit. Titles and units sit in B2:B3;
-# medium-term year headers are C7:K7. Column A and the listed B/I cells stay structurally empty in the
-# template and in dsf-uga.xlsm, so the only sane domain is blank.
+
+# A1_Historical_pub structurally empty header cells and blank table rows
 for _a1_hist_pub_header_blank in (
-    "A1",
-    "A2",
-    "A3",
-    "A4",
-    "A5",
-    "A6",
-    "A7",
-    "A8",
-    "A9",
-    "B1",
-    "B4",
-    "B5",
-    "B6",
-    "B7",
-    "B8",
-    "I3",
-    "I9",
+    "A1:Y1",
+    "A2:A3", "C2:Y3", # skip B2:B3 labels (formula)
+    "A4:Y5",
+    "A6:D6", "F6:Y6", # skip E6 labels (formula)
+    "A7:B7", # medium-term year headers are C7:K7 (formula)
+    "A8:Y8",
+    "A9", "C9:Y9", # skip B9 label (formula)
+    "A10:Y10",
+    "A11:A95",
+    "B14:Y14",
+    "B33:Y33",
+    "B38:Y38",
+    "B40:Y40",
 ):
     constrain(LicDsfConstraints, f"'A1_Historical_pub'!{_a1_hist_pub_header_blank}", Literal[None])
+
+# Override B2:B3
 
 # B1_GDP_pub: “Bounds Test 1” public-debt GDP-shock table. Titles and data sit in B2+ and row 7 onward;
 # the listed cells are layout padding, blank C slots beside the automatic-dynamics block (C15:C16, C21:C26),

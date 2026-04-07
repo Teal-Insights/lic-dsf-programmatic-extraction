@@ -15,13 +15,16 @@ import ast
 import sys
 import json
 import re
+import traceback
 import warnings
+from collections import deque
 from string import Template
 from typing import Mapping
 
 import fastpyxl
 import fastpyxl.utils.cell
 from fastpyxl.worksheet.worksheet import Worksheet
+from excel_grapher import DynamicRefTraceEvent, trace_dynamic_refs
 from excel_grapher.exporter import CodeGenerator
 from excel_grapher.grapher import get_calc_settings
 
@@ -1261,6 +1264,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--trace-dynamic-refs",
+        action="store_true",
+        help=(
+            "During dependency graph build, record every excel_grapher dynamic-ref trace "
+            "event (not just the last 50). On failure, the last 30 events are printed."
+        ),
+    )
+    parser.add_argument(
         "--audit-only",
         action="store_true",
         help="Generate enrichment audit only; skip export generation",
@@ -1392,13 +1403,41 @@ def main(argv: list[str] | None = None) -> None:
 
         print("\nBuilding dependency graph...")
         _t0 = _time.monotonic()
-        graph = build_graph(
-            workbook,
-            targets,
-            max_depth=args.max_depth,
-            wb_formulas=wb_formulas,
-            dynamic_refs=dynamic_refs,
-        )
+        if args.trace_dynamic_refs:
+            dynamic_ref_trace: list[DynamicRefTraceEvent] | deque[DynamicRefTraceEvent] = []
+            trace_sink = dynamic_ref_trace.append
+            trace_tail = 30
+        else:
+            dynamic_ref_trace = deque(maxlen=50)
+            trace_sink = dynamic_ref_trace.append
+            trace_tail = 15
+        try:
+            with trace_dynamic_refs(trace_sink):
+                graph = build_graph(
+                    workbook,
+                    targets,
+                    max_depth=args.max_depth,
+                    wb_formulas=wb_formulas,
+                    dynamic_refs=dynamic_refs,
+                )
+        except Exception:
+            print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s (failed)")
+            traceback.print_exc()
+            tail = list(dynamic_ref_trace)[-trace_tail:]
+            hint = (
+                ""
+                if args.trace_dynamic_refs
+                else "; use --trace-dynamic-refs to retain every event during the build"
+            )
+            print(
+                f"\nLast {len(tail)} dynamic-ref trace event(s) (oldest → newest){hint}:"
+            )
+            for ev in tail:
+                print(
+                    f"  [{ev.kind}] {ev.name} "
+                    f"elapsed_s={ev.elapsed_s:.4f} detail={ev.detail!r}"
+                )
+            raise
         print(f"[TIMING] build_graph: {_time.monotonic() - _t0:.2f}s")
 
         print(f"   Nodes in graph: {len(graph)}")
