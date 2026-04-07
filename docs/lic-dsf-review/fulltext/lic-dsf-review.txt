@@ -1,0 +1,1366 @@
+                               INTERNATIONAL DEVELOPMENT ASSOCIATION
+                                    INTERNATIONAL MONETARY FUND
+
+
+
+
+      REVIEW OF THE BANK-FUND DEBT SUSTAINABILITY FRAMEWORK FOR LOW INCOME
+      COUNTRIES—EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS
+
+                                               BACKGROUND PAPER
+
+
+                                                 November 25, 2024
+
+
+
+          Prepared by the staffs of the World Bank Group and the International Monetary Fund1
+
+
+
+                      Approved by Manuela Francisco (WB) and Guillaume Chabert (IMF)
+
+
+
+
+1Prepared by a team from the IMF’s Strategy, Policy, and Review Department, led by Plamen Iossifov and coordinated by Karim
+Foda, consisting of Tamon Asonuma, Christopher Dielmann, Yukun Ding, João Capella-Ramos, Miguel Ricaurte, Moustapha
+Mbohou Mama, Jean-Claude Nachega, Sanan Mirzayev, Jasmin Sin, and Igor Zuccardi, under the overall guidance of Allison
+Holland (all SPR); and a team from the World Bank’s Economic Policy Department, led by Luca Bandiera, consisting of Anna
+Corcuera, Mariela Caycho Arce, Wissam Harake, Juan Hernandez, Sebastian Horn, Muazu Ibrahim, David Mihalyi, Mellany Pintado
+Vasquez, Madi Sarsenbayev, Tessy Vasquez Baos, and Clemens Graf Von Luckner under the overall guidance of Frederico Gil
+Sander. Data analytics and visualization support was provided by Chen Chen, Zhuo Chen, Zhengyuan Xia, and Arthur Xie.
+Administrative assistance was provided by Eiman Afshar and Claudia Isern.
+                                          EXECUTIVE SUMMARY
+
+
+              This Background Paper provides technical information to accompany the main
+paper on Review of the Bank-Fund Debt Sustainability Framework for Low Income Countries⎯Exploring LIC-
+DSF Performance and Scope for Improvements. This material, presented in four chapters, covers the
+following issues:
+•   Analysis of technical aspects of the LIC-DSF econometric model and implementation;
+
+•   Analysis of the debt-carrying capacity as tool to parsimoniously capture country heterogeneity;
+
+•   Analysis of forecast accuracy;
+
+•   Analysis of debt perimeter issues.
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+                                         TABLE OF CONTENTS
+I. INTRODUCTION ________________________________________________________________________________ 4
+II. II. TECHNICAL ASPECTS OF ECONOMETRIC MODEL AND LIC-DSF IMPLEMENTATION ______________ 4
+III. DEBT-CARRYING CAPACITY AS TOOL TO CAPTURE COUNTRY HETEROGENEITY____________________ 13
+IV. FORECAST ACCURACY__________________________________________________________________________ 20
+V. DEBT PERIMETER ISSUES _______________________________________________________________________ 31
+
+BOXES
+1. Examples of Materialization of Fiscal Risks from SOEs ______________________________________ 35
+
+FIGURES
+1. Individual PROBITs Performance under Threshold Approach and Contribution to Identifying Distress and
+Non-Distress Episodes in 2017 Review Dataset _______________________________________________________ 8
+2. Sensitivity of Distress Probability Cut-offs under Threshold Approach to Definition of Non-
+Distress Episodes ________________________________________________________________________________ 10
+3. Sensitivity of Model Calibration under Threshold Approach to Revisions of 2017 Review Dataset
+ __________________________________________________________________________________________________ 12
+4. Distribution of CI scores across LIC-DSF countries, 2018 vs. 2024 __________________________________ 15
+5. LIC-DSF Users with DCC Downgrades Led by Changes in Global Growth: Contributions to CI-Score Changes
+ __________________________________________________________________________________________________ 17
+6. Frontier LICs: Sovereign Bond Spreads by DCC at Issuance, 2012-24________________________________ 18
+7. DCC’s of LIC-DSF Countries by CI Score and Credit Ratings _________________________________________ 18
+8. LIC DSAs: Domestic Debt-to-GDP Ratio by Debt-Carrying Capacity _________________________________ 19
+9. LIC-DSF Users: Medium-Term Forecast Errors for External and Overall Debt to GDP _________________ 21
+10. LIC-DSF Users: Analysis of Forecast Errors of Gross Financing Needs ______________________________ 23
+11. LIC-DSF Users: Medium-Term Forecast Errors for Macroeconomic Indicators Entering Debt Burden
+Indicator Ratios ___________________________________________________________________________________ 23
+12. LIC-DSF Users: Medium-Term Forecast Errors for External Debt Burden Indicators by Program Status26
+13. LIC-DSF Users: Long-Term Forecast Errors for Macroeconomic Indicators Entering Debt Burden Ratios, by
+Program Status ___________________________________________________________________________________ 27
+14. LIC-DSF Users: Long-Term Forecast Errors for Macroeconomic Indicators Entering Debt Burden Ratios for
+Commodity Exporters and Other LICs ______________________________________________________________ 28
+15. LIC-DSF Users: Long-Term Forecast Errors for Real GDP Growth and Inflation _____________________ 29
+16. LIC-DSF Users: Long-Term Historical Revisions and Forecast Errors, 2006-23_______________________ 30
+17. Comparison of Distribution of External Debt Burden Indicators in Model and DSA Dataset, 2017-22 32
+18. High Risk LIC DSAs: Deviations of External Debt Indicators from Thresholds by Debt Coverage ______ 33
+19. Moderate Risk LIC DSAs: Deviations of External Debt Indicators from Thresholds by Debt Coverage 34
+20. Contributions to Annual Debt Stock Changes of Residuals in Debt Accumulating Equation and Data
+Revisions, 2013-23 ________________________________________________________________________________ 37
+
+
+
+
+                                                    3
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+
+  I.      INTRODUCTION
+
+1.      This background paper delves deeper into the analysis of technical aspects of the LIC-DSF
+econometric model and im3/4plementation, the use of debt-carrying capacity as tool to parsimoniously
+capture country heterogeneity, forecast accuracy, and debt perimeter issues.
+
+
+  II.     II. TECHNICAL ASPECTS OF ECONOMETRIC MODEL AND LIC-DSF IMPLEMENTATION
+
+A. 2017 Review Model
+
+Model Overview
+
+2.       The LIC-DSF is based on an econometric model that provides a one-year-ahead prediction of the
+risks of external and overall debt distress. The model consists of four PROBIT regressions that include one
+debt burden indicator per specification and a common set of macroeconomic fundamentals. The probit
+regressions take the form of:
+
+  ������������������������(������������������������ ������������������������������������������������) = Φ−1 (������������ + ������������ ������������ + ∑6
+                                                                 ������=1 ������������,������ ������������ ), where                     (1)
+
+          Debt Distress – dummy variables for the occurrence of external and overall public debt distress;
+
+          Φ−1 – inverse of the normal distribution;
+
+          ������������ – constant term;
+
+          ������������ – four different external debt burden indicators (PV of external public debt to GDP and exports,
+          and external public debt service to total revenues (excl. grants) and exports) are used to predict
+          external public debt distress; one overall debt burden indicator (PV of overall debt to GDP) is used
+          alongside the combined risk signal for external public debt distress to predict overall public debt
+          distress;
+
+          ������������ – other structural and macroeconomic fundamentals to capture countries’ debt carrying capacity
+          (CPIA, country real GDP growth, reserves-to-imports ratio in levels and squared, remittances as a
+          share of GDP, and world growth);
+
+          ������������ < 0 – The other structural and macroeconomic fundamentals are defined in such a way that
+          higher values correspond to higher debt-carrying capacity, and hence lower distress probability. As a
+          result, all of their coefficients are negative;
+
+          ������ = 4 – The four probits for external debt distress are estimated separately, while the one including
+          the PV of overall debt to GDP is calibrated afterwards.
+
+
+
+
+                                                                         4
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+3.        The dependent variables in the LIC DSF model capture the onsets of distress and non-distress
+episodes. They are based on a set of proxy dummy variables that combine information about the start of
+actual debt restructurings and timing assumptions (when the start date is not known) with other distress
+signals, such as outright defaults, accumulation of significant arrears, and large upfront disbursements under
+an IMF arrangement. The dependent variable for overall public debt distress is defined by combining
+external and domestic debt distress episodes. Only the start of the distress and non-distress episodes are
+coded as 1 and 0, respectively, with the rest of the observations in their respective spells coded as missing
+values. Distress episodes are determined by a distress signal from any of the proxy dummy variables
+irrespective of whether there are missing values for any of the other proxies, with additional rules about
+how to distinguish separate distress episodes, when distress signals occur in close succession. Non-distress
+episodes are defined as non-overlapping three-year spells with no distress signal from any of the proxy
+variables. The dependent variable is assigned a missing value if the values of the distress proxies are a mix of
+zeros and missing values.
+
+4.      In the 2017 review, the regression sample spanned the period 1970-2014 and covered 80 current
+and former LICs. The sample included 61 of the 68 current LICs, with the rest not included due to missing
+data on external debt burden indicators, and 19 former LICs that have since graduated to market-access
+status and no longer use the LIC-DSF. The use of a broad sample of LICs adds to the number of distress
+episodes on which the models are trained, allowing for their more precise estimation, and ensuring that the
+models continue to reflect the interlinkages between the dependent and explanatory variables, as countries
+develop.
+
+5.      The four continuous external debt distress PROBITs are estimated individually.2 Distress signals
+are then generated by the untransformed Continuous Model and under the main “Threshold Approach and
+the supplementary ”Probability Approach”:
+
+•      Continuous Model. The regression coefficients are used to estimate empirical distress probabilities for
+       each observation in the sample. Distress probability cut-offs (above which the model predicts a distress
+       event) are then derived by minimizing a “loss function,” in which the proportion of “missed crises” and
+       “false alarms” by the four PROBITs enter with weights of 2/3 and 1/3, respectively. The obtained
+       probability cut-offs are not used directly but serve as inputs for the Probability Approach.
+
+•      The “Threshold Approach” is at the core of the LIC-DSF. Under this approach, the absolute values of the
+       coefficients on each of the explanatory variables from the continuous model, other than the debt
+       burden indicators, are averaged across the 4 PROBITs and are used together with the 10-year averages
+       of these variables to construct a Composite Indicator (CI) as of 2014. For each year in the sample, all 80
+       LICs are then assigned CI-scores equal to either the 25th, 75th or 50th percentile cut-offs for the CI values
+       of the 61 current LICs included in the sample as of 2014,3 depending on whether the 10-year moving
+       historical averages of the Composite Indicator in that particular year falls in the 25th, 75th, or in the
+       middle-two quartiles of the distribution of the 2014 CI-values of the 61 current LICs, respectively. As a
+
+
+2Both   the LHS and RHS variables enter the regressions as country-year observations.
+3The   cut-offs were set at 2.69, 2.86 and 3.05 corresponding to the values of the 25th, 50th and 75th percentiles respectively.
+
+
+
+                                                                  5
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+    result, in each year of the sample countries are assigned in three different groups by debt-carrying
+    capacity – Weak, Strong, and Medium, respectively. For each PROBIT, the empirical probability of
+    distress is then estimated as the sum of the constant, the product of the coefficient of the debt burden
+    indicator and its untransformed values, and countries CI-scores that enter the sum with a coefficient of
+    minus one. The same optimization procedure as for the Continuous Model is then used to derive distress
+    probability cut-offs. In a final step, the “High-Risk” thresholds for the debt burden indicators are derived
+    by DCC, by inverting the distress probability cut-offs for each PROBIT model at the 25th, 75th or 50th CI-
+    score percentile cut-offs.
+
+•   The supplementary “Probability Approach” is included in the LIC-DSF for auxiliary use when debt
+    indicators are close to the thresholds. Under it, the empirical distress probabilities are estimated using
+    the coefficients from the Continuous Model and the values of the explanatory variables, fixed at their
+    long-term, centered average as of the time of each DSA, except for debt burden indicators that enter the
+    calculation with their untransformed forecasted values. The empirical distress probabilities are then
+    compared to the probability cut-offs derived from the Continuous Model.
+
+6.       The thresholds for the PV of overall debt-to-GDP ratio are not estimated directly. Under the
+Threshold Approach, they are obtained from an ad-hoc application of the “signal-to-noise” method, using
+the same CI-scores and under the assumptions of no constant and coefficient on the overall debt-to-GDP
+ratio of one. The “signal-to-noise” method minimizes a “loss function” calibrated the same way as the one
+used in the external debt distress model. There is no Probability Approach for identifying overall public debt
+distress, as no additional PROBIT regressions have been estimated for overall debt burden indicators.
+
+7.       The simplicity of the Threshold Approach comes at the cost of an extra degree of separation from
+the estimated Continuous Model. Under the main Threshold Approach used in the LIC-DSF, the values of the
+debt burden indicators for each LIC are compared to their respective DCC-specific thresholds, making the
+results easy to interpret. The mapping of countries to DCC groups is a modelling choice that aims to
+parsimoniously capture the heterogeneity in macroeconomic fundamentals across LICs. While a specific
+mapping scheme may perform this task well at the time it was selected, there is no guarantee that it will
+continue to do so if countries macroeconomic characteristics diverge further. This can introduce biases in
+the risk signals that are separate from the performance of the underlying Continuous Model.
+
+Model Estimation
+
+8.       The predictive performance of the LIC-DSF model is evaluated in reference to the Receiver
+Operating Characteristics (ROC) curves of individual PROBITs and joint selection of distress probability cut-
+offs. The ROC curve is a plot of the True Positive rate of correctly predicting the onset of external debt
+distress versus the False Positive (false alarms) rate of misclassifying non-distress occurrences, using as
+thresholds different predicted probabilities derived from the four PROBIT models. Following the estimation
+of the four PROBITs, different cut-offs for the predicted probability of a debt distress will classify differently
+the sample observations into distress and non-distress ones. Each PROBIT can then be graphically
+represented as a curve on the ROC chart, in which the distress probability cut-offs are ordered from the
+
+
+
+
+                                                        6
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+highest to the lowest starting at the axes origin.4 The bigger the vertical distance between a data point
+summarizing the model predictive power at a given probability cut-off and the diagonal line is, the better the
+performance of the model.5
+
+9.       All four PROBITs for external debt distress risk have strong predictive power, but the ones relying
+on export-based debt burden indicators do not add to the overall performance at the margin. The top
+panel of Figure 1 plots the ROC curves of the individual PROBITs obtained in the first round of estimating the
+model with the 1970-2014 dataset used in the 2017 Review. Also shown are the distress probability cut-off
+points selected by the optimization procedure to minimize the Loss function of the four PROBITs under the
+Threshold Approach. All PROBITs exhibit false alarm rates in the range of 25-31 percent and True Positive
+rates of over 75 percent, both of which are within the range of benchmarks for a successful crisis prediction
+model (top charts in Figure 3). The combination of the four PROBITs has in-sample True Positive rate of over
+80 percent and False Positive rate of around 40 percent. However, the marginal contribution of the PROBITs
+for the PV of external debt-to-exports and external debt service-to-exports is negative, as conditional on the
+other PROBITs not raising a red flag, they do not help identify any missed debt distress episodes, while
+adding to the rate of false alarms (bottom panel of Figure 1) of the combination of the four PROBITs.
+
+
+
+
+4At the axes origin (corresponding to zero False Alarms and zero True Positive Rate), the cut-off for the predicted probability is
+1.0, at which point the model will correctly identify all non-distress occurrences but will mis-classify all distress events as non-
+distress ones. As the probability cut-off is lowered, the model is able to identify progressively more distress occurrences at the
+expense of misclassifying an increasing share of non-distress ones.
+5The  vertical distance is equal to the difference between the True Positive and False Positive rates generated by the distress
+probability cut-off. The 45-degree diagonal line corresponds to the ROC curve of an uninformative model corresponding to
+flipping a coin for each sample observation.
+
+
+
+                                                                 7
+  LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+ Figure 1. Individual PROBITs Performance under Threshold Approach and Contribution to Identifying Distress
+                              and Non-Distress Episodes in 2017 Review Dataset
+                                                            ROC Curve Charts (Index)
+
+
+
+
+         Loss Function of Jointly Calibrated PROBITs                             Marginal True and False Positive Rates of Individual
+                                (Index)                                                             PROBITs 2/ (Percent)
+
+      Statistics                                     Values
+      Missed Crises                                     0.18
+      False Alarms                                      0.38
+      Loss Function 1/                                  0.24
+
+
+
+
+Source: Staff calculations based on the 2017 LIC DSF Econometric Model.
+Notes: The four charts at the top show the Receiver Operating Characteristic (ROC) curves of the individual PROBITs, obtained in the first-
+round of the estimation, together with the distress probability cut-off point (red dot) selected by the optimization procedure to minimize
+the Loss function of the four PROBITs. The probability cut-offs are then inverted into DCC-specific thresholds. The estimates of the area
+under the ROC curve (AUC) can be used to compare the discriminatory power of different regression specifications (see Pepe, Margaret,
+Gary Longton, and Janes, Holly, 2009, “Estimation and Comparison of Receiver Operating Characteristic Curves,” The Stata Journal, 9(1)).
+The AUC of the 45° diagonal line, which represents the ROC curve of an uninformative model, is 0.5. The maximum AUC is equal to 1.
+1/ Weighted sum of missed crises (with weight of 0.67) and false alarms (with a weight of 0.33).
+2/ True and False Positive Rates of individual PROBITs conditional on any of the other PROBITs not raising a red flag.
+
+
+
+
+                                                                          8
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+Issues Arising in Model Estimation
+
+10.       The optimization procedure used to jointly derive distress probability cut-offs from the four
+PROBITs is complex and its outcome is sensitive to how the dependent variable is defined, which can open
+a wedge between the in-sample calibration of the model and its performance in the LIC-DSF
+implementation. In the econometric model, only the start of the distress and non-distress episodes are
+coded as 1 and 0, respectively, with the rest of the observations in their respective spells coded as missing
+values. The model calibration based on this definition is optimized to correctly classify only the onsets of 3-
+year, non-overlapping, distress, and non-distress episodes, and not all country-year observations in the
+sample. While the focus on the onset of debt distress is standard in the crisis literature, the use of only the
+onsets of non-distress episodes is less common. It significantly reduces the sample of non-distress country-
+year observations and opens a wedge between the characteristics of the sample used for in-sample
+calibration of the model and the sample of its out-of-sample usage in DSAs. This is because, in practice, debt
+sustainability analyses are carried out in different years and the assessment results in a classification of
+countries as either being in distress or not experiencing one at a given point of time. As a result, the time
+series of final risk ratings more closely resemble country-year observations rather than onsets of spells of
+non-distress and distress episodes. The sensitivity of the optimization procedure to the definition of the
+dependent variable is illustrated in Figure 2, which presents the results of estimating the model with
+country-year non-distress occurrences and onsets of distress episodes in the 1970-2014 dataset used in the
+2017 Review. Results show that using the same Loss Function as in Figure 1, the selected cut-off probabilities
+yield considerably lower false alarms rate (22 percent vs 38 percent) at the expense of higher rate of missed
+crises (38 percent, compared to 18 percent) (Figures 1 and 2).6 In light of these findings, one can expect to
+see a higher rate of false alarms in the implementation of the LIC-DSF (that deals with country-year non-
+distress observations) compared to the in-sample calibration of the model (estimated with their onsets
+only). In practice, this effect may be offset by other features of the LIC-DSF implementation, such as the use
+of judgment to discount short-lived or marginal breaches, etc.
+
+11.      The model performance under the Threshold Approach is robust to alternative LIC samples used
+to derive the CI cut-off values for mapping countries into DCC groups. In the 2017 Review, these cut-off
+values were calculated with data for the 61 current LICs included in the sample. As a result, the 61 current
+LIC countries included in the data sample were classified into Weak, Medium and Strong DCC groups in
+25:50:25 proportions. In the LIC-DSF implementation, the CI values for all 69 LIC-DSF users are being
+compared to the CI cut-off values, calibrated on 61 countries. As a result, the initial proportion of LIC-DSF
+users classified into Weak, Medium and Strong DCC groups was different from the 25:50:25 benchmark rule,
+with more countries ending up being classified in the Weak DCC category. However, re-estimation of the
+2017 Review model under a revised DCC classification scheme based on all 69 current LIC-DSF users shows
+
+
+
+
+6This is due to the fact that under the revised definition of the dependent variable, the share of non-distress episodes in the
+sample, which can potentially be mis-classified as distress ones (and hence worsen the Loss Function) is larger. In choosing the
+distress probability cut-offs, for the same weights of missed distress and false alarms, the optimization procedure will try to
+reduce the penalty from the increased rate of false alarms by increasing the cut-off values, which results in more distress
+episodes being missed.
+
+
+
+                                                               9
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+little change in the predictive power of the model, suggesting that a better alignment between how the
+model is calibrated and used is feasible.
+
+    Figure 2. Sensitivity of Distress Probability Cut-offs under Threshold Approach to Definition of Non-Distress
+                                           Episodes in 2017 Review Dataset
+                                                     ROC Curve Charts (Index)
+
+
+
+
+                                    Loss Function of Jointly Calibrated PROBITs (Index)
+
+                                         Statistics                          Values
+                                         Missed Crises                        0.38
+                                         False Alarms                         0.22
+                                         Loss Function 1/                     0.33
+ Source: Staff calculations based on the 2017 LIC-DSF econometric model.
+ Notes: The four charts at the top show the Receiver Operating Characteristic (ROC) curves of the individual PROBITs,
+ obtained in the first-round of the estimation, together with the distress probability cut-off point (red dot) selected by the
+ optimization procedure to minimize the Loss function of the four PROBITs. The probability cut-offs are then inverted into
+ DCC-specific thresholds. The estimates of the area under the ROC curve (AUC) can be used to compare the discriminatory
+ power of different regression specifications (see Pepe, Margaret, Gary Longton, and Janes, Holly, 2009, “Estimation and
+ Comparison of Receiver Operating Characteristic Curves,” The Stata Journal, 9(1)). The AUC of the 45° diagonal line, which
+ represents the ROC curve of an uninformative model, is 0.5. The maximum AUC is equal to 1.
+ 1/ Weighted sum of missed crises (with weight of 0.67) and false alarms (with a weight of 0.33).
+
+
+
+
+                                                                10
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+12.      The model calibration is further affected by the revision of historical data and sample extension to
+2022. The historical time series of the dependent and explanatory variables have been revised to reflect
+changes in existing data sources and the availability of new ones. An important source of revisions is updates
+of historical GDP series in the WEO database for a number of LICs, due to rebasing of nominal GDP and
+expansion of GDP series coverage of the gray economy. Newly available data sources have also changed the
+frequency and timing of distress signals. Comparison of the results from estimating the model under the
+Threshold Approach with the 2017 Review dataset and the revised data for 1970-2014 suggest that while the
+model performance remains broadly unchanged, as evidenced by the sustained high values of the PROBITs
+Area Under the ROC Curve (AUC), the derived distress probability cut-offs change, implying changes in the
+estimates of the debt indicator thresholds (Figure 3).
+
+13.     Estimation of the external debt risk model with the revised and extended data suggests that data
+revisions and the increased heterogeneity across LICs in the last decade have weakened the explanatory
+power of macro fundamentals. The explanatory power of individual PROBITs in the Continuous Model, as
+captured by the regressions area under ROC curve (AUC) values, are lower when estimated with the revised
+and extended data (Figure 3).
+
+
+
+
+                                                     11
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+   Figure 3. Sensitivity of Model Calibration under Threshold Approach to Revisions of 2017 Review Dataset
+
+                                                   ROC Curve Charts (Index)
+
+
+
+
+                                 Loss function of Jointly Calibrated PROBITs (Index)
+
+                                       Statistics                           Values
+                                       Missed Crises                          0.33
+                                       False Alarms                           0.37
+                                       Loss Function 1/                       0.27
+ Source: Staff calculations based on the 2017 LIC-DSF econometric model.
+ Notes: The four charts at the top show the Receiver Operating Characteristic (ROC) curves of the individual PROBITs,
+ obtained in the first-round of the estimation, together with the distress probability cut-off point (red dot) selected by the
+ optimization procedure to minimize the Loss function of the four PROBITs. The probability cut-offs are then inverted
+ into DCC-specific thresholds. The estimates of the area under the ROC curve (AUC) can be used to compare the
+ discriminatory power of different regression specifications (see Pepe, Margaret, Gary Longton, and Janes, Holly, 2009,
+ “Estimation and Comparison of Receiver Operating Characteristic Curves,” The Stata Journal, 9(1)). The AUC of the 45°
+ diagonal line, which represents the ROC curve of an uninformative model, is 0.5. The maximum AUC is equal to 1.
+ 1/ Weighted sum of missed crises (with weight of 0.67) and false alarms (with a weight of 0.33).
+
+
+
+
+                                                                12
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+B. LIC-DSF Implementation
+
+Overview of Implementation Modalities
+
+14.      In the LIC-DSF implementation, the Threshold and Probability Approaches rely on forecasts and
+different transformations of explanatory variables, and the use of judgment, introducing a further degree
+of separation from the estimated Continuous Model. Mechanical risk signals are generated when a debt
+burden indicator breaches its threshold for more than one year at any time in the first 10-years of
+projections under the baseline (resulting in a High-Risk signal) or in standard, tailored, or customized stress-
+test scenarios (giving rise to a Moderate-Risk signal). The empirical distress probabilities over the forecast
+period are generated utilizing forecasts of the RHS variables.
+
+•      Under the Threshold Approach, the country CI-scores as of the time of each DSA are calculated using 10-
+       year, centered, moving averages of macroeconomic fundamentals that include five historical outturns
+       and five forecasted ones, instead of the 10-year, moving historical averages used in its calibration. The
+       calculated CI-score is then kept fixed over the entire forecast period of each DSA.
+
+•      Under the Probability Approach, macroeconomic fundamentals other than the debt burden indicators
+       are transformed into 16-year centered, moving averages that include five historical outturns and 11
+       forecasted ones. These values are then kept fixed over the entire forecast period of each DSA.
+
+15.      In determining the final risk ratings, the mechanical signals from the main Threshold Approach or
+the supplementary Probability Approach can be overlaid by judgment to capture country-specific
+considerations. Over 2018-23, judgment was applied in around one fifth of all DSAs for 30 of the 69 LIC-DSF
+users to reflect country-specific considerations not fully captured by the underlying model. The use of
+judgment has resulted in an improvement of the final risk rating in around 40 percent of the cases and in
+higher risk ratings in the rest. This can affect the rates of missed distress episodes and false alarms in the
+application of the framework separate from the model-based mechanical risk signals.
+
+
+    III.   DEBT-CARRYING CAPACITY AS TOOL TO CAPTURE COUNTRY HETEROGENEITY
+
+A. Overview
+
+16.      A key design feature of the LIC-DSF is the classification of countries by debt carrying capacity,
+which allows a differentiated treatment of distinct country groups while keeping the framework simple
+and easy to use. The 2017 LIC-DSF review expanded the measure of countries’ debt carrying capacity (DCC)
+from the CPIA score (as a measure of policy and institutional strength) to a composite indicator (CI) score
+that also includes long-run averages of macroeconomic fundamentals that mainly capture external buffers.
+To arrive at debt burden thresholds for countries with Weak, Medium, and Strong DCC, the heterogeneity
+across LICs is reduced to the 25th, 50th, and 75th percentile cut-offs of CI scores, as calculated with data up to
+2014 in the last LIC-DSF review, respectively (see Section I for details on the use of DCC under the Threshold
+Approach). In the 2017 Review, the predictive performance of the model under the Threshold Approach was
+closely aligned with that of the Continuous Model.
+
+
+
+                                                       13
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+17.      However, the effectiveness of the DCC mapping procedure can be affected by the increased
+heterogeneity among LICs in recent years. Since 2010, Frontier and other relatively wealthier LICs have
+decoupled from their peers to more closely resemble emerging markets (EMs), with an increased share of
+non-concessional debt (both external public debt owed to private creditors and domestic debt issued at
+market terms). As seen in Section I, this combined with the revision and extension of time series has affected
+the ability of the Threshold Approach, based on the existing DCC mapping procedure, to approximate the
+performance of the Continuous Model, necessitating revisiting of its design features. Furthermore, the
+increased country heterogeneity within existing DCC groups points to the need for analysis of potentially
+missing country characteristics that could lead to DCC misclassification.
+
+B. Developments in DCC Classification
+
+18.       The initial distribution of countries across DCC groups at the time of implementation of the
+current LIC-DSF in 2018 was more skewed than the model calibration. The use of the 25th, 50th, and 75th CI-
+score percentile cut-offs resulted in a symmetric distribution by DCC of the 61 LIC countries included in the
+regression sample, with half of them assigned Medium DCC and the rest split equally into the Weak and
+Strong DCC groups. Upon implementation of the framework in 2018, the CI scores of the additional 8 LIC-DSF
+users mostly fell into the Weak DCC group, resulting in nearly one-third of countries with Weak DCC. In
+addition, in the LIC-DSF implementation, the CI-scores are estimated using the 10-year, centered, moving
+averages of macroeconomic fundamentals that include five historical outturns and five forecasted ones,
+instead of the 10-year, historical averages used in its calibration. While an improvement over the purely
+backward-looking approach necessitated by the lack of forecasts in the model dataset, this resulted in the
+reshuffling of nine countries across DCC groups, though the number of countries in each DCC group
+remained broadly unchanged.
+
+19.       Since the initial round of LIC-DSF implementation, a weakening of macroeconomic fundamentals
+has led to a downward shift in CI scores that resulted in DCC downgrades for one quarter of LIC-DSF
+countries. Since 2018, the distribution of CI scores has shifted to the left. As a result, as at end-April 2024,
+nearly half of LIC-DSF countries (32 out of 69) are in the Weak DCC group (Figure 4). This is in line with the
+aims of the design of the DCC-classification scheme, i.e., to capture changes in the support from
+macroeconomic fundamentals to countries’ ability to carry debt. Overall, 17 countries experienced DCC
+downgrades compared to 2018, while just 1 country experienced an upgrade.7 Fragile and conflict-affected
+states (FCS) and/or small island developing states (SIDS) were disproportionately affected by downgrades
+into Weak DCC, accounting for 9 out 12 such cases. This points to potentially missing elements from the DCC
+classification that can control for specific features of FCS and SIDS, such as growth volatility. This is because
+average country growth may mask structural volatility in SIDS, which are more vulnerable to extreme
+
+
+
+
+7An additional 3 countries experienced temporary changes before reverting to their original DCCs, and one country (Guyana)
+experienced 3 instances of DCC changes. In one case, an upgrade was due to the inclusion of previously missing data that
+raised the CI score, in total, nearly one-third of countries, or 21 countries, experienced one or more DCC changes since 2018.
+This is similar in frequency as under the previous methodology based only the CPIA, when also 21 countries experienced DCC
+changes over 2011-17 (14 downgrades, 7 upgrades).
+
+
+
+                                                               14
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+weather events and sea-level rises. On the other hand, the DCC of larger and more diversified or resilient
+economies may be underestimated by the current DCC mapping, if their growth rates are more stable.
+
+                     Figure 4. Distribution of CI scores across LIC-DSF countries, 2018 vs. 2024
+                                                  (Density functions)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+ Notes: Shown are CI score distributions for LIC-DSF countries as of Oct. 2018 and Apr. 2024. Distributions are shown as
+ kernel probability density functions to illustrate a smoother representation of frequencies across countries.
+
+
+20.       Most DCC downgrades for borderline countries have been driven by weaker global conditions. The
+largest concentration of DCC downgrades occurred when CI scores were updated in April 2021 following the
+pandemic shock when 10 countries—most of which had CI scores near a cut-off to a lower DCC
+classification—experienced downgrades (another three downgrades had already occurred in October 2020).8
+With a weight in the CI score (Equation 2) over four times larger than that of country growth, the decline in
+the 10-year centered average of world growth was the leading contributor to the decline in CI scores (Figure
+5).9 Many of these cases affected borderline countries where relatively small changes in CI scores (around 3
+percent on average) resulted in a DCC downgrade. Following these downgrades, further deterioration in
+country-specific macroeconomic fundamentals mainly kept countries in the lower DCC groups.
+
+                                                                                                                               (2)
+
+                    CPIA – World Bank’s Country Policy and Institutional Assessment (CPIA) score;10
+
+
+8CI-scoresare updated twice-a-year reflecting forecast revisions in the April and October World Economic Outlooks, in addition
+to the once-a-year update of countries’ CPIA scores. No CI-scores update took place at the time of the April 2020 WEO update,
+which took place at the height of the pandemic.
+9The  CI-score equation (Equation 2) consists of the non-debt variables (Xk) included in the underlying PROBIT models (Equation
+1). All variables are in percent, except the CPIA score. The weights are the average of the estimated coefficients across the four
+external PROBIT regressions.
+10CPIA is an index compiled annually by the World Bank for all IDA-eligible countries, including blend countries. The index
+consists of 16 indicators grouped into four categories: (1) economic management; (2) structural policies; (3) policies for social
+                                                                                                                    (continued)
+
+
+                                                               15
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+                     g – country’s real GDP growth;
+                     gw – world growth;
+
+21.      At present, the DCC does not allow for differentiated impact of global growth on countries. The CI
+score formula places a significant weight on global growth, reflecting its empirical explanatory power in
+predicting debt distress episodes (equation 1). At the same time, countries are exposed to a varying degree
+to global conditions. Trade openness was explored as a potential variable in the 2017 Review, but was less
+empirically significant at the time. Interacting trade openness, or a similar proxy, with global growth could
+help improve the ability of the DCC mapping to account for the differentiated impact of global conditions
+among LICs.
+
+22.      DCC downgrades on account on changes in country fundamentals have been less frequent and
+mostly driven by declining external buffers. Declines in reserve coverage have been behind some of the
+larger changes in CI scores, resulting in DCC downgrades. On the other hand, the only instances of DCC
+upgrades (three in total, two of which temporary), were led by improvements in reserve coverage.11
+
+23.       The higher share of countries in the lower DCC groups implies that more countries are assigned CI-
+scores that exceed their country-specific CI values, potentially overestimating their ability to carry debt.
+The DCC mapping assigns countries with Weak DCC the upper bound of the range of CI-scores in that
+category (the 25th percentile as estimated in the 2017 LIC-DSF review), resulting in overestimation of their
+ability to carry debt relative to the outcome from the Continuous model. Countries with Medium DCC are
+assigned the median CI-score (as estimated based on data from 2014 in the 2017 LIC-DSF review), with some
+individual country CI-scores being above and some below it, resulting in underestimation and overestimation
+of their ability to carry debt, respectively. Countries with Strong DCC are assigned the lower bound of the
+range of CI-scores in that group as of the 2017 review, resulting in an underestimation of their ability to carry
+debt. This implied overestimation of countries ability to carry debt has not resulted in a higher overall rate of
+missed crises in the LIC-DSF implementation.
+
+
+
+
+inclusion and equity; and (4) public sector management and institutions. Countries are rated on their current status in each of
+these performance criteria, with scores from 1 (lowest) to 6 (highest)
+11In   other cases, DCC downgrades were led by CPIA (one case) and country growth (one case).
+
+
+
+                                                               16
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+ Figure 5. LIC-DSF Users with DCC Downgrades Led by Changes in Global Growth: Contributions to CI-Score
+                                               Changes
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+ Notes: Countries shown are those that experienced DCC downgrades due to changes in CI scores in which a change in global
+ growth was the leading contributor. Shown are contributions to CI-score changes that led to the DCC downgrade (first
+ stacked column) and contributions to CI-score changes since the DCC downgrade until April 2024 (none of which resulted in
+ another downgrade for Medium DCC countries).
+
+
+
+C. DCC of Frontier LICs
+
+24.       Market signals are generally aligned with Frontier LICs DCC classifications. Frontier LICs with
+stronger DCCs tend to issue at better spreads in international bond markets, including when controlling for
+maturity and debt levels. Since 2017, spreads for Strong DCC issuers averaged around 350 basis points,
+compared to around 490 basis points for Medium DCC issuers (Figure 6). Weak DCC issuers, who were fewer
+in number and generally issue at times of loose global financial conditions, faced higher spreads at around
+630 basis points on average. Credit ratings provide similar signals, as countries with higher DCC
+classifications tend also to have higher credit ratings (Figure 7).
+
+
+
+
+                                                            17
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+                  Figure 6. Frontier LICs: Sovereign Bond Spreads by DCC at Issuance, 2017-24
+
+
+
+
+Source: Staff analysis of Bond Radar data and joint IMF-WB LIC-DSF country analyses.
+Notes: Issuances as of August 2024. 2017 DCC is as of Oct. 2018. Mozambique, Congo, Rep. of and Togo are not shown due
+to missing data.
+
+
+                        Figure 7. DCC’s of LIC-DSF Countries by CI Score and Credit Ratings
+
+
+
+
+Source: IMF and WB staffs analysis based on LIC-DSF country database and data from Trading Economics.
+Notes: AAA credit ratings assigned value 100, with a value of 5 subtracted for each subsequent credit rating.
+
+
+
+
+25.     At the same time, the fact that some countries with lower DCC groups issue at similar terms to
+those of countries with stronger DCC points to the need for further analysis of potentially missing country
+
+
+                                                                 18
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+characteristics. To the extent that additional characteristics relevant for market access are missing from CI
+scores, capturing them in CI scores could potentially improve the mapping of countries into DCC groups and
+better reflect their debt repayment capacity, and as a result, improve precision in the risk and sustainability
+assessments.
+
+26.      Economic size and level of domestic financial development are potentially relevant characteristics
+that could be associated with greater capacity to carry debt. Larger countries tend to benefit from the
+absolute size of their economies, as intermediation costs and portfolio allocation considerations limit the
+appeal of smaller denomination bond issuances. Economic size can also serve as a proxy for economic
+diversification. In addition, higher degree of domestic financial development indicates greater ability for
+countries to finance themselves without crowding out investment by other sectors or exacerbating macro-
+financial risks. The absence of a measure of domestic financial development in the DCC also manifests in the
+fact that more countries with weak DCC have higher ratios of domestic debt to GDP than those of countries
+in higher DCC groups (Figure 8). For Frontier LICs, domestic market development contributes to the capacity
+of countries to smooth borrowing needs and finance themselves in adverse external conditions.
+
+                    Figure 8. LIC DSAs: Domestic Debt-to-GDP Ratio by Debt-Carrying Capacity
+                                                    (Percent)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+ Notes: Forecast horizon is equal to zero in the year when the DSA is produced (i.e., forecast of the yearly outturn during the same
+ year).
+
+
+
+
+                                                                 19
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+ IV.      FORECAST ACCURACY
+
+27.      Forecast accuracy can be examined by comparing data outturns with their projections made in
+DSAs prepared in earlier years. The term ‘forecast errors’ is used to denote the difference between the first
+actual data reading (e.g., 2022 data as reported in the 2023 DSA) and the forecasts made in earlier DSA
+vintages (e.g., 2022 forecasts in the 2018, 2019, …, 2022 DSAs) at different forecast horizons.12 The forecast
+horizon represents the time gap between each earlier DSA vintage and the year when the actual data
+outturn was first reported (e.g., the 2022 forecast data made in the 2018 DSA has a forecast horizon of five
+years, as the 2022 outturn is first reported in the 2023 DSA).
+
+28.      The onset of the COVID-19 shock midway through the implementation of the existing LIC-DSF
+complicates drawing of definitive conclusions about the accuracy of forecasts. Forecasts are intended to
+capture the central tendency of economic indicators and, as such, are inherently limited in accounting for
+the impact of exogenous shocks, except through the mechanical extrapolation of their average effects on
+historical realizations. The impact of the COVID-19 pandemic—a “black-swan” event that occurred midway
+through the implementation of the current LIC-DSF—skews ‘forecast errors’, especially at forecast horizons
+longer than three years, at which differences between data outturns and their earlier forecasts entirely
+reflect projections made pre-COVID for outcomes that occurred after the shock. Results for shorter forecast
+horizons also encompass projections and outturns that both occurred before and after the onset of the
+pandemic. As a result, they are less skewed by the pandemic, though forecasts made in the immediate
+aftermath can also be noisy as they were made in a period of heightened uncertainty about the transmission
+channels of the shock to the real economy and the magnitude of any scarring effects.
+
+29.      Given the complex chain of events set in motion by the COVID-19 pandemic, the proper
+interpretation of the results from the analysis of forecast accuracy requires going beyond the headline
+numbers. For example, analysis of forecast errors of the external public debt-to-GDP ratio would, at first
+glance, suggest that country teams had been able to foresee the COVID-19 shock. The actual outturns of the
+PV of external public debt-to-GDP for both the median LIC and a wide range of countries around it are very
+close to the pre-pandemic forecasts made at different forecast horizons (Figure 9, top panel). In a number of
+cases, outturns have even fallen short of earlier projections for the nominal external public debt-to-GDP
+ratio. A more likely explanation of these findings is that they reflect the extended post-pandemic loss of
+market access and disruptions in the utilization of contracted but not yet disbursed concessional project
+loans experienced by many LICs. The bigger size of the positive forecast errors for the nominal debt ratio
+relative to the PV ratio further reflects the stepped up IFI support of the policy response to the pandemic
+that partially replaced non-concessional financing.
+
+30.      The forecast errors for the overall public debt-to-GDP ratio show more clearly the fiscal cost of the
+COVID-19 shock and subsequent loss of market access that forced LICs to ramp up domestic borrowing.
+Results from the analysis show that actual outturns were higher for most LICs in both nominal and PV terms
+for medium-term forecast horizons (Figure 9, bottom panel). This reflects the fiscal cost of the policy
+
+
+12Asexplained in this section, the presence of ‘forecast errors’ is not necessarily an indication of underlying issues with th e
+quality of forecasts.
+
+
+
+                                                                 20
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+response to the pandemic, a sizeable share of which was financed domestically. In this context, the
+significant forecast errors of overall debt-to-GDP ratios over the medium term are not a sign of optimism
+bias. Residuals in the debt accumulation equation, on average, contribute around 0.5 percentage points of
+GDP per year to the forecast error of the change in overall public debt (Figure 10, lower panel). These
+positive residuals—indicative of upward ‘debt surprises’—reflect recognition of liabilities that extend beyond
+the DSA’s debt perimeter. The relatively small average effect masks substantial contributions in specific
+country cases.
+
+        Figure 9. LIC-DSF Users: Medium-Term Forecast Errors for External and Overall Debt-to-GDP
+                   (Difference between Outturns and Projections, Percentage points of GDP)
+                                                   External Public Debt
+                          Nominal                                                           PV
+
+
+
+
+                                                   Overall Public Debt
+                          Nominal                                                           PV
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses performed under the 2018 LIC-DSF, over 2018-23.
+ Notes: Forecasts errors measure the difference between outturns and the forecasts of their values made in earlier DSA
+ vintages. Positive values signal the presence of optimism bias, as projections underestimate the debt burden outturns. The
+ X-axes show the time gap between each earlier DSA vintage and the year when the actual data was first reported. The lower
+ and upper hinges of each box correspond to the 25th and 75th percentile of the distribution of the indicator at the given
+ forecast horizon, while the horizontal line indicates the median.
+
+
+31.     Primary fiscal deficits are the largest contributors to forecast errors for gross financing needs.
+Higher-than-expected primary deficits drove the larger-than-anticipated increases in gross financing needs
+and the overall public debt (Figure 10). At the same time, many LICs benefited from the Debt Service
+Suspension Initiative that deferred payments on the external official debt in the first two pandemic years, as
+
+
+
+                                                            21
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+seen by the negative contribution of debt service to the average GFN forecast error at shorter time horizons.
+However, the post-pandemic switch to domestic borrowing at market terms, the tightening of financial
+conditions, and the spread of deferred payouts under the DSSI over the following years in a PV neutral way
+resulted in elevated debt service costs that contributed to the positive average forecast errors over the
+medium term. Residuals play a relatively small role in GFN forecast errors.
+
+32.      Despite the noise in the data introduced by the COVID-19 shock, the short-term projections of
+external and public debt ratios and main macroeconomic indicators show little sign of optimism bias. For
+the median LIC-DSF country, forecast errors of the public debt-to-GDP ratios, as well as for the four external
+debt burden indicators remain near or below zero through the 2-year forecast horizon (Figures 9 and 12).
+This apparent absence of optimism bias also extends to projections of the main macroeconomic variables
+used in the calculation of external debt burden indicators (Figure 11).
+
+33.      There is some evidence that the strengthening of realism tools in the 2017 LIC-DSF review has
+improved forecast quality, though it is difficult to draw definitive conclusions given the noise in the data
+brought around by the 2008 GFC and the COVID-19 pandemic. Comparison of the magnitude of forecast
+errors in 2018-23 and since the launch of the first LIC-DSF in 2005 shows smaller forecast errors since the
+2017 LIC-DSF Review (Figures 11 and 13). This is consistent with the strengthening of realism tools in the
+latest LIC-DSF. Despite these advances, further improvements to data collection and reporting practices, as
+well as potential refinements to realism tools, remain critical to ensuring continued progress in
+strengthening forecast accuracy.
+
+
+
+
+                                                      22
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+                            Figure 10. LIC-DSF Users: Analysis of Forecast Errors of
+                    Gross Financing Needs and Change in Overall Public Debt-to-GDP Ratio
+                     (Difference between Outturns and Projections, in Percentage Points)
+         Gross Financing Needs Forecast Errors                         Contributions of Components to Average
+                                                                                  GFN Forecast Error
+
+
+
+
+  Annual Change in Overall Public Debt-to-GDP Ratio                    Contributions of Components to Average
+                   Forecast Errors                                    Change in Overall Public Debt Forecast Error
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses performed under the 2018 LIC-DSF, over 2018-23.
+Notes: The top left panel shows the difference between the near-final (in-year) GFN projections and their forecasts made in
+the four preceding years. The top right panel presents the median and average GFN forecast errors, along with the
+contributions of its components to the average GFN forecast error among LICs. The bottom left panel shows the difference
+between outturns and the forecasts made in earlier DSA vintages of the annual change in the overall public debt-to-GDP
+ratio over 2018-23 at all forecast horizons combined. The bottom right panel presents the median and average forecast
+errors for the annual change in overall public debt-to-GDP ratio, along with the contributions of its components to the
+average forecast error among LICs at all forecast horizons combined. Positive values signal the presence of Optimism Bias, as
+projections underestimate the outturns for GFNs and the annual change in overall public debt. The X-axes show the time
+gap between each earlier DSA vintage and the year when the actual data was first reported.
+
+
+
+
+                                                            23
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+            Figure 11. LIC-DSF Users: Medium-Term Forecast Errors for Macroeconomic Indicators
+                                    Entering Debt Burden Indicator Ratios
+                                (Deviation of Outturn from Projections, Percent)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses performed under the 2018 LIC-DSF, over 2018-23.
+ Notes: Forecasts errors in this Figure measure the percentage deviation of outturns from the forecasts of their values made
+ in earlier DSA vintages, expressed as a percentage of outturns. Negative values signal the presence of Optimism Bias, as the
+ projections overestimate the outturn of variables used as denominators of debt burden indicators. The X-axes show the
+ time gap between each earlier DSA vintage and the year when the actual data was first reported. The lower and upper
+ hinges of each box correspond to the 25th and 75th percentile of the distribution of the indicator at the given forecast
+ horizon, while the horizontal line indicates the median.
+
+
+34.       There is some evidence that forecast errors for external debt burden indicators over the medium
+term and revenues and exports over the long run are higher in countries with Fund program
+arrangements. The forecast errors of the external debt burden indicators for the median LIC-DSF country are
+higher for program than non-program countries in the medium term (Figure 12). Disentangling the drivers of
+this finding is complicated by the fact that countries that request a Fund program are typically subject to
+greater unanticipated shocks than their peers and their baseline forecasts assume successful
+implementation of difficult reforms, which has a higher probability of not materializing than the most likely
+policies reflected in the baseline for non-program countries.13 Forecasts of other macroeconomic indicators
+appear to play a role especially over forecast horizons beyond the 3-4 years mark, as illustrated by the bigger
+negative differences between outturns and earlier forecasts for fiscal revenues (excluding grants) and
+exports in US dollars (Figure 13). The differences become even more pronounced in the long run. At the
+
+13Dreher(2006), for instance, argues that IMF programs often assume successful policy implementation, resulting in forecasts
+that may not fully account for the complexities and challenges of execution. Furthermore, Ho and Mauro (2014) find greater
+optimism bias in long-term forecasts for IMF program countries.
+
+
+
+                                                              24
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+same time, the patterns of forecast errors are similar across program and non-program countries for GDP in
+US dollars, with evidence of overestimation in projections. Nominal GDP in local currency is, however,
+consistently under-projected over forecast horizons greater than five years, reflecting in part frequent
+revisions of historical data.
+
+35.     There is some evidence that forecast errors for revenues and exports are more pronounced in
+commodity exporters in the long run. The forecast errors of these variables for the median LIC-DSF country
+are higher for commodity exporters than other LICs beyond a forecast horizon of five years (Figure 14).14
+
+36.      The relatively good track record in forecasting the nominal GDP in local currency and US dollars for
+the median LIC masks an underlying optimism bias in forecasts of real GDP growth (Figure 15). In a number
+of cases, this is more than offset by under-projection of the GDP deflator, whose forecast errors have the
+opposite sign and are of larger magnitude than those of real GDP growth. In other cases, frequent revisions of
+historical data help offset the impact on the level of GDP.
+
+
+
+
+14The analysis of forecast errors for the four external debt burden indicators does not reveal any discernible differences in
+patterns between commodity exporters to other LICs in the short to medium term.
+
+
+
+                                                               25
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+ Figure 12. LIC-DSF Users: Medium-Term Forecast Errors for External Debt Burden Indicators by Program
+                                                 Status
+                     (Difference between Outturns and Projections, Percentage points)
+                                                   Solvency Indicators
+
+
+
+
+                                                   Liquidity Indicators
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses performed under the 2018 LIC-DSF, over 2018-23.
+Notes: Forecasts errors measure the difference between outturns and the forecasts of their values made in earlier DSA
+vintages. Positive values signal the presence of Optimism Bias, as projections underestimate the debt burden outturns. The
+X-axes show the time gap between each earlier DSA vintage and the year when the actual data was first reported.
+
+
+
+
+                                                            26
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+ Figure 13. LIC-DSF Users: Long-Term Forecast Errors for Macroeconomic Indicators Entering Debt Burden
+                                         Ratios, by Program Status
+                              (Deviation of Outturn from Projections, Percent)
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+Notes: Forecasts errors in this chart measure the percentage deviation of outturns from the forecasts of their values made
+in earlier DSA vintages. Negative values signal the presence of Optimism Bias, as the projections overestimate the outturn of
+variables that enter as denominators of the debt indicators. The X-axes show the time gap between each earlier DSA vintage
+and the year when the actual data was first reported.
+
+
+
+
+                                                            27
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+ Figure 14. LIC-DSF Users: Long-Term Forecast Errors for Macroeconomic Indicators Entering Debt Burden
+                              Ratios for Commodity Exporters and Other LICs
+                              (Deviation of Outturn from Projections, Percent)
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+Notes: Forecasts errors in this chart measure the percentage deviation of outturns from the forecasts of their values made
+in earlier DSA vintages. Negative values signal the presence of Optimism Bias, as the projections overestimate the outturn of
+variables that enter as denominators of the debt indicators. The X-axes show the time gap between each earlier DSA vintage
+and the year when the actual data was first reported.
+
+
+
+
+                                                             28
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+               Figure 15. LIC-DSF Users: Long-Term Forecast Errors for Real GDP Growth and Inflation
+                          (Difference between Outturns and Projections, Percentage points)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses, over 2006-23.
+ Notes: Forecasts errors in this Figure measure the difference between outturns and the forecasts of their values made in
+ earlier DSA vintages. For real GDP growth, negative values signal the presence of Optimism Bias, as the projections
+ overestimate the outturn. For inflation, positive values signal Optimism Bias, as the projections underestimate the outturn.
+ The X-axes show the time gap between each earlier DSA vintage and the year when the actual data was first reported.
+
+
+37.      Differences between data outturns and their earlier forecasts can also be due to revisions of
+historical data series made after a forecast has been made. Analysis of the direction of updates to
+projections across the whole forecast horizon between DSA vintages separated from one another by
+different time spans over 2006-23 (i.e., forecast revisions) shows that nominal GDP levels, along with overall
+and external public debt (over 2018-23), have consistently been revised upwards (see Figure 16). In the case
+of nominal GDP in levels, this is in part driven by statistical methodology improvements, such as GDP
+rebasing and expansion of coverage that result in higher nominal levels of GDP that affect the level of the
+entire time series. This is seen from the negative sign of historical revisions, which indicate that the first
+reported value of GDP has been subsequently revised up (Figure 16).15
+
+
+
+
+15Historical revisions are defined as the difference between the earliest actual data reading (e.g., 2022 data as reported in the
+2023 DSA) and any revisions to the 2022 outturn as reported in subsequent DSAs (2024, 2025, etc.). The historical revision
+horizon represents the time gap between each subsequent DSA vintage and the year when the actual data outturn was first
+reported (e.g., revisions to the 2022 data outturn made in the 2025 DSA are made at revision horizon two, as the 2022 outturn
+is first reported in the 2023 DSA).
+
+
+
+                                                              29
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+                        Figure 16. LIC-DSF Users: Historical Revisions and Forecast Errors
+                                                    (Percent)
+
+                                                  Medium Term, 2018-23
+
+
+
+
+                                                    Long Term, 2006-23
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses, over 2018-23 (medium term) and 2006-23 (long-term).
+Notes: This Figure shows the difference between the first actual data reading for a given year and: (i) for historical revisions,
+the actual data readings for that year as reported in subsequent DSAs; and (ii) for forecast errors, the forecasts of their
+values made in earlier DSA vintages; both differences are expressed as a percentage of the first actual data reading.
+Negative values signal that the first actual data reading for a given year was lower than either its subsequent revisions or
+earlier forecasts. The X-axes show the time gap between the year when the actual data outturn was first reported and each
+DSA vintage; this difference is negative for historical revisions (shown at -1, -2, -3) as they occur in subsequent DSA vintages,
+and positive for forecast errors (shown at 1, 2, …, 10) as they occur in earlier DSA vintages.
+
+
+
+
+                                                               30
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+  V.     DEBT PERIMETER ISSUES
+
+38.      The LIC-DSF targets near-complete coverage of the public sector to capture relevant risks and
+promote comparability of the assessments across countries. The existing framework targets a near-
+complete coverage of both external and domestic, public, and publicly guaranteed debt. The institutional
+coverage includes both the general government (or its individual components, such as central, state, and
+local governments, social security funds and extra budgetary funds, if consolidated data is not available), the
+central bank,16 and all state-owned non-financial enterprises (or SOEs). Under clearly defined circumstances,
+specific SOEs may be excluded, if the enterprise poses limited fiscal risks. A narrower definition of public
+debt can contribute to unexpected increases from materialization of fiscal risks from sources outside the
+defined perimeter. The quality of the LIC-DSF model calibration and DSA risk assessments is also affected by
+cross-country variations in debt coverage, including due to data reporting.
+
+A. Debt Coverage in Model Dataset
+
+39.      Differences in debt coverage between the data used in the model estimation and the DSAs
+themselves do not appear systematic. A comparison of the distributions of the values of the external debt
+burden indicators in the model database updated through 2022 and the data used in DSAs shows that
+interquartile ranges are broadly aligned for solvency risk metrics, but generally somewhat higher for liquidity
+metrics though gaps have narrowed in latest years (Figure 17). Differences in definitions and methodological
+approaches can explain the discrepancies between the external debt data used in the model, which is based
+on the World Bank’s International Debt Statistics, and the one used in practice in the DSAs. This includes
+different criteria for inclusion of SOE data; different assumptions in projecting cross-currency exchange rates
+and variable interest rates; use of residency versus currency criteria to define external debt; the reporting of
+debt service based on contracted amounts in the WB IDS versus actual payments in the DSAs; etc.
+
+
+
+
+16Forthe central bank, only debt contracted on behalf of the government or taken for purposes other than to support the
+implementation of monetary policies or reserve management is counted as public debt.
+
+
+
+                                                            31
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+   Figure 17. Comparison of Distribution of External Debt Burden Indicators in Model and DSA Datasets,
+                                                  2017-22
+                                                 (Percent)
+
+
+
+
+ Sources: Staff calculations drawing on different debt databases and DSAs.
+ Notes: Model database refers to the revised and extended data series used in the current review. DSA database is
+ constructed from data used in DSAs.
+
+
+B. Debt Coverage in DSAs
+
+40.      Incomplete data coverage can lead to biases in the risk assessments. This issue arises from the fact
+that countries are judged against uniform thresholds, irrespective of the breadth of actual debt coverage.
+Analysis of the magnitude of the average deviations of debt indicators from their thresholds over the
+medium-term suggests that countries with less comprehensive debt coverage tend to exhibit smaller
+threshold breaches in High Risk cases and are farther from the thresholds from below in Moderate Risk ones
+with corresponding effect on fiscal space assessments, potentially affecting the quality of some risk signals
+(Figures 18 and 19).17 This implies a relatively weaker risk signal for countries with less comprehensive
+coverage relative to a similar country with better coverage, and may miss an important element of fiscal risk.
+
+41.     Including estimated contingent liabilities in the debt perimeter could impact both the overall and
+external risk ratings of countries with incomplete data coverage. If the estimated contingent liabilities (CLs)
+are brought into the DSA baseline for Low and Moderate external risk cases with no breaches in the
+baseline, this will generate a mechanical High risk signal in about one-quarter of them, indicating at least one
+
+
+17Analysis is carried out only for debt indicators, for which there is a sufficient number of countries in different debt coverage
+groups in the High and Moderate Risk groups.
+
+
+
+                                                                32
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+breach in the baseline. Among those with CLs above the median value across LIC-DSF users, about half would
+face such mechanical risk signals.18 The CL stress test offers a valuable channel to incorporate estimates of
+fiscal exposures, yet incorporation of liabilities intended for the baseline (due to data constraints, etc.) may
+materially result in more optimistic risk assessments.
+
+     Figure 18. High Risk LIC DSAs: Deviations of External Debt Indicators from Thresholds by Debt Coverage
+                                                     (Percent)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+ Notes: Positive deviations signal breaches of thresholds. Forecast horizon is equal to zero in the year when the DSA is produced
+ (i.e., forecast of the yearly outturn during the same year). Debt coverage groups: Full (general government (defined as covering
+ central, state and local governments and at least one of Social Security Fund and Extrabudgetary Funds) and guarantees and non-
+ guaranteed SOE debt); Near full (narrower budgetary government, guarantees and non-guaranteed SOE debt); Partial (either
+ general or narrower budgetary government and guarantees); Minimum (either general or narrower budgetary government).
+
+
+
+
+18   Results are similar when looking at overall risk rating.
+
+
+
+                                                                    33
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+    Figure 19. Moderate Risk LIC DSAs: Deviations of External Debt Indicators from Thresholds by Debt
+                                                Coverage
+                                                (Percent)
+
+
+
+
+Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+Notes: Positive deviations signal breaches of thresholds. Forecast horizon is equal to zero in the year when the DSA is produced
+(i.e., forecast of the yearly outturn during the same year). Debt coverage groups: Full (general government (defined as covering
+central, state and local governments and at least one of Social Security Fund and Extrabudgetary Funds) and guarantees and non-
+guaranteed SOE debt); Near full (narrower budgetary government, guarantees and non-guaranteed SOE debt); Partial (either
+general or narrower budgetary government and guarantees); Minimum (either general or narrower budgetary government).
+
+
+
+42.      Incomplete coverage often reflects data constraints in capturing SOE debt fully and consistently.
+There is a mixed practice of including all or a subset of larger SOEs in DSA baselines. Differences can often be
+attributed to i) whether liabilities of different institutional sectors are consolidated; ii) whether SOEs are part
+of the definition of government used in the DSA; and iii) data availability between external and domestic
+debt and/or among debt stocks, borrowing plans, and revenue projections. SOEs often have large
+crossholdings of public sector liabilities (SOEs hold government securities or accumulate claims against each
+other), which should be consolidated to avoid double counting public sector liabilities. Projecting SOE
+revenues, deficit, and debt service requires insight into sectoral trends and may not be consistently available
+across SOEs. While data on external borrowing of SOEs is typically available (through World Bank
+International Debt Statistics (IDS)), data on domestic SOE debt is not readily available.
+
+
+
+
+                                                                   34
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+43.     SOEs remain a source of heightened fiscal risks in LICs. While most SOEs do not borrow externally,
+there are a number of cases in which large external debts on SOE books have been transferred to the
+government (Box 1).
+
+                          Box 1. Examples of Materialization of Fiscal Risks from SOEs
+ Kenya. Kenya Airways (KQ) faced financial difficulties starting in 2014. By 2022, KQ had a negative equity
+ position and the highest cost base among all airlines in the Sub-Saharan Africa, even after a 75 percent cost
+ reduction. The airlines’ total debt reached US$835 million and was insolvent by end-2022. Of this amount,
+ US$638 million was the remaining balance (out of original US$750 million) of debt guaranteed by the
+ Government of Kenya (GoK). Even after repeated extraordinary budget support and moratorium on debt
+ service for the amounts owed to the GoK, KQ was unable to service its external debt. Following a call on the
+ guarantees, GoK begun servicing KQ’s guaranteed senior external debt of US$95 million between October
+ 2022 and April 2023. In addition to external guarantees, the GoK had extended domestic guarantees of FX-
+ denominated loans of US$225 million to a consortium of local banks with a 10-year maturity to KQ in 2017.
+ Although the debt is owed to domestic banks, it is included in the external debt stock as DSA is prepared on
+ currency basis. In 2024, local banks called on the government guarantee for an amount of US$150 million
+ on KQ’s FX-denominated obligations, creating additional fiscal financing needs.
+ Mozambique. In 2013-14, three SOEs, Proindicus, MAM, and Ematum borrowed about US$2 billion (over 13
+ percent of GDP) through government guaranteed loans for the purchase of vessels and equipment to
+ develop the tuna fishing industry and improve maritime security. The government guarantee was issued
+ without proper legal procedure and breached legal limits. Two external commercial creditors, Credit Swiss
+ and VTB Capital, provided the loans on the international market, channeled through a UAE-based
+ shipbuilding company, Privinvest. An independent audit conducted by a third party subsequently revealed
+ that US$ 500 million was diverted from the investment projects. Government officials and bankers involved
+ in arranging the deals were accused of misrepresenting the use of proceeds, the amount and maturity
+ structure of Mozambique’s public debt, and the country’s ca pacity to repay to the creditors. As a result,
+ Mozambique stock of public and publicly guarantee debt, including domestic debt, jumped from 86 percent
+ of GDP in 2015 to 125 percent of GDP in 2016, including 8 percent of GDP from the “hidden debt” and
+ significant exchange rate depreciation which exacerbated the external debt burden. The stock of arrears on
+ public and publicly guaranteed external debt reached about US$1.2 billion.
+ Vanuatu. Over recent years, Air Vanuatu, the national airline, has been experiencing serious operational and
+ financial difficulties. In March 2021, the government took temporary control of Air Vanuatu in order to
+ restructure the enterprise. Following the placement of Air Vanuatu under voluntary liquidation in May 2024,
+ a significant portion of the debt owed by Air Vanuatu to creditors has been included in the DSA debt
+ perimeter, given the high likelihood that the government will take over A ir Vanuatu’s liabilities.1/
+ Sources:
+
+ IMF, 2023, “Kenya: 2023 Article IV Consultation-Sixth Reviews under the Extended Fund Facility and Extended Credit
+ Facility Arrangements,” Country Report No. 2024/013, January, (Washington: IMF).
+
+ IMF, 2024a, Mozambique: 2024 Article IV Consultation, Fourth Review under the Three-Year Arrangement under the
+ Extended Credit Facility”, Country Report No. 2024/219, July, (Washington: IMF).
+
+ IMF, 2024b, Vanuatu: 2024 Article IV Consultation,” Country Report No. 2024/278, September, (Washington: IMF).
+
+ ————————————
+ 1/
+    In September 2024, the restructuring of Air Vanuatu was concluded with reaching a creditor compromise which
+ resulted in a reduction of headcount and debt liability for the airline.
+
+
+
+
+                                                           35
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+44.       Differences among currency and residency criteria are mostly material for countries in regional
+currency unions. When data is available, DSAs should be recorded on a creditor residency basis, as it aligns
+better with balance of payments flows, provides consistency between DSA and the macroframework,
+captures the risks of sudden capital flight, provides a more accurate picture of rollover risks related to the
+sovereign-bank nexus. In practice, the difference between residency and currency-based debt definitions of
+external debt is generally assessed by country teams to be immaterial. However, in 18 percent of DSAs with
+currency-based definition, the difference is assessed as being material.19 In the case of countries in regional
+currency unions (e.g. WAEMU), where the majority of the domestic currency debt is held by regional (non-
+domestic) investors, switching debt definition would have measurable impact and could result in changes to
+risk ratings. This points to the need for greater focus on overall public debt vulnerabilities in countries
+members of a currency union.
+
+45.      A narrow debt perimeter and gaps in debt definition may result in large debt flow residuals and
+revisions to debt stocks that can contribute to perceived optimism bias in projections. Unidentified, or
+residual, debt-creating flows signal that debt is being accumulated outside the primary balance and the
+automatic debt dynamics captured in the model.20 The average residuals in historical external and overall
+public debt accumulation are positive across LIC-DSF users and amount to 0.6 percent and 1.8 percent of
+GDP per year, respectively (Figure 20). The forecast errors for the residual are smaller, reflecting the fact
+that some teams factor in historical trends in projections. Upward revisions to historical debt stock figures
+across DSA vintages capture the recognition of additional liabilities retrospectively, either due to data
+omissions or expansion of sectoral coverage. Upward revisions to external and overall public debt stocks
+amounted to 0.6 percent of GDP and 1.3 percent of GDP per year on average, respectively (Figure 20). The
+upward revisions were most notable for countries that have recently completed or are undergoing a
+restructuring process (Zambia, Malawi), likely reflecting additional debt reconciliation efforts.21
+
+
+
+
+19Therehave been some improvements with 4 additional countries switching to residency-based definition over time and one
+country reversing back to currency-based definition.
+20Unidentified   debt-creating flows are also influenced by underlying data quality.
+21   These results align with long-term review of debt revisions in Horn et al. “Hidden Debt Revelations”, World Bank (2024).
+
+
+
+                                                                 36
+LIC-DSF REVIEW⎯EXPLORING LIC-DSF PERFORMANCE AND SCOPE FOR IMPROVEMENTS⎯BACKGROUND PAPER
+
+
+
+ Figure 20. Contributions to Annual Debt Stock Changes of Residuals in Debt Accumulating Equation and
+                                        Data Revisions, 2013-23
+                                            (Percent of GDP)
+
+
+
+
+ Source: Staff analysis of joint IMF-WB LIC-DSF country analyses.
+ Note: Averages shown as diamond markers.
+
+
+
+
+                                                             37
+

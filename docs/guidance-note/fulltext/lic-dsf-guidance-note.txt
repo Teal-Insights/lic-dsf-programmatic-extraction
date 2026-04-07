@@ -1,0 +1,4607 @@
+February 2018
+
+GUIDANCE NOTE ON THE BANK-FUND DEBT
+SUSTAINABILITY FRAMEWORK FOR LOW INCOME
+COUNTRIES
+IMF staff regularly produces papers proposing new IMF policies, exploring options for
+reform, or reviewing existing IMF policies and operations. The following document has
+been released and is included in this package:
+
+•
+
+The Guidance Note prepared by IMF and World Bank staff and completed on
+December 26, 2017.
+
+Informal Session to Engage:
+The guidance note prepared by IMF and World Bank staff was issued to the Executive
+Board for information. The views expressed in this paper are those of the IMF and
+World Bank staff and do not necessarily represent the views of the IMF's and World
+Bank’s Executive Boards.
+
+The IMF’s transparency policy allows for the deletion of market-sensitive information
+and premature disclosure of the authorities’ policy intentions in published staff reports
+and other documents.
+Electronic copies of IMF Policy Papers
+are available to the public from
+http://www.imf.org/external/pp/ppindex.aspx
+
+International Monetary Fund
+Washington, D.C.
+
+© 2018 International Monetary Fund
+
+December 26, 2017
+
+GUIDANCE NOTE ON THE BANK-FUND DEBT
+SUSTAINABILITY FRAMEWORK FOR LOW INCOME
+COUNTRIES
+Approved By
+
+Seán Nolan (IMF) and
+Jan Walliser (WB)
+
+Prepared by a team led by the IMF’s Strategy, Policy, and
+Review Department, consisting of Narcissa Balta, Tom
+Best, Amr Hosny, Mike Li, Alex Pienkowski, Keiichi
+Nakatani, Joyce Saito, Suchanan Tambunlertchai, Hans
+Weisfeld, and Zhongxia Zhang, under the overall guidance
+of Mark Flanagan; and a team from the World Bank’s
+Macroeconomic and Fiscal Management Global Practice,
+led by Doerte Doemeland, consisting of Lea Hakim, Jaime
+Garron, Abha Prasad, Elliot Riordan, Diego Rivetti and
+Zeljka Sedlo, under the guidance of Paloma Anos Casero.
+The paper received contributions from Abebe Adugna,
+Lars Moeller, Mathew Verghis, Aart Kraay, and Angelique
+de Plaa at the World Bank.
+
+CONTENTS
+I. WHAT IS THE LIC DSF?______________________________________________________________ 5
+II. DSF PROCEDURES __________________________________________________________________ 8
+LIC DSF or MAC DSA? _______________________________________________________________ 8
+Coordination for Bank-Fund Operational Purposes _________________________________ 10
+Frequency __________________________________________________________________________ 10
+Presentation of the DSA ____________________________________________________________ 11
+Where To Go To Learn More About the DSF? _______________________________________ 11
+III. INPUTS ____________________________________________________________________________ 12
+Debt Definition: Coverage of the Public Sector _____________________________________ 12
+Debt Definition: Coverage of Debt __________________________________________________ 13
+Macroeconomic Projections ________________________________________________________ 15
+Financing Assumptions _____________________________________________________________ 16
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+IV. REALISM TOOLS _______________________________________________________________________________ 19
+Drivers of Debt Dynamics ________________________________________________________________________ 19
+Realism of Planned Fiscal Adjustment ____________________________________________________________ 22
+Consistency between Fiscal Adjustment and Growth_____________________________________________ 23
+Consistency between Public Investment and Growth ____________________________________________ 24
+Other Realism Checks ____________________________________________________________________________ 26
+V. DEBT CARRYING CAPACITY ____________________________________________________________________ 26
+Country Classification: Debt Carrying Capacity ___________________________________________________ 27
+Thresholds for PPG External Debt ________________________________________________________________ 29
+Benchmarks for Total Public Debt ________________________________________________________________ 30
+VI. STRESS TESTS __________________________________________________________________________________ 30
+Standardized Stress Tests ________________________________________________________________________ 31
+Contingent Liability Stress Test __________________________________________________________________ 33
+Other Tailored Stress Tests _______________________________________________________________________ 34
+Fully Customized Scenarios ______________________________________________________________________ 35
+VII. RISK SIGNALS _________________________________________________________________________________ 37
+Signal for the External Risk Rating _______________________________________________________________ 37
+Signal for the Overall Risk of Public Debt Distress________________________________________________ 38
+Signal from the Market Financing Pressures Tool ________________________________________________ 38
+VIII. THE USE OF JUDGMENT _____________________________________________________________________ 39
+Short-lived and Marginal Breaches ______________________________________________________________ 39
+Domestic Debt and Market Financing Vulnerabilities ____________________________________________ 39
+External Private Debt _____________________________________________________________________________ 40
+Availability of Liquid Financial Assets ____________________________________________________________ 40
+Long-term Considerations _______________________________________________________________________ 41
+Other Considerations_____________________________________________________________________________ 42
+IX. THE FINAL RISK RATINGS _____________________________________________________________________ 43
+X. ADDING GRANULARITY TO RISK RATINGS ___________________________________________________ 44
+Granularity in the Moderate Risk Rating _________________________________________________________ 44
+Assessing Sustainability __________________________________________________________________________ 46
+Fiscal Space ______________________________________________________________________________________ 47
+
+2
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+__________________________________________________________________________________________ 68
+BOX
+1. Shock Analysis of Rating Downgrades from Moderate to High Risk______________________________ 45
+FIGURES
+1. Structure of the Reformed LIC DSF ________________________________________________________________ 6
+2. Debt Indicators between MACs and LICs __________________________________________________________ 9
+3. Use of Realism Tools _____________________________________________________________________________ 20
+4. Drivers of Public Debt Dynamics _________________________________________________________________ 21
+5. Realism of Planned Fiscal Adjustment ____________________________________________________________ 22
+6. Fiscal Adjustment and Possible Growth Paths ____________________________________________________ 23
+7. Realism of Baseline Growth Projection with Public Investment ___________________________________ 25
+8. Shock Analysis of Rating Downgrades from Moderate to High Risk______________________________ 46
+TABLES
+1. Latest Reforms to the LIC DSF _____________________________________________________________________ 7
+2. Macroeconomic Variables for the LIC DSA _______________________________________________________ 17
+3. Financing Variables for the LIC DSA ______________________________________________________________ 18
+4. Template Output: CI score _______________________________________________________________________ 28
+5. CI Cutoffs for Country Classification ______________________________________________________________ 28
+6. PPG External Debt Thresholds ____________________________________________________________________ 30
+7. Total Public Debt Benchmarks ___________________________________________________________________ 30
+8. External and Public DSAs: Standardized Stress Tests _____________________________________________ 32
+9. External and Public DSAs: Coverage of Public Debt and Design of Contingent Liabilities (tailored)
+Stress Tests _________________________________________________________________________________________ 34
+10. External and Public DSAs: Other Tailored Stress Tests __________________________________________ 36
+11. Market Financing Pressures Benchmarks________________________________________________________ 38
+APPENDICES
+
+I. Review Process and Dispute Resolution between IMF and The World Bank ______________________ 49
+II. The DSA Write Up ________________________________________________________________________________ 52
+III. Treatment of State-owned Enterprises __________________________________________________________ 56
+IV. Long-term Macroeconomic Projections (beyond 5 years) and Financing
+Assumptions________________________________________________________________________________________ 58
+V. HIPC Initiative and MDRI _________________________________________________________________________ 62
+VI. How Stress Tests Work in the DSF: Illustrative Examples ________________________________________ 63
+VII. The Use of the Probability Approach in Borderline Cases ______________________________________ 65
+
+INTERNATIONAL MONETARY FUND
+
+3
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Abbreviations and Acronyms
+ADB
+
+Asian Development Bank
+
+AfDB
+
+African Development Bank
+
+CI
+
+Composite Indicator
+
+CPIA
+
+Country Policy and Institutional Assessment
+
+DLP
+
+Debt Limits Policy
+
+DSA
+
+Debt Sustainability Analysis
+
+DSF
+
+Debt Sustainability Framework
+
+EBRD
+
+European Bank for Reconstruction and Development
+
+FDI
+
+Foreign Direct Investment
+
+GDP
+
+Gross Domestic Product
+
+GE
+
+Grant Element
+
+IADB
+
+Inter-American Development Bank
+
+ICSID
+
+International Centre for Settlement of Investment Disputes
+
+IDA
+
+International Development Association
+
+IMF
+
+International Monetary Fund
+
+LIC
+
+Low-Income Country
+
+LIC-DSF
+
+Debt Sustainability Framework for Low-Income Countries
+
+MAC
+
+Market-Access Country
+
+MDBs
+
+Multilateral Development Banks
+
+MTDS
+
+Medium-Term Debt Management Strategy
+
+MTI
+
+Macroeconomics, Trade and Investment Global Practice (World Bank)
+
+NCBP
+
+Non-Concessional Borrowing Policy
+
+OECD
+
+Organization for Economic Co-operation and Development
+
+PPG
+
+Public and Publicly Guaranteed
+
+PPP
+
+Public-Private Partnership
+
+PRGT
+
+Poverty Reduction Growth Trust
+
+PV
+
+Present Value
+
+SDGs
+
+Sustainable Development Goals
+
+SDR
+
+Special Drawing Rights
+
+SOE
+
+State-Owned Enterprise
+
+SPR
+
+Strategy, Policy, and Review
+
+WB
+
+World Bank
+
+WEO
+
+World Economic Outlook
+
+4
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+I. WHAT IS THE LIC DSF?
+1.
+The joint IMF-World Bank Debt Sustainability Framework for Low-Income Countries
+(LIC-DSF) is a methodology for conducting standardized debt sustainability analysis. The
+objective of the DSF is to support efforts by LICs to achieve their development goals while
+minimizing the risk that they experience debt distress. For this, the framework helps determine the
+risks of debt distress, taking account of a country’s capacity to carry debt and its projected debt
+burden under both baseline projections and shock scenarios.
+2.
+
+The LIC-DSF provides guidance to both LIC authorities and their development partners.
+
+•
+
+The framework helps inform LICs’ fiscal policy and borrowing decisions. LICs require sizeable
+public investment to address infrastructure gaps, strengthen potential output growth, and
+reduce poverty. With ambitious targets, reflected in the Sustainable Development Goals (SDGs),
+and limits to official aid, LICs are relying increasingly on domestic and non-concessional external
+borrowing to finance investment. The framework helps to make judgments about possible
+financing strategies, and their risks.
+
+•
+
+The International Development Association (IDA) uses the DSF to determine the grant
+provisioning within a country’s annual IDA resource allocation, 1 while other creditors including
+many Multilateral Development Banks (MDBs) use it to inform their lending policies. In addition,
+both IDA’s Non-Concessional Borrowing Policy (NCBP) and the IMF’s Debt Limit Policy (DLP) rely
+on the DSF to help define room for non-concessional borrowing. 2
+
+•
+
+World Bank and IMF staffs use the DSF to inform their own macroeconomic analysis and the
+policy advice that they give to governments.
+
+3.
+The LIC-DSF is distinct from the framework used to assess debt sustainability in marketaccess countries (MACs). The DSF was developed jointly by IMF and World Bank staff for LICs. The
+MAC framework was developed by IMF staff and is used for emerging market and advanced
+economies. Section II.A of this Guidance Note provides more detailed information about the use of
+the LIC DSF versus the MAC debt sustainability analysis (MAC DSA).
+4.
+The 2017 review introduced reforms to ensure that the DSF remains appropriate for
+the rapidly changing financing landscape facing LICs and to further improve the insights
+provided into debt vulnerabilities. The reforms leave the basic architecture of the LIC DSF intact:
+the framework classifies countries based on their assessed debt-carrying capacity, estimates
+threshold levels for selected debt burden indicators, evaluates baseline projections and stress test
+scenarios relative to these thresholds, and then combines indicative rules and staff judgment to
+1
+
+See World Bank Directive “Financial Terms and Conditions of Bank Financing” Annex II for lending eligibility (IBRD,
+IDA, Blend) and financing/repayment terms for all countries, which may be found at
+https://policies.worldbank.org/sites/ppf3/PPFDocuments/Forms/DispPage.aspx?docid=1644&ver=current.
+2
+
+See World Bank (2015a) and IMF (2014b).
+INTERNATIONAL MONETARY FUND
+
+5
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+assign risk ratings of external debt distress (Figure 1). The 2017 reforms have supplemented this
+architecture to make the framework more comprehensive, transparent, and simpler to use, all while
+enabling the DSF to better capture risks of debt distress. Table 1 summarizes the reforms.
+Figure 1. Structure of the Reformed LIC DSF
+
+* New features
+
+5.
+This joint Bank-IMF guidance note provides the LIC DSF user with insight into the
+framework and the tools used in preparing DSAs for LICs. Section II begins with a discussion of
+LIC-DSF related procedures, including how to determine whether the framework is the right one to
+use, and write up requirements for World Bank and IMF staff. Subsequent sections then take the
+user, step-by-step, through the process of undertaking a debt sustainability analysis:
+
+6
+
+•
+
+Section III covers the framework’s key inputs, including for macroeconomic variables and the
+financing of the public sector;
+
+•
+
+Section IV discusses the realism tools available in the framework to help assess the quality of
+the inputs (which may lead the user to adjust them);
+
+•
+
+Section V explains how countries are classified in terms of their debt-carrying capacity, which
+determines the debt thresholds to apply to evaluate the baseline and stress tests;
+
+•
+
+Section VI describes how the stress tests are constructed and applied within the framework;
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Table 1. Latest Reforms to the LIC DSF
+2012 DSF
+
+Realism
+tools
+
+Core debt distress
+model
+
+Country
+
+• Identifies only severe debt distress
+episodes.
+• Few country-specific explanatory
+variables.
+• Relies exclusively on the CPIA.
+
+classification
+
+(Debt-carrying
+capacity)
+
+Debt indicators
+and thresholds
+
+Standardized
+
+• Backward-looking classification.
+
+2017 DSF
+
+• To support stronger baseline
+projections and implementation of
+new classification (e.g., realism of
+projected fiscal adjustment and the
+investment-growth nexus).
+• Enhanced methodology to identify
+all debt distress episodes.
+• Expanded specification including key
+country-specific fundamentals to
+improve predictive capacity.
+• Based on a composite measure
+covering the CPIA, growth, reserve
+coverage, remittances, and world
+growth.
+• Incorporate forward-looking
+elements (enhancing engagement
+with country authorities).
+
+• Complex: five debt indicators and 24
+thresholds.
+• Thresholds are derived individually
+without regard to the information of
+other debt indicators to predict debt
+distress (introducing conservative
+bias).
+
+• Significant simplification: four debt
+indicators and 12 thresholds.
+• Thresholds are derived jointly in line
+with the DSF’s aggregation rule
+(eliminating a source of conservative
+bias).
+
+• 16 stress tests; non-common testing
+across the external and public DSA.
+
+• 7 common re-calibrated and redesigned stress tests across the
+external and public DSA, with
+improved macro-linkages.
+
+stress tests
+
+• To better evaluate scenario risks of
+relevance for some countries (e.g.,
+natural disasters).
+
+Tailored
+
+stress tests
+
+• Tools to assess:
+Assessment of
+
+other potential
+risk factors
+Enhanced
+
+guidance for the
+application of
+judgment
+
+• Tools to assess:
+Domestic debt vulnerabilities.
+
+Domestic debt vulnerabilities.
+Market-financing pressures.
+Diversity of debt vulnerabilities in
+countries rated as moderate risk.
+
+• On marginal/transitory breaches.
+• On severe domestic-debt
+vulnerabilities and exposure to
+external market-financing pressures,
+among other factors.
+
+INTERNATIONAL MONETARY FUND
+
+7
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+Section VII explains the risks signals generated by the framework for both external and
+overall public debt distress (low, moderate, high) and the signal provided by the market risk
+module;
+
+•
+
+Section VIII discusses the use of judgment, when appropriate, to supplement the risk signal,
+and the various factors that the user should consider at this stage;
+
+•
+
+Section IX discusses how to draw conclusions about the external risk rating and overall risk
+of debt distress, combining the risk signals and judgment.
+
+•
+
+Section X explains how to give greater granularity to risk ratings, including a deeper
+understanding of risks in the moderate category, of sustainability, and of fiscal space.
+
+•
+
+Technical appendices provide more detail on some of the topics covered in the Sections.
+
+6.
+A separate User Guide is available to help the analyst work with the LIC DSF templates.
+The Guide and templates can be found at http://www.imf.org/external/pubs/ft/dsa/lic.aspx and
+http://www.worldbank.org/en/topic/debt/brief/dsf.
+
+II. DSF PROCEDURES
+LIC DSF or MAC DSA?
+7.
+DSAs using the LIC-DSF template should be produced for all PRGT-eligible countries
+that also have access to IDA resources and all countries that are eligible for IDA grants. 3, 4 For
+such countries external financing remains largely concessional and the present value (PV) of debt
+plays a key role in understanding debt-related vulnerabilities, making the LIC DSF more suitable for
+analysis than the MAC DSA framework.
+8.
+Countries may eventually graduate from concessional lending frameworks and
+migrate to the MAC DSA template for debt sustainability analysis. A PRGT-eligible country may
+graduate when either its per capita income level exceeds the threshold for a specified period or if
+they have the capacity to access international markets on a durable and substantial basis. 5 In cases
+where these criteria may apply, an assessment should be made of the projected evolution of public
+financing, in particular, on the recent and projected share of official grants and concessional loans in
+budget financing; the share of domestic financing; and access to international capital markets.
+Importantly, there should be strong emphasis on the realism of financing projections. Using the
+projections, the projected share of concessional debt in the total external debt stock should be
+3
+
+For a list of PRGT-eligible countries, please see IMF (2017a).
+
+4
+The Bank Policy “Financial Terms and Conditions of Bank Financing” Section III.2.b. covers the eligibility and terms of
+IDA Grants, which may be found at
+https://policies.worldbank.org/sites/ppf3/PPFDocuments/Forms/DispPage.aspx?docid=1644&ver=current. A list of
+countries with access to IDA resources (IDA-only, gap, and blend countries) can be found at
+http://ida.worldbank.org/about/borrowing-countries.
+5
+
+For fuller discussions on the graduation criteria, please see IMF (2017a).
+
+8
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+carefully assessed. Figure 2 provides ranges for these indicators for both MAC and LIC DSF users.
+Generally, countries switching to a MAC DSA should have indicators in the MAC DSA user range.
+9.
+Graduation from the LIC DSF can be delayed under specific circumstances. This may
+occur when there are serious short-term vulnerabilities that could lead to loss of market access or
+large borrowing costs, or when information is not yet available to inform all MAC DSA tools. An
+additional consideration is that some cases require the LIC DSF for IDA’s operational
+considerations. 6 Bank and Fund staff should reach agreement on a change in the framework to be
+used.
+Figure 2. Debt Indicators between MACs and LICs
+b. Distribution of PPG Concessional Financing and
+Grants as Share of GDP, 2013-15 (in percent)
+
+6
+
+6
+
+5
+
+5
+
+4
+
+4
+
+3
+
+3
+
+2
+
+2
+
+1
+
+1
+
+Share of projected PV of debt to nominal
+debt
+
+0
+
+LIC users
+
+95
+
+0
+
+MAC users
+
+d. Projected PV of debt / Nominal debt ratio (median)
+
+90
+85
+80
+75
+70
+65
+60
+
+0
+
+1
+
+2
+
+PRGT graduates
+
+Year1
+
+3
+
+4
+
+5
+
+All LICs
+Market access LICs (PRGT graduation criterion)
+Non-market access LICs (PRGT graduation criterion)
+
+Source: IMF WEO and World Bank IDS, October 2017, and Fund staff calculations (LIC DSA database).
+Note: Boxes represent the interquartile ranges in panels a, b and c.
+1/ Year 0 is the latest year for which outturn data is available; year 1 is the first year of projection.
+
+6
+
+For example, a LIC DSA will continue to be required to determine IDA financing terms for any IDA country that is not
+yet classified as a gap or a blend country.
+INTERNATIONAL MONETARY FUND
+
+9
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Coordination for Bank-Fund Operational Purposes
+10.
+All LIC DSAs should be produced jointly by IMF and World Bank staff. This applies
+regardless of whether it is a “full DSA” or a “streamlined update” (see Section II.D below). Each
+institution can update the DSA for its own purposes if changes in assumptions are relatively minor,
+(e.g. in the context of a World Bank Development Policy Operation), but the other institution must
+be notified of the changes and given adequate time to review and comment.
+11.
+All DSAs must be submitted to both the IMF’s and IDA’s Executive Boards, be it for
+discussion or for information. If the World Bank (IMF) requires, for its own operations, a DSA for a
+country that is not expected to be discussed by the IMF’s (the World Bank’s) Executive Board in the
+next two months, the DSA should be sent to the IMF’s (the World Bank’s) Executive Board for
+information at the same time it is sent to the World Bank’s (the IMF’s) Executive Board.
+12.
+IMF and World Bank staff should agree on a schedule for the preparation of DSAs for
+individual countries well in advance of the actual DSA work to allow sufficient time for
+consultation between the two institutions. Early consultation and review within each organization
+is critical to prepare well-articulated economic projections and avoid last-minute disagreements and
+requests for changes. In the event of disagreements, the matter will be elevated from working levels
+to the managements of the two institutions, who either resolve the dispute or decide that the DSA
+will present the different views of the staffs to Executive Boards. The review processes for the two
+institutions and dispute resolution process are discussed in Appendix I.
+
+Frequency
+13.
+A full LIC DSA should generally be produced at least once every calendar year. 7 For the
+IMF, the Article IV consultation should be accompanied by a DSA (for non-program countries on
+longer surveillance cycles, the frequency would match the surveillance cycle). For the World Bank, an
+annually produced DSA is required for determining the IDA credit-grant allocation. 8
+14.
+A new DSA should be produced in the following situations (even when an annual DSA
+has already been completed):
+•
+
+A request for IMF financing. In this situation, a full DSA helps to establish the member’s capacity
+to repay the Fund.
+
+•
+
+For IMF program countries, where there is a proposed modification to a performance criterion
+related to debt limits, or request for a waiver for non-compliance with a performance criterion
+related to debt limits. The purpose of the DSA is to assess the impact of the modification or
+waiver on debt sustainability.
+
+7
+
+Throughout this guidance note the term “DSA” refers to a “full” DSA unless specified otherwise.
+
+8
+
+Usually the IDA credit-grant allocation is determined based on the latest approved DSA available as of end-June.
+
+10
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+For World Bank financing requests, when countries that are subject to IDA’s Non-Concessional
+Borrowing Policy (NCBP) seek non-concessional borrowing. 9
+
+•
+
+When countries experience significant changes in economic circumstances and borrowing
+assumptions (including due to conflict and natural disasters).
+
+Presentation of the DSA
+15.
+The DSA comprises a self-contained written analysis accompanied by a standard set of
+tables and charts. The full package is expected to: (i) provide a clear and concise description of the
+definition of public debt used; (ii) discuss key macroeconomic and financing assumptions,
+identifying key risks and vulnerabilities; (iii) describe the design and outputs of DSF stress tests; and
+(iv) analyze the signals from the framework and other judgmental factors to assign a risk rating. The
+DSA write-up must always include the authorities’ views including any disagreement with staff’s
+main findings. Appendix II provides an outline for a typical write-up.
+16.
+The DSA write-up may be streamlined in limited circumstances. If more than one DSA is
+required in a calendar year and circumstances have not changed significantly then staff can jointly
+prepare a streamlined update. This can just focus on the main changes in assumptions and
+summarize their impact on debt indicators. The streamlined approach does not apply in the event of
+a new program.
+
+Where To Go To Learn More About the DSF?
+17.
+Information. The following pages The Joint World Bank–IMF Debt Sustainability Framework
+for Low-Income Countries and Debt Sustainability Framework for Low-Income Countries (DSF) on
+IMF and World Bank external websites contain links to further reading materials and presentations. 10
+18.
+Training. IMF and World Bank staff conduct periodic DSF workshops, both in Washington
+D.C. and around the world. Workshops in Washington are offered primarily to IMF and World Bank
+staff members. Workshops abroad are organized for country authorities. Additionally, the Massive
+Open Online Course on Debt Sustainability Analysis will be updated on the EdX platform. 11 For more
+information, contact the IMF Institute for Capacity Development and the World Bank’s Global
+Practice for Macroeconomic, Trade and Investment . 12
+
+9
+Countries subject to the NCBP include current IDA grant recipients or MDRI recipients. A list of countries may be
+found at http://ida.worldbank.org/financing/non-concessional-borrowing-0.
+10
+
+These pages may be found at http://www.imf.org/external/pubs/ft/dsa/lic.aspx and
+http://www.worldbank.org/en/topic/debt/brief/dsa.
+11
+
+May be found at https://www.edx.org/course/debt-sustainability-analysis-imfx-dsax-3.
+
+12
+
+Information on IMF ICD and the WB Macroeconomic, Trade and Investment may be found at
+http://www.imf.org/external/np/ins/english/ and http://www.worldbank.org/en/topic/debt, respectively.
+INTERNATIONAL MONETARY FUND
+
+11
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+III. INPUTS
+The DSF toolkit requires a number of inputs. First, comprehensive information on the current
+stock of public and publicly guaranteed debt must be compiled and a decision must be taken
+about the concept of the public sector to be used. Second, macroeconomic projections covering 20
+years must be produced. Third, financing projections for external and public debt covering the
+projection period must also be produced. This Section discusses each of these issues in turn.
+
+Debt Definition: Coverage of the Public Sector
+19.
+Public sector debt, in its broadest definition, comprises debt from several different
+sub-sectors. 13 These include the general government (comprising the central, the state, and the
+local governments, social security funds, and extra-budgetary funds); the non-financial public
+enterprises; and financial public enterprises (including the central bank). Other sources include longterm obligations of the general government, such as unfunded liabilities of social security funds
+(when they are not explicitly recognized as part of general government debt); and known and
+anticipated recognition of contingent liabilities (for example, from ongoing restructurings of
+financial institutions (public or otherwise) or from public-private partnerships where demand or
+other guarantees have been or are poised to be triggered).
+20.
+The DSF should be based on near-complete coverage of public sector debt. Broad
+public debt coverage is important to arrive at an assessment of risk of debt distress that is
+comparable across countries. Moreover, a narrow definition of public debt can contribute to
+unexpected increases from sources outside the defined perimeter. Thus, the debt definition covers
+both external and domestic debt: (i) of the public sector, defined as central, state and local
+governments, social security funds and extra budgetary funds, the central bank, and public
+enterprises (the latter subsuming all enterprises that the government controls, as discussed in
+Paragraph 21 and Appendix III); and (ii) private sector debt guaranteed by the public sector. Public
+financial corporations are excluded, but the DSF toolkit offers options to consider them as
+contingent risks, as discussed below. The principal focus of the DSF, for ratings purposes, is on
+external public and publicly guaranteed (PPG) debt.
+21.
+•
+
+For the central bank and state enterprises some specific considerations apply:
+Central bank debt. Any external debt contracted on behalf of the government would constitute
+public debt (for instance, borrowing from the IMF). In contrast, central bank debt issuance or
+foreign exchange swaps for the purposes of monetary policy or reserves management are
+excluded from external public debt. When a central bank is not consolidated as part of the debt
+
+13
+
+A useful diagram of the public sector and its main components is provided on page 20 of Government Finance
+Statistics Manual 2014, IMF (2014), accompanied by a detailed discussion on the definitions of all subsectors, which
+may be found at https://www.imf.org/external/Pubs/FT/GFS/Manual/2014/gfsfinal.pdf. Country authorities are
+expected to migrate to the GFSM 2014 as soon as feasible if necessary through technical assistance from
+international organizations.
+12
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+concept, then debt securities issued by the government and held by the central bank or any
+other advances to the government should also be included in public debt (i.e., no netting out).
+•
+
+State-owned enterprise (SOE) debt. The user should include all available information on the
+debt of non-financial public enterprises. The exclusion of a public enterprise from the DSA
+should only be considered if the enterprise poses limited fiscal risk, i.e., it is able to borrow
+without a guarantee from the government, does not carry out uncompensated quasi-fiscal
+activities, and has an established track record of positive operating balances (see Appendix III for
+detail). Staff should provide a justification for omitting any fiscally-important public enterprise. If
+data constraints limit coverage of SOE debt, the DSA needs to flag this as an omission and
+identify steps to enhance the coverage of SOE debt in the next DSA.
+
+22.
+Where coverage of the public sector for DSA purposes differs from coverage for the
+purposes of the fiscal accounts, adjustments need to be made to ensure consistency. The
+external debt service-to-revenue ratio requires the numerator and denominator to be calculated on
+a consistent basis. Thus, for SOEs included in the public debt coverage, either directly or under
+guarantees, care must be taken to ensure that the denominator captures any net income that they
+have that could be used for debt service (i.e. all amounts that they are already paying, subject to a
+check that they can continue to do so, or a proportionate reduction if they cannot fully do so). Any
+differences in coverage and any adjustments made to ensure consistency between debt and fiscal
+data in the DSA need to be disclosed.
+23.
+The concept of public sector debt used is reported in detail in a DSF table. Where a
+sub-sector is not included or only portions of the sub-sector are captured (e.g., non-guaranteed SOE
+debt or PPP agreements), this is explicitly flagged as an omission.
+ It is important to note that a narrower coverage of public debt in the LIC DSF will
+automatically trigger an additional contingent liabilities stress test to assess risks from other
+omitted sectors, and this test can affect the risk rating. Section VI.B provides details on the
+contingent liabilities stress test. 14
+
+Debt Definition: Coverage of Debt
+24.
+The DSF is conducted on the basis of gross debt. For assessing debt sustainability, gross
+debt is the appropriate concept as it measures the burden of financing of debt service obligations
+for which the government is responsible. The availability of liquid financial assets mitigates, but may
+not eliminate, risks to debt sustainability (for instance, due to currency or maturity mismatches, and
+since some minimum level of assets is required for normal government operations). Section VIII.D
+discusses how to account for such assets in the final risk rating.
+
+14
+Disclosure of key contingent liabilities is also already required as a memorandum item under statistical reporting
+standards and various fiscal transparency initiatives. See, for example, Government Finance Statistics IMF (2014) and
+the IMF Code on Good Practices on Fiscal Transparency in the IMF’s Manual on Fiscal Transparency, IMF (2007).
+
+INTERNATIONAL MONETARY FUND
+
+13
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+25.
+Normally, a government liability should be considered debt when future payments of
+interest and/or principal are required from the debtor to the creditor. 15, 16 Examples include
+debt securities, loans, and other accounts payable (including verified arrears to suppliers). Verified
+and recognized obligations that are not debt arising from a financial claim (e.g., ICSID arbitration
+awards; amounts owed to suppliers, etc.) should also be included, on a best understanding of their
+due date.
+26.
+For a DSA, gross debt should capture the face value of debt and include appropriate
+consolidations. The use of market value would create circularity, since this concept embodies an
+assessment of the nominal debt burden. Debt that is within the concept of the public sector used
+should be shown on a consolidated basis to avoid double-counting (e.g., loans to state governments
+by the central government would not constitute debt for a general government concept).
+27.
+Public debt should be included in the DSF based on actual and expected
+disbursements. It is common for countries to contract large amounts of public debt for investment
+projects (commitments), with loan disbursements tied to project implementation or specific
+conditions being met. Taking this into account:
+•
+
+Current public debt stocks should reflect debt outstanding and disbursed rather than
+commitments.
+
+•
+
+Projections for public debt stocks and flows should include a best estimate of disbursements
+from contracted and expected loans developed in consultation with the authorities (based on
+the authorities’ medium-term investment spending and the associated financing plan).
+
+•
+
+The DSA write-up should disclose the fully committed and undisbursed amounts of all recentlycontracted loans (over the last 5 years) or still-active projects and provide a clear explanation for
+any exclusions.
+
+28.
+In principle, the DSF should define external debt based on the residency of the
+creditor. Thus, external debt should include local-currency denominated domestic debt owed to
+non-residents. In practice, however, because of difficulties in record keeping (for example due to
+secondary market trading and data limitations in LICs), and where non-resident participation in
+domestic debt market is not significant, debt denominated in foreign currency can be often used as
+a proxy for external debt.
+
+15
+
+See “What Lies Beneath: The Statistical Definition of Public Sector Debt”, IMF (2012a) for a detailed discussion
+including on (i) instrument coverage; (ii) valuation of debt instruments (market or nominal); and (iii) consolidation of
+intra-government holdings.
+16
+
+A country’s SDR allocation should not be included in the nominal stock of gross external debt. Instead, the DSA
+should estimate the impact of the SDR allocation on debt sustainability by capturing the net interest payments that
+arise when SDR holdings fall below a member’s SDR allocation. For details on treatment of SDR Allocations, please
+see Annex 4 of “Staff Guidance Note on the Application of the Joint Bank-Fund Debt Sustainability Framework for
+Low Income Countries”, IMF and World Bank (2013).
+
+14
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+29.
+There are limited cases where debt should be excluded from the DSA (and such
+exclusions should be reported in the write up of the DSA, or as memo items in tables):
+•
+
+Where there is a dispute with respect to the validity of a claim or the amount of a claim, the
+entire amount in dispute should be treated as a contingent liability (not included in the stock,
+but modeled for the purpose of the contingent liability stress test). Where only a part of the
+claim is in dispute, the undisputed part should be fully included in public debt and the disputed
+part treated as a contingent liability. The DSF user’s best judgment should be used in
+determining the weight that should be placed on the result of the relevant contingent liabilities
+stress test.
+
+•
+
+Claims that are eligible for debt relief that has already been agreed, for example in post-HIPC
+countries, should be excluded from the DSA.
+
+Macroeconomic Projections
+30.
+The DSF analysis needs to be informed by a macroeconomic framework. This is a set of
+interrelated projections of key macroeconomic variables covering the different sectors of the
+economy. The evolution of these variables is often referred to as the “baseline scenario.” The DSA
+template uses some, but not all, of the macroeconomic variables that constitute a typical macroframework. Table 2 summarizes the main macroeconomic and financing variables required for the
+DSA template.
+31.
+The DSA user must specify the macroeconomic framework for a 20-year projection
+period. For most variables, the user is required to input both historical (previous 10 years) and
+projected (next 20 years beyond the current year) values. In general, the baseline should represent
+the most likely scenario given present information, and should ideally be balanced relative to risks.
+Projections should be consistent across the fiscal, monetary, financial, and external sectors.
+32.
+The projection horizon can be broken up into medium-term (up to 5 years) and
+longer-term projections (beyond 5 years):
+a.
+
+Medium-term projections (up to 5 years). For Bank and Fund staff, all medium-term
+scenarios need to be fully consistent with those featured in the surveillance and programrelated staff reports to which the DSA is appended. Thus:
+•
+
+In surveillance engagement, the baseline should be based on policies that are already in
+place and those announced that are, in the best judgment of the IMF team (in
+consultation with the Bank), likely to be implemented. 17
+
+•
+
+In program contexts, the baseline should be the adjustment program scenario that has
+been agreed with the authorities and incorporated into program targets.
+
+17
+
+See footnote 3 of the IMF’s 2015 Guidance Note for Surveillance under Article IV Consultation, IMF (2015).
+INTERNATIONAL MONETARY FUND
+
+15
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+b.
+
+The output and the real effective exchange rate (REER) gap should generally be assumed
+to close over the medium term.
+
+Longer-term projections (beyond 5 years). Longer-term projections should be informed
+by the typical patterns for developing countries, including spending needed for
+development goals (and thus by extension the sustainability of policies), the stage of
+development, trends in the equilibrium real exchange rate, and other country-specific factors
+such as exposure to natural disasters or conflicts (see Appendix IV).
+
+33.
+IMF and World Bank staff should coordinate closely in producing DSAs, based on their
+respective areas of expertise. The IMF generally takes the lead on medium-term macroeconomic
+projections (3–5 years), while the Bank takes the lead on longer-term growth prospects, and when
+required on assessing the investment-growth relationship. Bank and Fund country teams should
+agree on the broad parameters and projections of the DSA, including growth and new borrowing,
+prior to producing the DSA draft. In the case of large deviations between IMF and World Bank
+projections, teams are to revert to the dispute resolution mechanism described in Appendix I.
+
+Financing Assumptions
+34.
+In addition to macroeconomic variables, the DSF template requires information on
+existing debt and planned new borrowing. The planned new financing needs to be consistent
+with both public and external gross financing requirements identified in the macroeconomic
+framework (which already embeds assumptions about the use/acquisition of reserves). 18
+35.
+•
+
+The user needs to specify financing instruments with assumptions on:
+External financing source:
+a. Multilateral, encompassing: IMF/WB/Regional Development Banks (IADB, AfDB, ADB, EBRD);
+other plurilateral institutions should be broken out in a separate line;
+b. Official bilateral, broken out into: Paris Club members and Non-Paris Club members;
+c.
+
+•
+
+Commercial;
+
+Domestic financing sources, broken out into: central bank advances; short-term (under 1 year);
+medium and long term (MLT) (1–3 years); MLT (4–7 years); and long term (beyond 7 years).
+
+18
+
+The external gross financing needs—the amount of financing an economy needs in a given year—are the sum of
+the current account deficit and amortization of external debt, less non-debt creating FDI inflows. A part of external
+financing needs is assumed to be filled by the private sector’s external borrowing, while the rest is filled by public
+external borrowing. The public gross financing needs—the amount of financing required by the government— are
+the sum of the fiscal balance and amortization of public external and domestic debt. These needs are assumed to be
+filled by public external and domestic borrowing.
+
+16
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+The assumed debt instrument amount from each source and, if available, the residency of the
+debt holder;
+
+•
+
+The average terms of each debt instrument: interest rates, grace periods, and maturities of new
+public borrowing.
+Table 2. Macroeconomic Variables for the LIC DSA
+
+Variable
+Balance of Payments
+Current account balance
+Exports of goods and services
+o/w fuel and non-fuel commodities
+Imports of goods and services
+Current transfers, net total
+Current transfers, official
+Gross workers’ remittances (“personal transfers” in BPM6)
+Net foreign direct investment (excluding debt instruments)
+Exceptional financing
+Gross reserves
+Public sector
+Public sector revenue (including grants)
+Public sector grants
+Privatization receipts
+Public sector expenditure
+Public sector assets (liquid and readily available)
+Recognition of implicit or contingent liabilities
+Other debt creating or reducing flows
+Debt relief
+Debt
+Stock of PPG external debt (medium and long term)
+Stock of PPG external debt (short term)
+Stock of private external debt
+Stock of public domestic debt
+Interest due on PPG external existing debt
+Interest due on private external existing debt
+Interest due on public domestic existing debt
+Amortization due on PPG external debt
+Amortization due on private external debt
+Amortization due on public domestic existing debt
+Stock of outstanding PPG arrears
+Other
+GDP, current prices
+GDP, constant prices
+U.S. GDP deflator
+Exchange rate versus U.S. dollar, end of period
+Exchange rate versus U.S. dollar, average
+Total investment
+o/w government investment
+
+Currency
+
+Historical
+
+Projection
+
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+
+x
+x
+
+National currency
+National currency
+National currency
+National currency
+
+x
+x
+x
+x
+
+x
+x
+x
+x
+
+National currency
+National currency
+National currency
+National currency
+
+x
+x
+x
+x
+
+x
+x
+x
+x
+
+U.S. dollars
+U.S. dollars
+U.S. dollars
+National currency
+U.S. dollars
+U.S. dollars
+National currency
+U.S. dollars
+U.S. dollars
+National currency
+U.S. dollars
+
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+
+National currency
+National currency
+None
+National currency
+National currency
+National currency
+National currency
+
+x
+x
+x
+x
+x
+x
+x
+
+INTERNATIONAL MONETARY FUND
+
+x
+x
+x
+x
+x
+x
+x
+
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+
+17
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Table 3. Financing Variables for the LIC DSA
+
+Variable
+Financing
+New disbursements of PPG external debt
+o/w multilateral
+o/w official bilateral
+o/w commercial
+New disbursements of domestic debt measured in national currency
+o/w central bank advances
+o/w short-term
+o/w medium and long term (1-3 years)
+o/w medium and long term (4-7 years)
+o/w long term (beyond 7 years)
+
+Currency
+
+Historical
+
+U.S. dollars
+U.S. dollars
+U.S. dollars
+U.S. dollars
+National currency
+National currency
+National currency
+National currency
+National currency
+National currency
+
+Projection
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+
+36.
+Financing assumptions should take into account shifts in borrowing terms and
+financing mix over time:
+•
+
+Over the near term and up to 5 years, assumptions should generally follow: (i) the authorities’
+borrowing plan, laid out in a published medium-term debt management strategy document (as
+agreed in a Bank budget support operation or Fund program where available); and/or (ii)
+donors’ financing plans for grants, concessional, and non-concessional borrowing. 19
+
+•
+
+Over the longer term, as countries grow, available external financing would be likely to shift
+from grants to concessional loans (for the poorest and most vulnerable countries), and from
+concessional loans towards less concessional loans and more loans on commercial and market
+terms (for others). At the same time, domestic debt would be expected to shift from central
+bank and short-term sources to borrowing via a broader range of market-based securities
+(bonds) issued competitively (Appendix IV).
+
+37.
+Care must be taken in projecting grant financing. Several MDBs and other donors link
+their decisions to provide grants to the risk rating in the DSA. Assuming in the baseline that new
+grants are provided can improve the risk rating, and leave the donors unable to provide the grants.
+Against this backdrop, the DSA should include firmly committed grants, and can include highly likely
+grants provided that their inclusion does not change the risk of debt distress rating (and thus is
+consistent with the grants being available). Consultation with donors is needed.
+
+
+For the World Bank (IDA) and other MDBs, regular credit terms on all lending should be
+assumed for all years in the projection period for which grant finance has not already been
+committed. These lenders link the terms of their assistance and allocation of grants to the
+DSF risk rating, and thus a clean assessment without possible grants is needed. Grants from
+these donors committed on the basis of the DSA can then be captured at the next DSA
+cycle.
+
+19
+
+A debt is usually considered concessional when it includes a grant element of at least 35 percent. The grant
+element of a debt is the difference between the present value (PV) of debt and its nominal value, expressed as
+a percentage of the nominal value of the debt (please see IMF and World Bank (2013) for detailed discussions on PV
+and grant element).
+
+18
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+38.
+The treatment of debt relief under the HIPC and MDRI Initiatives depends on a
+country’s status in the process. It should be reflected in the baseline for those countries that have
+reached the HIPC completion point, or in a customized scenario for pre-HIPC completion point
+countries (see Appendix V).
+39.
+If precise information on the amount of loans and the terms of loans is not available,
+this needs to be disclosed in the DSA write up, and potential risks from data gaps should be
+discussed. Occasionally information on the terms and conditions of external debt may be difficult to
+obtain, for example, due to uncertainty associated with loan negotiations, or due to confidentiality
+requirements in loans. In such circumstances, every effort should be made to collect the information,
+drawing from multiple possible sources, including the creditor. The quality of a DSA crucially
+depends on the accuracy of inputs including on financing instruments. The DSA write-up should
+identify gaps, note possible risks, and discuss possible remedial measures to improve data
+collection.
+
+IV. REALISM TOOLS
+The next step is to examine the realism of the baseline scenario, which is critical for a credible
+assessment of debt sustainability. The DSF includes four realism tools, each of which is published:
+(A) drivers of debt dynamics, (B) realism of planned fiscal adjustment, (C) fiscal adjustmentgrowth relationship, and (D) public investment-growth relationship. Realism tools are not meant
+to be prescriptive. They are designed to encourage examination of baseline assumptions. In cases
+where tools flag differences from cross-country or a country’s historical experience, these may
+well be explained by country-specific factors. Such justifications should be clearly discussed in the
+DSA write-up. In other cases, a re-examination, and possibly revision, of the macro projections
+may be warranted as part of the iterative process of producing a DSA (Figure 3). This section
+discusses each of the realism tools in turn.
+
+Drivers of Debt Dynamics
+40.
+The first DSF realism tool presents a decomposition of past and projected drivers of
+external and public debt dynamics (Figure 4). The DSF template automatically produces a chart
+showing the evolution of projections of external and public debt to GDP ratios for three DSA
+vintages — the current DSA, the previous year DSA, 20 and the DSA from 5 years past. Accompanying
+summary charts show: (i) the breakdown of drivers of debt dynamics; and (ii) the composition of
+past forecast errors.
+
+20
+
+This should represent the last DSA published by the institution.
+INTERNATIONAL MONETARY FUND
+
+19
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+The tool provides two signals that may point toward areas of the macro framework which
+may require deeper consideration: (i) significant differences between past debt creating flows and
+projected debt creating flows; and (ii) high unexpected changes in public debt over the past 5 years.
+To illustrate, Figure 4 highlights differences in flow history/projections related to the primary deficit,
+the real effective exchange rate, and residuals. It also highlights a large contribution of residuals to
+unexpected changes.
+Figure 3. Use of Realism Tools
+
+41.
+When the tool sends such signals, possible explanations should be considered. If a
+reasonable explanation cannot be identified, then consideration should be given to amending the
+macroeconomic framework (as part of the iterative process of constructing a DSA). The user must, of
+course, take any potential methodological changes (for instance, changes in coverage across
+vintages) when interpreting the results. The key issue is whether the projected drivers of debt
+changes are likely to materialize:
+•
+
+A high contribution of unexpected primary deficits to past debt accumulation would caution
+against counting on a lower contribution in future (e.g. due to substantial future fiscal
+adjustment, unless there are known reasons for why this may yet occur, for instance changes in
+the fiscal framework, or one-off shocks in the past.
+
+•
+
+A low contribution of the GDP growth differential to limiting past debt accumulation would
+caution against counting on a substantial contribution in future, unless there are known reasons
+why this may occur, like structural growth-enhancing changes in the economy (e.g. due to new
+sources of natural resource production coming on-line).
+
+20
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+A high contribution of real exchange rate depreciation to past debt accumulation would caution
+against a too optimistic assessment that future contributions will be negligible, unless the user
+can justify through an assessment of the external sector that the equilibrium real effective
+exchange rate gap has already closed.
+
+•
+
+A high contribution of unexpected other debt creating flows/the residual to past debt
+accumulation would caution against a small assumed future contribution, unless there are
+reasons to believe that the total exposure to contingent liabilities has fallen (for instance, due to
+recapitalization of the financial sector).
+
+•
+
+Finally, factors which have also contributed to unexpected changes deserve special scrutiny, in
+terms of future assumptions (in the chart, for instance, the residual and real effective exchange
+rate depreciation).
+Figure 4. Drivers of Public Debt Dynamics
+Gross Nominal Public Debt
+(in percent of GDP; DSA vintages)
+
+80
+
+80
+
+DSA 2015
+
+70
+
+70
+
+DSA 2014
+
+60
+
+60
+
+DSA 2010
+
+50
+
+50
+
+40
+
+40
+
+30
+
+30
+
+20
+
+20
+
+10
+
+Debt-creating flows
+
+Primary deficit
+Real interest rate
+Real GDP growth
+Real exchange rate
+depreciation
+
+50
+40
+30
+20
+10
+0
+
+Other debt-creating
+flows
+
+-10
+
+Residual
+
+-20
+
+Change in debt
+
+-30
+-40
+
+5-year historical
+change
+
+5-year projected
+change
+
+2025
+
+2024
+
+2023
+
+2022
+
+2021
+
+2020
+
+2019
+
+2018
+
+2017
+
+2016
+
+2015
+
+0
+
+Unexpected Changes in Debt
+
+(percent of GDP)
+
+60
+
+2014
+
+2013
+
+2012
+
+2011
+
+2010
+
+2009
+
+2008
+
+2007
+
+0
+
+10
+
+projection
+
+(past 5 years, percent of GDP)
+
+35
+
+35
+
+30
+
+30
+
+25
+
+25
+
+20
+
+20
+
+15
+
+15
+
+10
+
+10
+
+5
+
+5
+
+0
+
+0
+
+-5
+
+Contributions to unexpected
+changes
+
+Interquartile range (25-75)
+Median
+Unexpected change in debt
+
+-5
+Distribution across LICs
+
+INTERNATIONAL MONETARY FUND
+
+21
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Realism of Planned Fiscal Adjustment
+42.
+The second DSF realism tool assesses the credibility of projected fiscal adjustment
+based on cross-country experience with sustained fiscal adjustments. The comparison group
+constitutes LICs that have requested Fund-supported programs, as these countries generally have
+faced a need to adjust their fiscal positions. The tool presents the distribution of observed primary
+fiscal adjustment over a three-year horizon, against which a country’s projected primary fiscal
+adjustment is compared. The tool needs to be given data based on consistent public sector
+coverage to work, and where there has been a change in fiscal coverage (e.g., a broadening), the
+fiscal adjustment needs to be recalculated based on consistent coverage (e.g., the new broader fiscal
+coverage). Figure 5 provides an illustrative example of application of the tool.
+43.
+The tool flags potential optimism when the projected adjustment lies in the upper
+quartile of the distribution of past adjustments of the primary fiscal deficit. Where the fiscal
+adjustment has started in the past, the entire adjustment (preceding and projected) should be taken
+into account for purposes of flagging optimism. In Figure 5, the projected adjustment lies near the
+top of the distribution flagging a need for more analysis.
+Figure 5. Realism of Planned Fiscal Adjustment
+3-Year Adjustment in Primary Balance
+(in percent of GDP)
+
+14
+
+Distribution 1/
+
+3-year PB adjustment
+greater than 2.5 percent of
+GDP in approx. top quartile
+
+Projected adjustment
+
+12
+10
+8
+6
+4
+
+8
+More
+
+7
+
+6
+
+5
+
+4
+
+3
+
+2
+
+1
+
+0
+
+-1
+
+-2
+
+-3
+
+-4
+
+0
+
+Less
+
+2
+
+Source: Fund staff calculations.
+
+1/ Data cover Fund-supported programs for LICs (excluding emergency financing) approved
+since1990. The size of 3-year adjustment from program inception is covered on the horizontal
+axis; the percent of sample is covered on the vertical axis.
+
+44.
+When the tool flags a potential problem, the user needs to justify that the assumed
+adjustment is credible. A further discussion about pace of adjustment, whether permanent tax and
+expenditure policy measures have been implemented, and/or whether fiscal frameworks have been
+strengthened would be warranted to justify the adjustment projection. The user also needs to
+carefully consider the social and political feasibility of fiscal adjustment plans in the context of a
+22
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+country’s development priorities, poverty reductions plans, and/or need to comply with standards of
+human rights or social protection. Finally, users are encouraged to nest their assessment of this tool
+within the broader signals provided by the multiplier tool and debt-drivers tools about the
+macroeconomic underpinnings for the adjustment. Should the user not be able to justify the
+assumed adjustment, then consideration should be given to revising the assumption in the baseline
+scenario, as part of the iterative process of constructing a DSA.
+
+Consistency between Fiscal Adjustment and Growth
+45.
+The third DSF realism tool provides benchmarks for assessing the consistency of fiscal
+adjustment and growth assumptions. Lower-than-expected growth can derail fiscal
+consolidations. 21 Conversely, concern is also often expressed that the impact of fiscal expansion on
+output is underestimated. It is therefore critical to have a realistic picture of the impact of fiscal
+consolidation and expansion on growth and debt dynamics. This tool compares the baseline growth
+projection against growth paths that assume only a fiscal impact from the last observed growth rate,
+with the fiscal impact calculated under a range of plausible fiscal multipliers, using a default
+persistence parameter of 0.6. 22 Figure 6 provides an illustration.
+Figure 6. Fiscal Adjustment and Possible Growth Paths 1/
+
+Source: Fund staff calculations.
+1/ Bars refer to annual projected fiscal adjustment and lines show possible real GDP growth paths
+under different fiscal multipliers.
+
+21
+
+See Mauro and Villafuerte (2013).
+
+22
+
+Persistence determines how long the growth impact from fiscal adjustment lasts. Formally, the calculation is based
+𝑡𝑡
+on the relationship: 𝛥𝛥𝑔𝑔𝑡𝑡 = �0(𝛥𝛥𝑃𝑃𝑃𝑃𝑡𝑡 ) • (𝑚𝑚𝜌𝜌𝑡𝑡−1 ), where Δg is the change in GDP growth rate, ΔPB the change in the
+primary balance, m the size of the fiscal multiplier, and 𝜌𝜌 the persistence. For more information, see IMF and World
+Bank (2017).
+
+INTERNATIONAL MONETARY FUND
+
+23
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+46.
+The tool flags potential optimism/pessimism when the projected growth path
+significantly deviates from the path derived using a typical multiplier in a LIC (about 0.4). 23 If
+the growth path is close to expectations but there are known other real shocks hitting the economy
+(e.g., terms of trade shocks), the user should also consider these shocks as a flag. In the example of
+Figure 6, the considerable deviation of the baseline projection from the multiplier-based projections
+flags potential optimism.
+47.
+Where potential optimism/pessimism is flagged, possible explanations should be
+considered. These could include: (i) different multiplier values due to the composition of the fiscal
+adjustment, the source of financing, the macroeconomic policy mix, or due to different economic
+conditions (e.g., weak external channels, or a weak financial system, which tend to be associated
+with larger multipliers); or (ii) other real shocks or structural changes affecting the economy (e.g.,
+terms of trade shocks, or new natural resource production and exports coming on line). In the
+example of Figure 6, the user would need to be able to explain the strong pick-up of growth for
+instance due to important structural reforms, or positive shocks. In general, where adequate
+explanations are not evident, the user should consider revising baseline macroeconomic projections
+as part of the iterative process of constructing a DSA. 24
+
+Consistency between Public Investment and Growth
+48.
+The final DSF realism tool assesses the consistency between growth and public
+investment assumptions. Growth projections should capture the impact of public investment on
+growth in a realistic manner. Proponents of scaling up public investment maintain that productive
+investment, while increasing debt ratios in the short run, can generate higher growth, revenue, and
+exports, leading to lower debt ratios over time. At the same time, high economic returns of
+individual projects do not always translate into high macroeconomic returns. DSF users should
+therefore carefully assess the impact of a scaling-up of public investment. A number of tools are
+available to help users study and model this relationship in depth. 25
+49.
+The DSF realism tool uses a simple growth accounting framework to help flag
+potential optimism/pessimism in the assumed relationship between public investment and
+growth. This decomposes projected growth rates into contributions from: (i) changes in the
+government capital stock (due to public investment), and (ii) all other sources. 26 Users should ensure
+23
+
+A typical multiplier in a LIC country is expected to be low, around 0.4. See 2017 October IMF REO: Sub-Saharan
+Africa, IMF (2017b).
+
+24
+
+Please see IMF (2014a) on how to select fiscal multipliers.
+
+25
+
+A more detailed analysis may be done outside the confines of the DSF, as a means of informing Fund-supported
+programs, World Bank growth diagnostics, and the policy dialogue more generally. Available tools include the IMF’s
+Debt-Investment-Growth model (see Buffie and others, 2012), its extension to account for natural resources
+(DIGNAR) (see Melina and others, 2016), the World Bank’s Long-Term Growth model (see Pennings, 2017). The World
+Bank’s country economists are also encouraged to run simulations using MFMod (see World Bank (2015b).
+
+26
+
+The tool decomposes these contributions to growth based on growth accounting methodology, where the change
+𝑌𝑌 −𝑌𝑌
+𝐺𝐺 −𝐺𝐺
+𝐺𝐺 −𝐺𝐺
+in growth follows 𝑡𝑡 𝑡𝑡−1 = 𝛽𝛽 𝑡𝑡 𝑡𝑡−1 + 𝜀𝜀𝑡𝑡 , where 𝛽𝛽 𝑡𝑡 𝑡𝑡−1 represents the contribution of changes in government capital
+𝑌𝑌𝑡𝑡−1
+𝐺𝐺𝑡𝑡−1
+𝐺𝐺𝑡𝑡−1
+to growth, and 𝜀𝜀𝑡𝑡 represents contributions from all other factors. 𝛽𝛽 = 0.15 is the output elasticity. The accumulation
+24
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+that the coverage of the public sector used for this assessment is comparable across historical and
+projected data. 27 Users should also note that the tool only considers the investment coverage
+specified by the user (thus, for example, if the aim is to capture the impact of investments done
+across a broader concept of the public sector, for instance including state enterprises, then the tool
+needs to be populated with information on investment covering both the general government and
+state enterprises).
+50.
+The DSF presents two charts in the template output (Figure 7). The first chart shows the
+current and previous projections for public and private investment. The second chart uses the
+growth accounting framework to present: (i) the historical contribution of public investment to
+growth; (ii) previous projection for the contribution of public investment to growth; and (iii) and the
+current projection for and the contribution of public investment to growth.
+Figure 7. Realism of Baseline Growth Projection with Public Investment 1/
+
+Source: Fund staff calculations.
+1/ Left-hand chart shows differences in projected public and private investment rate over two DSA vintages; the
+right-hand chart compares the simulated contribution of government capital and other factors to real GDP growth
+over two DSA vintages and based on historical data.
+
+51.
+
+The growth/investment tool sends a signal of potential optimism/pessimism when:
+
+•
+
+There is a difference between the newly projected relationship between public investment and
+growth and the past projected relationship (based on the previous DSA).
+
+of government capital follows 𝐺𝐺𝑡𝑡+1 = (1 − 𝛿𝛿)𝐺𝐺𝑡𝑡 + ɸ𝑖𝑖𝐺𝐺𝐺𝐺 , where ɸ =1 is the public investment efficiency parameter, and
+𝛿𝛿 =0.05 is depreciation. The parameter values applied are derived from the empirical literature. For more details of
+the model, see IMF and World Bank (2017).
+27
+
+This is particularly relevant for a country in transition to the GFSM 2014.
+
+INTERNATIONAL MONETARY FUND
+
+25
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+There is a difference between the newly projected relationship between public investment and
+growth and the calculated historical relationship.
+
+52.
+Where potential optimism/pessimism is flagged, the user should consider whether
+there is a reasonable explanation. For instance, calculations underlying the tool rely on an
+investment efficiency estimates, and an estimate of the impact of changes in the capital stock on
+output (based on cross-country evidence). The user might assess that these parameters differ from
+what is assumed (e.g. strong efficiency and higher impact due to strengthening of institutions, or
+better prioritization of projects could lead to stronger effects). Also, the user may assess that
+changes in the relationship depicted in the charts reflect a changing macroeconomic context: for
+instance, the elimination of an output gap between DSA vintages could suggest a higher likelihood
+of crowding out (where public investment if offset one-to-one by declines in private investment).
+Where a reasonable explanation is lacking, the user should consider whether projections should be
+adjusted, as part of the iterative process of constructing a DSA.
+53.
+Figure 7 provides an illustration of the potential results of this realism tool. Here,
+public investment was previously scaled up, and the current projection assumes that a high
+investment rate is being sustained (rather than dropping as projected in the previous DSA vintage).
+The tool shows that the contribution to growth from public investment is expected to be higher in
+the current DSA. However, notwithstanding this, the overall growth rate is lower than the historical
+outturn, and it thus needs to be considered whether this could be explained by an anticipated
+contraction in other sources of growth in the economy.
+
+Other Realism Checks
+54.
+Beyond the application of the LIC-DSF realism tools, there are other ways to assess the
+credibility of the baseline scenario. To increase the degree of comfort in short-to-medium term
+elements of the macro-framework, the user can review projections for key macro variables prepared
+by other International Organizations (e.g., MDBs, U.N Regional Commissions, OECD), and alternative
+sources of such information (e.g., the Institute for International Finance, investment and commercial
+banks). Such an exercise can serve to place LIC-DSF economic projections within a band of informed
+comparators- highlighting the presence of over-optimism/pessimism in views.
+
+V. DEBT CARRYING CAPACITY
+Once the realism of the macroeconomic framework has been suitably vetted, a country’s debt
+carrying capacity needs to be established. This determines the debt and debt service thresholds
+that will apply when assessing the extent of risks. Countries are classified based on a composite
+indicator which uses country-specific information. This section discusses how this classification is
+done, and how this translates into thresholds for external PPG debt, and to benchmarks for total
+public debt.
+
+26
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Country Classification: Debt Carrying Capacity
+55.
+The DSF draws on the macroeconomic framework and other country-specific
+information to classify countries based on their debt carrying capacity. Countries with different
+policy and institutional strengths, macroeconomic performance, and buffers to absorb shocks, have
+different abilities to handle debt. Such abilities are also influenced by the global environment
+through demand for LICs’ exports and remittance inflows into LICs.
+56.
+To capture the different factors affecting a country’s debt carrying capacity, the DSF
+uses a composite indicator (CI). The CI captures the impact of the different factors through a
+weighted average of the World Bank’s Country Policy and Institutional Assessment (CPIA) score, 28
+the country’s real GDP growth, remittances, international reserves, and world growth.
+ For currency union members, the use of the union-wide reserve coverage for classifying
+countries’ debt-carrying capacity would generally be appropriate. However, where union
+members have effectively lost access to the reserve pool or are about to for an extended
+period, this approach may overestimate their reserves and thus debt carrying capacity. In
+such a case, member’s classification should be determined by the level of imputed reserves
+for an individual member country, with a zero floor (where not available, it can be calculated
+as reserve money (currency issued to banks in the country in question) minus net domestic
+assets).
+57.
+The CI is calculated based on the formula articulated below. The likelihood of debt
+distress is positively correlated with the level of indebtedness, and negatively correlated with the
+quality of institutions and policies (measured by the CPIA), and with other country-specific factors
+(country growth, reserves, remittances). Favorable external conditions (world growth) exert an
+important impact on the probability of debt distress. Also, note that the coefficient on the second
+(non-linear) reserve coverage variable has the expected negative sign, implying that above certain
+coverage, additional accumulation of reserves contributes less to reducing the probability of debt
+distress. The weights are derived by averaging the estimated coefficients across the probit models
+for each of the four debt burden indicators:
+𝐶𝐶𝐼𝐼 = β1 𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶 + β2 𝑔𝑔 + β3
+
+𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅
+𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅
+𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅 2
++ β4
++ β5 �
+� + β6 𝑔𝑔𝑊𝑊
+𝐺𝐺𝐺𝐺𝐺𝐺
+𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼
+𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼𝐼
+
+where g and gW are growth and world growth respectively, and where all variables are in percent,
+except the CPIA score.
+β1 = 0.385; β2 = 2.719; β3 = 2.022; β4 = 4.052; β5 = −3.990; β6 = 13.520
+28
+
+CPIA is an index compiled annually by the World Bank for all IDA-eligible countries, including blend countries. The
+index consists of 16 indicators grouped into four categories: (1) economic management; (2) structural policies; (3)
+policies for social inclusion and equity; and (4) public sector management and institutions. Countries are rated on
+their current status in each of these performance criteria, with scores from 1 (lowest) to 6 (highest)
+INTERNATIONAL MONETARY FUND
+
+27
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+58.
+The calculation of the CI is based on 10-year averages of the variables, across 5 years
+of historical data and 5 years of projection. The 10-year horizon ensures a degree of stability in
+countries’ classification while also smoothing out the impact of economic cycles. The use of history
+and projection balances previous performance with expected changes in the outlook of a country,
+ensuring that expected persistent improvements or slippages vis-à-vis past performance are
+reflected in the country classification. For the CPIA, which is produced annually by the World Bank
+and which does not have projected values, the latest value is held constant over the 5-year
+projection period.
+59.
+The DSF template automatically calculates the CI, and the DSF output shows the
+changes in the CI calculation at each DSF update. An illustrative example is shown in Table 4
+below.
+Table 4. Template Output: CI Score
+Components
+
+CPIA
+Real growth rate
+Remittances
+Import coverage of
+reserves
+Import coverage of
+reserves^2
+World economic growth
+CI Score
+
+Coefficients
+(A)
+0.385
+2.719
+2.022
+
+Current period
+
+Previous Period
+
+10-year
+CI Score
+Contribution
+components
+average
+of
+(A*B) = (C)
+values (B)
+components
+3.09
+1.19
+42%
+0.13
+5%
+4.81 %
+6.71 %
+0.14
+5%
+
+CI score
+Contribution
+of
+components
+components
+41%
+1.17
+0.13
+5%
+0.14
+5%
+
+4.052
+
+31.76 %
+
+1.29
+
+46%
+
+1.47
+
+52%
+
+-3.990
+13.520
+
+10.09 %
+3.53 %
+
+-0.40
+0.48
+2.82
+
+-14%
+17%
+100%
+
+-0.53
+0.47
+2.85
+
+-19%
+16%
+100%
+
+60.
+The CI determines the classification of countries into one of three categories: weak,
+medium, and strong. 29 A country’s debt-carrying capacity would be assessed as weak if its CI value
+is below 2.69, medium if it lies between 2.69 and 3.05, and strong if it is above 3.05.
+Table 5. CI Cutoffs for Country Classification
+
+CI Score
+
+Country classification
+
+CI < 2.69
+2.69 ≤ CI ≤ 3.05
+CI > 3.05
+
+Weak
+Medium
+Strong
+
+29
+
+The CI cutoffs correspond to the 25th and 75th percentiles of the distribution of CI values in LICs from 2005–14. The
+numerical thresholds will be updated at the next review of the LIC DSF by the Executive Boards of the World Bank
+and the IMF.
+
+28
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+61.
+The calculation of the CI should draw on the IMF’s World Economic Outlook (WEO)
+releases, which occur semi-annually in October and April of each year, and on the World
+Bank’s annually published CPIA. 30 The CI can be calculated once WEO submissions are finalized,
+and does not change until a new WEO submission is finalized. 31 Remittances data should be
+consistent with the macroeconomic forecast underlying the WEO framework. 32 The timing leverages
+the existing schedule for a comprehensive update of all countries’ macro framework, ensuring crosscountry and within-country consistency while minimizing operational burden on users.
+62.
+The LIC DSF user should only revise the country classification if two consecutive
+signals suggest the need for an upgrade or downgrade. To reduce potential variations in risk
+assessments stemming from volatility in macro projections, a change in country classification would
+require at least two consecutive designations in the new category. For example, a country with
+medium debt carrying capacity in October would be reclassified to strong debt carrying capacity if
+in the following year both the interim update in April and the October update put the country into
+the strong debt carrying category. 33
+
+Thresholds for PPG External Debt
+63.
+The DSF uses indicative thresholds, linked to country classification, to analyze the risk
+of external debt distress. Thresholds are (statistically determined) bounds above which the risk of
+debt distress is considered elevated. 34 The external risk rating is assigned by comparing the
+projected evolution of the four PPG external debt burden indicators, both under the baseline and
+stress scenarios, to their respective thresholds. Thresholds depend on countries’ debt carrying
+capacity. Countries with stronger capacity benefit from higher thresholds—as follows:
+
+30
+
+The CI calculation following the October and April WEO release will be posted on the LIC DSF website, which may
+be found at http://www.imf.org/external/pubs/ft/dsa/lic.aspx. The IMF’s WEO database is available at
+http://www.imf.org/external/ns/cs.aspx?id=28. The World Bank’s CPIA database is available at
+http://ida.worldbank.org/financing/ida-resource-allocation-index and is updated during the third quarter of the
+calendar year. If use of the World Bank’s published macroeconomic forecasts would lead to a different conclusion,
+the Bank and Fund staff should confer, and, if no agreement can be reached at the technical level, refer to standard
+dispute resolution mechanisms.
+31
+
+When the framework comes into effect, in July of 2018, the April 2017 WEO will apply for determining the CI.
+
+32
+
+If remittances data consistent with the WEO framework is not available, users may use the World Bank’s World
+Development Indicators database (https://data.worldbank.org/data-catalog/world-development-indicators) or the
+Migration and Remittances Database
+(https://www.worldbank.org/en/topic/migrationremittancesdiasporaissues/brief/migration-remittances-data) for
+outturn data and apply the country growth rate for projections.
+33
+
+During the transition period, the first CI should be calculated based on April 2018 WEO. Thus, a first change in the
+classification of debt-carrying capacity could only take place after such a change has been confirmed by the
+calculation based on the October 2018 WEO.
+
+34
+
+For more detailed discussion of why the DSF employ thresholds, and on the probit methodology, please see IMF
+and World Bank (2017), and Kraay and Nehru (2006).
+INTERNATIONAL MONETARY FUND
+
+29
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Table 6. PPG External Debt Thresholds
+
+Debt carrying capacity
+(CI classification)
+Weak
+Medium
+Strong
+
+PV of PPG external debt
+in percent of
+GDP
+Exports
+30
+140
+40
+180
+55
+240
+
+PPG external debt service
+in percent of
+Exports
+Revenue
+10
+14
+15
+18
+21
+23
+
+Benchmarks for Total Public Debt
+64.
+The DSF uses benchmarks for total public debt to help flag risks from broader debt
+exposures. Benchmarks for total public debt, linked to country classification, help guide the analysis
+of risks stemming from domestic debt. 35 Total public debt is the sum of PPG external debt and
+public domestic debt. While PPG external debt remains the largest component of total public debt
+in most LICs, a systematic analysis of total public debt is needed because: (i) domestic debt is an
+increasingly important source of financing for many LICs (with its short-term nature creating rollover
+and interest rate reset risks); and (ii) non-residents have increased their participation in local and
+regional debt markets, blurring the distinction between domestic and external debt. 36 Total public
+debt benchmarks vary with countries’ debt carrying capacity as follows:
+Table 7. Total Public Debt Benchmarks
+
+Debt carrying capacity
+(CI classification)
+Weak
+Medium
+Strong
+
+PV of total public
+debt
+GDP
+35
+55
+70
+
+VI. STRESS TESTS
+The DSF includes stress tests to help gauge the sensitivity of projected debt burden indicators to
+changes in assumptions. The DSA template automatically applies a series of stress tests to
+examine the impact of temporary shocks on the evolution of debt burden indicators in both the
+external and the public DSA. There are three types of stress tests: standardized, tailored, and fully
+customized scenarios. Standardized stress tests apply to all countries. Tailored stress tests consider
+risks that are common to only some sets of countries. Fully customized scenarios are optional,
+and can be used to capture idiosyncratic risks where relevant. The most extreme stress test
+informs the calculation of the mechanical risk signal and where the test leads to a breach of the
+35
+
+For more detailed discussion on the noise-to-signal approach, please see Kaminsky and Reinhart (1999).
+
+36
+
+A blurring of the distinction between foreign and domestic debt is particularly likely for countries that use the
+currency criterion to record external and domestic debt, where foreign currency denominated debt is treated as
+external debt and local currency denominated debt as domestic regardless of whether residents or nonresidents hold
+the debt.
+
+30
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+DSA threshold, the signal shifts from “low” to “moderate” (Section VII below). This section
+considers each type of stress test in turn.
+
+Standardized Stress Tests
+65.
+There are six standardized stress tests in the DSF, each applied to both the external
+and the public DSA (Table 8). In standardized stress tests, a variable is subject to a shock, and the
+post-shock values of the stressed variables are set to the baseline projection minus one standard
+deviation. However, if the historical average is lower than the baseline projection, then the postshock values are instead set to the historical average minus one standard deviation. Each shock
+leads to interactions among the main variables modeled based on assumptions about their crosselasticities (see Appendix VI). Such interactions improve the realism of the scenarios. For example,
+the exchange rate shock scenario would simulate a depreciation that would also lead to higher
+inflation and net exports.
+66.
+The default shock and elasticities in each standardized stress test can be customized if
+circumstances warrant. In general, further customization is undesirable given the need to ensure
+cross-country comparability and simplicity of interpretation. Moreover, since shocks are calibrated
+from the country’s history or baseline projection, the stress test scenarios already reflect some
+country-specific information. However, under some exceptional circumstances, default stress
+parameters may not be appropriate as they may fail to capture structural breaks or idiosyncratic
+features in the country. In such circumstances the size of the shock and the interactions among the
+main variables can be customized (with an explanation provided in the write up).
+67.
+In addition to the stress tests, the DSA automatically produces the historical scenario
+as a realism check for the baseline scenario. The historical scenario produces the path of debt
+that would result from key macroeconomic variables in the baseline projection being permanently
+replaced by their 10-year historical average. Baseline debt ratios that are significantly lower or
+higher than in the historical scenario may indicate excessive optimism or pessimism vis-à-vis the
+country’s historical performance and should be explained. Plausible reasons for a large deviation
+between the baseline and historical scenarios could include structural breaks such as the end of civil
+conflict, or permanent improvements that are not adequately reflected in the historical average, for
+instance production of new natural resources or a depletion of a natural resource that leads to
+slower economic growth.
+
+INTERNATIONAL MONETARY FUND
+
+31
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Table 8. External and Public DSAs: Standardized Stress Tests
+Shock design and duration
+
+Shock interactions among variables
+
+Standardized stress tests (temporary shocks)
+B1. Real GDP growth
+
+- Inflation to decrease with an elasticity to real growth of
+
+Real GDP growth set to its historical average minus one standard
+
+0.6 2
+
+deviation, or the baseline projection minus one standard deviation,
+
+- Primary balance deteriorates as the revenue to-GDP ratio remains the
+
+whichever is lower for the second and third years of the projection
+
+same as in the baseline, but the ratio of non-interest expenditures to GDP
+
+period 1
+
+increases as the level of spending is kept the same as in the baseline
+- Domestic borrowing cost to increase by 25 basis points per 1 percent of
+
+B2. Primary balance
+Primary balance-to-GDP ratio set to its historical average minus one
+standard deviation, or the baseline projection minus one standard
+deviation, whichever is lower in the second and third years of the
+projection period
+
+GDP worsening of the primary balance for the case of LICs with domestic
+market financing 3; and
+- For market-access countries, external commercial borrowing cost to
+increase by 100 basis points per 1 percent of GDP worsening of the
+primary balance, or 400 basis points, whichever is lower 2
+
+B3. Exports
+Nominal export growth (in USD) set to its historical average minus one
+standard deviation, or the baseline projection minus one standard
+
+- Real GDP growth rate is lowered with an elasticity to exports of 0.8 2
+
+deviation, whichever is lower in the second and third years of the
+projection period
+B4. Other flows
+Current transfers-to-GDP and FDI-to-GDP ratios set to their historical
+average minus one standard deviation, or baseline projection minus
+one standard deviation, whichever is lower in the second and third
+years of the projection period
+B5. Depreciation
+One-time 30 percent nominal depreciation of the domestic currency in
+the second year of the projection period, or the size needed to close
+the estimated real exchange rate overvaluation gap, whichever is
+larger
+B6. Combination of B1 through B5
+Apply all individual shocks (B1 through B5) at half of the magnitude.
+
+- Real net exports as a percent of GDP increases with an elasticity to real
+depreciation of 0.15, starting in the year following the shock 4
+- Pass-through to inflation with an elasticity of 0.3 in the year of the
+shock 2
+
+Apply interactions in each individual shock scenarios.
+
+Historical scenario (permanent shocks)
+A1. Historical
+Real GDP growth, primary balance-to-GDP ratio, GDP deflator, noninterest current account, and net FDI flows set to their historical
+averages
+1/ Throughout this table, historical averages refer to averages over the last 10 years.
+2/ Based on staff event analysis.
+3/ Aisen and Hauner (2008) offers evidence for EMs.
+4/ IMF (2015a) finds that a 10 percent real depreciation leads to 1.5 percentage point improvement in real net exports to GDP starting in the year following the shock in a
+sample of 60 developed and developing countries.
+
+32
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Contingent Liability Stress Test
+68.
+A contingent liability stress test—which involves a one-off increase in the debt-to-GDP
+ratio in the second year of the projection—applies to all countries. The shock has two
+components: (i) a minimum starting value of 5 percent of GDP (representing the average cost to the
+government of a financial crisis in a LIC since 1980; see Laeven and Valencia (2013); and (ii)a tailored
+value, reflecting additional potential shocks for portions of the public sector that are not included in
+the definition of public debt used in the DSA. The latter are scaled to the size of potential exposures
+in these sectors. Of course, liabilities from the other portions of the sector which are already
+included in the baseline projection should not be included in the stress test (e.g. a realized
+government guarantee).
+69.
+In constituting the tailored portion of the shock, the template provides a default
+setting which can be used, but in general it is expected that DSF users will further tailor this
+based on country-specific circumstances. Again, the sectoral shock only applies if it is not already
+in the public debt coverage:
+
+•
+
+Financial market. As noted above, the default/minimum shock is set at 5 percent of GDP. The
+user can tailor the magnitude of the shock upwards depending upon country-specific
+vulnerabilities of the financial market, drawing for instance on asset quality reviews or bank
+recapitalization estimates where available.
+
+•
+
+Other elements of the general government. The default shock is set at 0 percent of GDP, as
+potential liabilities are country-specific, depending on the precise structure of the general
+government. To tailor this element of the shock, users should consider, inter alia, whether other
+parts of the general government have generated contingent liabilities in the past, or have
+existing liabilities that could migrate to the government.
+
+•
+
+SOE debt. The default shock is set at 2 percent of GDP, which is the median SOE external liability
+identified by a Fund staff survey conducted in 2016. As noted above, users should first check the
+size of state enterprise guarantees already captured in the definition of debt used in the
+baseline. In principle, this component of the shock should only apply to debt not captured in the
+baseline. Second, users should check that the default does not exceed the amount of SOE debt
+outstanding that is outside the baseline. Third, the user needs to examine past liabilities taken
+over by the government from the relevant SOEs, and in particular the flow financial projections
+for SOEs to identify possible problems with large debt.
+
+•
+
+Public Private Partnerships. The default shock is (triggered when PPP stock is larger than 3
+percent of GDP) calculated as 35 percent of the country’s PPP capital stock (proxying for the
+present value of direct and potential future fiscal costs from PPP distress and/or cancellations).
+The capital stock is drawn from the World Bank Database on PPPs. 37 To tailor, users can consider
+
+37
+
+The World Bank’s Private Participation in Infrastructure Database is available here https://ppi.worldbank.org/. Also,
+see World Bank (2017).
+
+INTERNATIONAL MONETARY FUND
+
+33
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+whether up-to-the present information on PPPs is available, and can also look at whether there is
+any information to suggest that the degree of exposure, given the stock, may be more or less
+than the 35 percent assumed. 38
+70.
+When the contingent liability stress test goes beyond default settings to include a
+tailored element, the DSA write-up should clearly explain the chosen parameters for the
+country. The precise design of the shock will be reported in the output of the DSA (Table 9).
+Table 9. External and Public DSAs: Coverage of Public Debt and Design of Contingent
+Liabilities (tailored) Stress Tests
+1 The country's coverage of public debt
+
+e.g., the central government debt and the central government-guaranteed debt
+Default
+
+2 Other elements of the general government not captured in 1.
+3 SoE's debt (guaranteed and not guaranteed by the governemnt)
+4 PPP
+5 Financial market
+
+1/
+
+Total
+
+Used for the Reasons for deviations from the default settings
+analysis
+
+0 percent of GDP
+2 percent of GDP
+35 percent of PPP stock
+5 percent of GDP
+
+1/ The default shock of 2% of GDP will be triggerd for countries, whose government-guaranteed debt is not fully captured under the country's public debt definition (1.). If it is
+already included in the government debt (1.) and risks associated with SoE's debt not guaranteed by the government is assessed to be negligible, a country team may reduce this
+to 0%.
+
+Other Tailored Stress Tests
+71.
+Other tailored stress tests apply to countries exposed to a set of specific risks. These
+risks include natural disasters, volatile commodity prices, and market financing pressures. The
+countries exposed to these risks are automatically detected by the DSF template based on userinputted information or predetermined triggers, as follows (see Table 10, which also discusses the
+default shock settings):
+•
+
+Natural disaster shock. Applies to small states vulnerable to natural disasters (IMF 2016), 39 and
+LICs that meet a frequency criteria (2 disasters every 3 years) and economic loss criteria (above
+5 percent of GDP per year), based on the EM-DAT database during 1950–2015. 40 Users are
+expected to adjust the default parameters if assumptions about the impact of natural disasters
+are already embedded in the baseline scenario. With the shock occurring in year 2 of the
+projection (i.e. usually the first year beyond the year in which the DSA is being done), this means
+removing from year 2 any average effects of natural disasters already assumed.
+
+•
+
+Commodity price shock. Applies to LICs where commodities constitute at least 50 percent of total
+exports (goods and services) over the previous three-year period, per the data provided in the
+DSF template. The scenario captures the impact of a sudden one standard deviation decline in
+
+38
+
+Tools (PPP Fiscal Risk Assessment Model) are available for users who wish to assess the risks from PPPs in more
+granular detail (see http://www.imf.org/external/np/fad/publicinvestment/#4).
+
+39
+
+IMF Policy Paper (2016), “Small States’ Resilience to Natural Disasters and Climate Change—Role of IMF”.
+
+40
+
+The International Disaster Database (EM-DAT) prepared by Center for Research on the Epidemiology of Disasters
+(CRED) http://www.emdat.be/
+
+34
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+the export prices of various fuel and non-fuel commodities, as relevant (informed by commodity
+price distributions), with macro interactions incorporated, based on staff event analysis and
+recent studies.
+ Where countries also import a commodity that informs this export price stress test, a net
+export figure for that commodity may be applied. Where a country has large commodity
+imports potentially subject to the same price shock as modeled for exports, a customized rerun of the tailored scenario should be done (with the shock re-calibrated to adjust for the
+weight of the import), to see what mitigating effects the import side could have.
+•
+
+Market financing shock. Applies to LICs with market access, i.e. those who: (i) have outstanding
+Eurobonds; or (ii) meet the market access criterion for PRGT graduation but have not graduated
+due to serious short-term vulnerabilities. 41 The scenario assesses rollover risks resulting from a
+deterioration in global risk sentiment, temporary nominal depreciation, and shortening of
+maturities of new external commercial borrowing. This tailored stress test supplements the
+consideration of market financing risks in the baseline, under the market financing module (see
+Section VII). It is important to understand whether market-related risks are already present in the
+baseline, and not just in a stress scenario.
+
+72.
+DSF users are expected to customize the scenarios for these other tailored stress tests.
+Users are expected to consider the country’s historical experience with the specific types of shock
+and draw on inputs from the country authorities to design scenarios that are better tailored to
+country circumstances. Note that customizations of default stress test settings must not incorporate
+potential grant financing that would dampen the impact of the shock (which would lead to
+circularity in the analysis, since ratings affect the terms of finance). The template contains default
+parameters calibrated from event studies and cross-country averages; the parameters that can be
+customized are clearly indicated. The user-input information will be reported in the output of the
+DSA. When adjustments are made to the default parameters this should be explained in the DSA
+write-up.
+
+Fully Customized Scenarios
+73.
+For specific risks not covered by the template, the DSF user may choose to design fully
+customized scenarios. The template allows users to fully customize the PPG external and the public
+debt paths for analyses that cannot be pre-programmed due to their idiosyncrasy or lack of data.
+Customized scenarios generally affect the risk signal in the same way that other stress tests do (if
+they are the most extreme stress test, a breach could motivate a move to a moderate risk rating).
+Examples of situations that could motivate a customized scenario include:
+•
+
+Idiosyncratic risks, such as civil war or an epidemic/major public health crisis. The natural
+disaster stress test tool can provide a starting point for such a customized scenario, as
+conceptually impacts are similar.
+
+41
+
+Countries are seen as having market access when they have the capacity to access international markets on a
+durable and substantial basis. For fuller discussions on the graduation criteria, please see IMF (2017a).
+INTERNATIONAL MONETARY FUND
+
+35
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+Large delays in investment projects that may have adverse impacts on growth and fiscal
+revenues.
+
+•
+
+Contagion-related macroeconomic risks (see Section VIII.F below).
+
+•
+
+Policy slippage, which could result in very different debt paths.
+Table 10. External and Public DSAs: Other Tailored Stress Tests
+Trigger
+
+Scenario design and interactions
+
+Natural Disasters
+
+One-off shock of 10 percentage points of GDP to debt-GDP ratio
+
+LICs defined as small developing natural disaster-prone states
+
+in the second year of the projection period2
+
+in IMF board paper on small states (2016),1 and LICs that meet
+a frequency (around 2 disasters every 3 years) and economic
+
+Interactions:
+
+losses (above 5 percent of GDP per year) criteria, based on the
+
+Real GDP growth and exports are lowered by 1.5 and 3.5
+
+EM-DAT database during 1950-2015.
+
+percentage points, respectively, in the year of the shock3
+
+Commodity Prices
+
+Commodity exports are shocked by a commodity price gap in the
+
+LICs whose commodity exports constitute at least 50 percent of
+
+second year of projection, which closes over 6 years4. The price
+
+total exports (goods and services) over the previous three-year
+
+gap for fuel and non-fuel exports is multiplied by their respective
+
+period.
+
+commodity exports.
+Interactions:
+Real GDP growth is reduced by 0.5 percentage points, and fiscal
+revenues-to-GDP are reduced by 0.75 percentage points in each
+of the three years starting from the second year of projection for
+each 10-percentage point contraction of commodity prices. This
+gap converges to the baseline in 6 years5. GDP deflator is
+reduced by the impact of the commodity price gap in the first
+year of the shock, converging to the baseline in 6 years.
+
+Market Financing
+
+A 400 bps increase (sustained for 3 years from the second year of
+
+LICs that either (i) have outstanding Eurobonds or (ii) meet the
+
+projection) in the cost of new external commercial borrowing and
+
+market access criterion for graduation from the PRGT but have
+
+shortening of maturities of new commercial external borrowing
+
+not graduated due to short-term vulnerabilities
+
+(to 5-year maturity, or 2/3 of the assumed maturities, whichever
+is shorter, with grace periods adjusted proportionally), and oneoff FX depreciation equivalent to 15 percent in the second year6
+
+1/ This list corresponds to countries with extreme or high vulnerability to natural disasters, as defined in IMF board paper on small states, see IMF
+(2016).
+2/ Based on median change in the public debt to GDP ratio one year after the natural disaster from its pre-shock level, across all episodes with
+measured economic losses of at least 5 percent of GDP, using data from Emergency Events (EM-DAT) database.
+3/ This is based on staff event analysis comparing the median growth during the year when the natural disaster took place and the median real GDP
+and exports growth over the preceding 10 years, across the same sample used to identify the size of the shock.
+4/ The price gap is defined as the difference between the baseline commodity price in the second year of projection and the lower end of the 68
+percent confidence interval (equivalent to a minus one SD) from the IMF’s commodity price forecast distributions for fuel and non-fuel commodities,
+which may be found at http://www.imf.org/external/np/res/commod/index.aspx.
+5/ The size and duration of these responses were informed by the analysis of episodes of commodity price busts in a sample of 34 commodityintensive LICs during 1990-2015. The elasticities are within the range of estimates found in the literature (e.g., IMF (2012, 2015b), Spatafora and
+Samake (2012), Céspedes and Velasco (2013), and in line with those used in the IMF’s Vulnerability Exercise for LICs.
+6/ Based on a staff event analysis of the median responses around external debt distress episodes during 1995-2015.
+
+36
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+74.
+A customized scenario can also be used to assess and illustrate financing needs and
+risks. Where such an exercise is undertaken, it is understood not to affect the risk rating, and users
+should be clear in the DSA write-up when they are undertaking such an exercise for illustrative
+purposes. There are several examples:
+•
+
+When a country is undergoing a debt restructuring that may lead to different debt paths, a
+customized scenario can be used to illustrate implications.
+
+•
+
+It can be useful to illustrate the impact that possible grants could have (as noted above,
+there are constraints on projecting grants in the baseline due to lenders’ use of DSA risk
+ratings to determine grants.)
+
+•
+
+Another notable case is a scenario associated with meeting the Sustainable Development
+Goals (SDGs). LIC DSF users would require supplementary information about costs, would
+need to assess macroeconomic impacts, and then could use the DSF to assess possible
+financing strategies and the risks that they would entail.
+
+VII. RISK SIGNALS
+The comparison between debt burden indicators and thresholds in the DSF leads to signals about
+the risk of debt distress. The framework also provides an additional risk signal based on
+benchmarks for market-related financing exposures in the baseline scenario. These risk signals
+are the first but core step in understanding a country’s risk of debt distress rating.
+
+Signal for the External Risk Rating
+75.
+The model-based signal for the risk of public external debt distress is derived by
+comparing the projected PPG external debt indicators with their indicative thresholds for the first 10
+years of the projection both under the baseline and stress-test scenarios (the 11–20 year projection
+period can be brought in under certain circumstances, as discussed in Section VIII below). For the
+stress scenarios, effectively only the most extreme of the standardized, tailored and customized
+stress tests matters. 42 The risk signal is determined as follows:
+•
+
+Low risk of external debt distress if none of the PPG external debt burden indicators breach
+their respective thresholds under the baseline or the most extreme stress test.
+
+•
+
+Moderate risk of external debt distress if none of the PPG external debt burden indicators
+breach their thresholds under the baseline, but at least one indicator breaches its threshold
+under the stress tests.
+
+•
+
+High risk of external debt distress if any of the PPG external debt burden indicators breaches
+its threshold under the baseline.
+
+42
+
+The most extreme stress test is defined as the test that yields the highest level of debt on or before the tenth year
+of projection.
+INTERNATIONAL MONETARY FUND
+
+37
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Signal for the Overall Risk of Public Debt Distress
+76.
+The DSF also provides a signal for the overall risk of public debt distress. This signal is
+derived based on joint information from the five debt burden indicators: the four from the external
+block, which are compared with their indicative thresholds, plus the PV of total public debt-to-GDP,
+which is compared with its estimated indicative benchmark (see Table 7). The risk signal is
+determined as follows:
+•
+
+Low overall risk of public debt distress if the PPG external debt has a low risk signal and the
+total public debt-to-GDP ratio remains below its benchmark under the baseline and the most
+extreme shock.
+
+•
+
+Moderate overall risk of public debt distress if the PPG external debt has a moderate risk
+signal or if the PPG external debt is low and if the public debt stock indicator breaches it the
+thresholds/benchmark under the stress tests.
+
+•
+
+High overall risk of public debt distress if any of the four external debt burden indicators or
+the total public debt burden indicator breach their corresponding thresholds/benchmark under
+the baseline.
+
+Signal from the Market Financing Pressures Tool
+77.
+For LICs with market access, the framework produces an additional signal regarding
+the extent of market-financing pressures in the baseline. These benchmarks are only calculated
+for countries with substantial access to market financing, which are identified using the same criteria
+for the market-financing tailored stress test (see Section VI above). Market stress in countries has
+often been due to the coincidence of heightened liquidity needs at a time of deteriorating market
+sentiments. In this module, the near-term liquidity needs as measured by the projected baseline
+public gross financing needs over the next three years and current market sentiment as measured
+by the latest EMBI spread are compared against their respective benchmarks below (see Table 11). 43
+Table 11. Market Financing Pressures Benchmarks
+
+Public GFN
+14 percent of GDP
+
+EMBI spread
+570 bps
+
+78.
+The risk signals from the Market Financing Tool would provide the DSF user with the
+following information: A breach of both benchmarks would signal high market financing pressures
+coming from increased liquidity needs amid worsening market sentiment, thereby increasing
+rollover risks. A breach of one indicator would signal moderate market financing pressures. With
+43
+
+DSF users should note that EMBI spreads data are only available for LICS with longer histories of international
+market access. For LICs with market access but without EMBI spreads data, therefore, a breach in the gross financing
+needs threshold can also be treated as an early warning for potential market financing pressures.
+
+38
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+neither indicator breached, the signal would be that market financing related risks are low. This
+information is an input into staff judgment in the final determination of risk ratings.
+
+VIII. THE USE OF JUDGMENT
+In addition to the rating signaled by the model, the use of judgment may be needed to arrive at a
+final risk rating. In particular, judgment can help assess the gravity of threshold breaches, and
+country specific factors that are not fully accounted for in the model.
+
+Short-lived and Marginal Breaches
+79.
+Single short-lived breaches (1-year) should be discounted from the analysis, but may
+be brought back via judgment under some limited circumstances. Such short-lived breaches
+most often occur due to bullet maturities on Eurobonds. Short-lived breaches occurring in the first
+early years of the projections are more worrisome than those occurring in the distant future, since
+breaches at a longer horizon allow for debt management operations to smooth the debt service
+profile and/or for building buffers to meet payment obligations. In general, those that occur in the
+very near future should be brought back for purposes of determining the risk rating, unless
+mitigating factors exist. Such mitigating factors could include: the buffers provided by liquid
+financial assets (Section VIII.D); or a track record of market access at comparable volumes.
+80.
+Marginal breaches of thresholds should be viewed as providing a risk signal, but may
+be discounted via judgment where appropriate. For temporary breaches of a small magnitude
+that last more than one year, the user should consider whether there are sufficient mitigating
+factors. These could include: (i) the timing of the breach (the distant future being less worrisome); (ii)
+the breadth of the breach (whether it extends beyond a single indicator); (iii) the dynamics of the
+breach (with sharp prior increases in indicators signaling more concern); and (iv) the strength of
+confidence in the macroeconomic forecast. Justifications for overriding the mechanical risk signal
+should be supported by sufficient evidence, and by a compelling argument that these mitigating
+factors continue to be relevant. To gain additional insight when there are small and temporary
+breaches, the probability approach can be used on an optional basis, and under some circumstances
+can enable calculation using more precise country-specific information (Appendix VII).
+
+Domestic Debt and Market Financing Vulnerabilities
+81.
+When there is a high-risk signal coming from the public debt distress analysis,
+consideration should be given as to whether this should affect the final external risk rating. In
+cases where the measure of external debt is not on a residency basis, the user should attempt to
+gather some information on non-resident holdings of local currency government debt. To the extent
+non-residents are an important share of the stock and/or projected flow, concerns about external
+risks may need to be revisited, given that servicing and repaying this debt requires net resource
+transfers abroad. More generally public debt distress and high overall debt service can squeeze
+priority primary spending, and the DSF user needs to assess whether circumstances in the country
+
+INTERNATIONAL MONETARY FUND
+
+39
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+are such that payment of external debt service and priority primary spending (safety net, wages,
+pensions, etc.), can no longer jointly be achieved, given minimum domestic debt service needs.
+82.
+When there is a high-risk signal coming from the market-financing pressures tool,
+consideration should be given to whether the underlying risk rises to a level that affects the
+external and overall risks of debt distress. For example, concerns for both external and overall
+risks would be raised where high gross financing needs represent large net new borrowing (e.g., due
+to a high fiscal deficit) which the market may not be able to absorb. The user should accordingly
+examine: (i) where the liquidity need is deriving from; (ii) the composition of the creditor base (who
+is holding debt that needs to be rolled over); and (iii) which creditors are expected to provide
+finance at the margin.
+
+External Private Debt
+83.
+The LIC DSF user should always assess whether a high level of non-guaranteed private
+external debt could increase the government’s exposure to contingent liabilities, and whether
+the underlying risk is significant enough to warrant a change in external or overall risk
+ratings. Excessive external borrowing by the non-financial private sector can indirectly raise the
+burden of public sector debt to the extent that pressures to close open foreign exchange exposures
+lead to currency depreciation. Excessive external borrowing by the banking sector and/or a
+substantial currency mismatch in its balance sheet could lead to a systemic problem and a need for
+direct government intervention and recapitalization, directly affecting public debt issuance. The user
+should pay particular attention when private external debt has grown or is projected to grow rapidly.
+The user should also account for whether the private sector has liquid and readily available assets
+which could mitigate risks. In general, implications can be derived by placing more weight on an
+appropriately-designed contingent liability stress test, or customized scenario. Where data on
+private external debt is weak, and indirect sources of data are required, this should be disclosed.
+
+Availability of Liquid Financial Assets
+84.
+If the government has significant financial assets that could be liquidated to service
+debt, the use of gross debt may overstate a country’s risks of debt distress. It is not possible to
+present the DSA on a net debt instead of a gross debt basis since this implicitly imposes the very
+strong assumption that government assets and liabilities can perfectly offset each other, which may
+not always be the case due to liquidity or currency mismatches. 44 However, assets can be accounted
+for via judgment.
+85.
+In general, when government assets are already set aside or readily available, and are
+sufficient to cover the threshold breaches, they can be deemed to provide an offset. The user
+
+44
+
+See Arbelaez and Sobrinho (2017) for a discussion of how government assets’ debt-carrying capacity enhancing
+function varies with asset characteristics. Most empirical work on this topic focuses on advanced economies and
+emerging markets. This may be found at http://www.imf.org/~/media/Files/Publications/WP/2017/wp17173.ashx.
+
+40
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+should closely assess and fully disclose in the DSA write-up the characteristics of the government
+assets considered for judgment. In this regard:
+•
+
+The assets should be sufficiently liquid (i.e., they are not encumbered in any way, and can be
+liquidated quickly at prices reflecting fair value). Foreign exchange deposits and amounts in
+sinking funds generally would qualify (subject to their use not leading to a deterioration in
+reserve adequacy). 45
+
+•
+
+When assets are denominated in local currency, consideration needs to be given to: (i) the
+minimum needed level of deposits (given the usual check float); (ii) the ability to withdraw
+deposits from domestic financial institutions without creating systemic stress; and (iii) whether
+they can be exchanged without impacting the exchange rate (i.e. whether the central bank has
+excess reserves).
+
+•
+
+Illiquid assets, such as equity shares in state-owned companies and untapped natural resources,
+cannot directly mitigate debt risks and generally should not be considered as a mitigating factor.
+
+•
+
+Assets held at sovereign wealth funds (or stabilization funds) and through other extra-budgetary
+funds can be considered. However, it is important to consider the constraints on using these
+assets—when they cannot be legally withdrawn to repay or service debt, they should be
+excluded.
+
+86.
+Where assets are considered important to DSA conclusions, their scale should be
+reported in the DSA write-up. A memorandum item can be added to the tables. Users can also
+report a net debt concept as a memorandum item in DSF tables, based on the assets considered.
+Note that projections of assets must be consistent with projected above-the-line and below-the-line
+fiscal projections (a build-up of assets is only possible with an above-the-line fiscal surplus, or a
+below-the-line surplus, i.e. due to over-borrowing or asset sales).
+
+Long-term Considerations
+87.
+In exceptional circumstances threshold breaches in years 11–20 may provide a
+rationale to change the risk rating. In the LIC DSF, breaches projected to occur in projection years
+11–20 do not normally give rise to a rating downgrade. It is possible, however, to consider a change
+in the rating when: (i) such breaches are expected to be large, persistent and thus resulting in
+significant differences relative to historical averages; and (ii) occur with a high probability despite
+occurring in the distant future. Such a situation could arise from trends that are not easily amenable
+to policy interventions, such as climate change, population aging, known changes in donor financing
+frameworks, or expected exhaustion of natural resources. The user should clearly explain a rating
+change informed by such a breach, including by discussing why the breach can be expected to be
+large and persistent, and occur with high probability.
+
+45
+
+Even for deposits not all are readily available, since a government requires a certain amount of liquidity to engage
+in its normal operations.
+INTERNATIONAL MONETARY FUND
+
+41
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Other Considerations
+88.
+There are other country specific circumstances which may warrant some application of
+judgment to DSF results. In general, where judgment on other considerations not captured in the
+DSF is used to inform the risk rating, the user should aim to reflect the judgment used in a
+customized alternative scenario. Key circumstances for consideration include:
+•
+
+Conflict, fragility and violence: Countries in conflict tend to have very weak institutions and
+policies which may distort their risk of debt distress rating. To better evaluate the risk of debt
+distress in countries affected by fragility, conflict and violence (FCV), 46 teams are encouraged to
+capture the specific challenges of FCV countries through country-specific alternative scenarios.
+
+•
+
+Reserve pooling arrangements. Currency union members or members of a regional financial
+arrangement (e.g. a swap arrangement) may gain greater balance of payments protection from
+reserves pooling. Such considerations would play a role as a mitigating factor in cases where
+union-wide reserve coverage is adequate, and where the currency union member has not lost
+access to the pool. Of course, if the currency union itself has been deemed to have a viability
+problem this would need to be accounted for in individual members’ DSAs. Regarding swap
+arrangements, they would not provide a mitigating factor if they are largely/fully tapped.
+
+•
+
+Availability of insurance type arrangements and state-contingent debt instruments. Some
+donors offer counter-cyclical loans and contingent features have also found their way into bond
+contracts (e.g. hurricane clauses). These should first and foremost be correctly modeled in the
+stress scenarios in the DSF, and their impact thus taken into account. However, the mitigating
+properties that they provide in stress scenarios may contribute to an overall more benign view
+of risks in a situation where there are marginal baseline breaches.
+
+•
+
+Level of confidence in the macro baseline. Due consideration should be given to the degree
+of confidence in the macroeconomic framework (the implicit “fan chart”). Greater uncertainty
+around the baseline would increase the probability of debt indicators breaching and remaining
+above thresholds over time. The realism tools could provide some guidance about the degree of
+uncertainty around the macro baseline, and reassurance through explanations offered for flags
+raised. Some other macro risks, could also affect the level of confidence in the baseline, such as
+contagion risks from trade partners, or delays in investment projects in economies with high
+investment needs and weaker implementation capacity. Such country specific macroeconomic
+risks can also be illustrated in the final assessment (ideally through a customized risk scenario
+that is given appropriate weight).
+
+•
+
+Other considerations. Country teams are encouraged to consider other possible events with a
+reasonably high likelihood, the materialization of which could have impacts on external or public
+debt sustainability, for example, by drawing on the Risk Assessment Matrix prepared in the
+context of the IMF’s Article IV consultation, and preparing a customized alternative scenario.
+
+46
+
+The World Bank Group defines these countries as those who have: either a) a harmonized average CPIA country
+rating of 3.2 or less, or b) the presence of a UN and/or regional peacekeeping mission.
+
+42
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+IX. THE FINAL RISK RATINGS
+DSF users are expected to combine the signals from the model on the risk of debt distress with
+judgment based on knowledge of the country analyzed to arrive at a final assessment on the risk
+of external debt distress and on the overall risk of debt distress. The external debt distress risk
+rating remains the primary DSF output, while the overall risk rating is considered supplementary
+information.
+89.
+Having produced the model-based assessment (described in Section VII), and having
+considered whether judgement about other factors modifies this in any way (as described in
+Section VIII), the LIC DSF user is expected to provide:
+•
+
+A final rating of the risk of external debt distress: low, moderate, high.
+
+•
+
+A final rating of the overall risk of debt distress: low, moderate, high.
+
+•
+
+The summary assessment in the DSF write up should explain how the users reached their
+conclusions (including explanations of the deviations from the mechanical risk signals).
+
+90.
+A country should be rated as “in debt distress” when a distress event has already
+occurred (with some qualifications):
+•
+
+For the external rating, when there are ongoing or impending debt restructuring negotiations, or
+outstanding external arrears on debt.
+
+•
+
+For the overall risk rating, when there is external debt distress, and/or when there are ongoing
+or impending domestic debt restructuring negotiations, or outstanding arrears on domestic
+debt instruments.
+
+•
+
+Qualifications include:
+ Debt restructuring negotiations should be understood to exclude voluntary market-based
+debt re-profiling operations.
+ In certain narrowly prescribed circumstances, the existence of arrears may not trigger a
+determination that a country is in debt distress. These include: (i) de minimus cases (where
+arrears are less than 1 percent of GDP); (ii) cases where arrears arise because of technical
+problems with payments or due to payment barriers (e.g. related to sanctions), disputed
+claims, diplomatic disagreements, difficulties in establishing the appropriate counterparts for
+payment, or weak debt management (technical arrears); (iii) arrears to official bilateral
+creditors that have been deemed away because of the existence of debt relief agreement; or
+(iv) arrears to private creditors where debt restructuring with the majority of creditors has
+been completed, and where the government is judged to be engaged in “good faith”
+negotiations with the remaining holdouts.
+ Where there are large outstanding arrears to external or domestic suppliers of goods and
+services, this could motivate a “debt distress” classification in very limited circumstances. A
+INTERNATIONAL MONETARY FUND
+
+43
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+judgment would need to be made that the non-payment of suppliers reflects government
+insolvency and/or liquidity problems (i.e., that the arrears are forced borrowing by the
+government, without which there would be a default).
+91.
+A country may also be assessed to be in debt distress when the debt sustainability
+analysis indicates that there is a high probability of a future debt distress event. This situation
+can arise when a country faces: (i) large near-term breaches in debt service indicators (implying a
+high-risk signal where resources for payment cannot be identified); and/or (ii) significant or
+sustained breaches of debt thresholds that, in staffs’ judgment, renders the debt position
+unsustainable. It should be noted that an assessment that a country is at “high risk” of debt distress,
+or even “in debt distress”, does not automatically mean that debt is unsustainable in a forwardlooking sense (the debt event could simply be a liquidity-related event). Section X.B provides further
+discussion on sustainability, which is an important aspect of granularity in the risk rating.
+92.
+The LIC DSF user is also expected to provide a full discussion in the DSA write-up of
+the main risks to the ratings assessment. These could include, as noted in the previous sections of
+the Guidance Note: data coverage, macroeconomic uncertainty, policy implementation risks, global
+factors, and any other factors considered in the judgment phase which did not rise to the level of
+affecting the risk rating. Mitigating factors that could shift the risk assessment going forward should
+also be discussed.
+
+X. ADDING GRANULARITY TO RISK RATINGS
+A full consideration of risks should also illuminate the nature and diversity of debt vulnerabilities
+in the moderate and the high-risk rating categories. The framework can also be used to help
+examine fiscal space. This section considers each of these issues in turn.
+
+Granularity in the Moderate Risk Rating
+93.
+The revised LIC DSF requires users to characterize the extent of debt vulnerabilities in
+countries rated at moderate risk of external debt distress. These countries display a great
+diversity of debt vulnerabilities. The tool does not have operational implications for Fund or Bank
+debt-related policies such as the Debt Limits Policy or the Non-Concessional Borrowing Policy.
+94.
+The robustness of the debt position of a country at moderate risk of external debt
+distress is determined by the available “space” the country has to absorb shocks without
+being downgraded to a high risk of debt distress. Under the risk signals generated by the
+framework, countries at moderate risk are those whose baseline debt burden indicators are below
+their respective thresholds, but the stress test scenarios push one or more indicators above their
+respective thresholds. Countries are downgraded from moderate to high risk when shocks lead to
+threshold breaches under the baseline scenario. The distance between the baseline debt burden
+indicators and their thresholds is a measure of the “space” a country has to absorb these shocks
+without breaching those thresholds (and being downgraded). The shocks considered are derived by
+
+44
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+looking at composite debt shocks across all LICs that have resulted in a downgrade from moderate
+to high risk of debt distress (Figure 8 explains how this translates into the space measurement).
+95.
+Against this background, the user should characterize debt vulnerabilities in a country
+facing a moderate risk of external debt distress as showing:
+•
+
+“Limited space to absorb shocks” where at least one baseline debt burden indicator is close
+enough to its respective threshold that occurrence of the median observed shock would result in
+a downgrade to high risk.
+
+•
+
+“Substantial space to absorb shocks” where all baseline debt burden indicators are well below
+their respective thresholds, such that only shocks in the upper quartile of the observed
+distribution of shocks would downgrade the country to high risk of debt distress.
+
+•
+
+All other countries, i.e., those assessed as facing moderate risk of debt distress but not falling
+into the categories discussed above would simply be characterized as having ”some space to
+absorb shocks”.
+
+96.
+For countries where judgment has been applied in determining the risk rating as
+moderate, an additional consideration may apply. In general, these countries would be
+automatically classified as having ‘limited space’ (any “shock” would leave them with a high-risk
+signal). However, countries with deemed away single short-lived breaches (1-year) would be
+classified excluding the short-lived breach.
+Box 1. Shock Analysis of Rating Downgrades from Moderate to High Risk
+Using DSAs produced since the LIC DSF inception, staff calculated the distribution of observed shocks
+that led to a rating downgrade to high risk of debt distress. Such shocks are calculated as the observed
+change in debt burden indicators (peak in debt after and before the shock leading to a downgrade) in
+percentage of the respective threshold.
+
+𝑆𝑆ℎ𝑜𝑜𝑜𝑜𝑜𝑜𝑖𝑖,𝑡𝑡 =
+𝑤𝑤ℎ𝑒𝑒𝑒𝑒𝑒𝑒 𝑑𝑑𝑖𝑖 ∶
+
+𝑑𝑑𝑖𝑖,𝑡𝑡 − 𝑑𝑑𝑖𝑖,𝑡𝑡−1
+,
+𝑡𝑡ℎ𝑟𝑟𝑟𝑟𝑟𝑟ℎ𝑜𝑜𝑜𝑜𝑜𝑜𝑖𝑖
+
+𝑃𝑃𝑃𝑃 𝑜𝑜𝑜𝑜 𝑑𝑑𝑑𝑑𝑑𝑑𝑑𝑑 𝑃𝑃𝑃𝑃 𝑜𝑜𝑜𝑜 𝑑𝑑𝑑𝑑𝑑𝑑𝑑𝑑 𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷 𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠 𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷 𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠
+,
+,
+,
+𝐺𝐺𝐺𝐺𝐺𝐺
+𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸
+𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅𝑅
+𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸𝐸
+
+Potential shocks are calibrated from their observed distributions (Figure 8. a–b). For debt stock indicators (PV
+of debt to GDP and PV of debt to export), the median shock is around 20 percent while shocks in the upper
+quartile are those larger than 40 percent. For debt service indicators (debt service to revenue and debt
+service to export), the median shock is around 12 percent and shocks in the upper quartile are those larger
+than 35 percent.
+
+INTERNATIONAL MONETARY FUND
+
+45
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Figure 8. Shock Analysis of Rating Downgrades from Moderate to High Risk
+
+a. Illustration of “limited space to absorb shocks”
+
+b. Illustration of “substantial space to absorb shocks”
+
+Note: For the PV of debt/GDP and PV debt/exports thresholds, X is 20 percent and Y is 40 percent. For debt service/exports and debt
+service/revenue thresholds, X is 12 percent and Y is 35 percent.
+
+Assessing Sustainability
+97.
+As noted in Section IX above, the LIC DSF must assess whether a “significant or
+sustained breach” warrants an “in distress” rating. While what constitutes a “significant or
+sustained” breach is necessarily one of judgement, some considerations apply:
+•
+
+A situation where one or more debt burden indicators are continually rising and above
+thresholds as the forecast horizon advances is a strong signal that debt is unsustainable.
+
+•
+
+For other cases involving significant or sustained threshold breaches the user should consider: (i)
+how long they are (sustained would generally be understood to meet or exceed four to fiveyears); (ii) how large they are; (iii) the timing of the breaches (the first 5 years of the projection
+are more important); (iv) how quickly near-term breaches begin to be reversed (rising breaches
+in the near-term before a turn-around are cause for greater concern); and (v) whether they cover
+both debt and debt service indicators (extended breaches of solvency indicators matched by
+liquidity indicators contained beneath thresholds should be considered a mitigating factor).
+
+•
+
+For these other cases it is also important to carefully assess the degree of confidence in the
+macroeconomic framework (the implicit “fan chart”). Where confidence intervals are wide, the
+probability that breaches will be even larger and more protracted than projected also would
+generally rise. In this context, explanations for flags produced by realism tools need to be
+compelling (and if not the user should recalibrate the macroeconomic framework towards a
+more central, and more easily justifiable, tendency). Users are encouraged to develop their own
+explicit fan chart to further delve into the issue, where data availability allows (a standard VAR
+model could form the basis).
+
+98.
+However, as in the case of other risk ratings, an assessment that debt is unsustainable
+also must incorporate broader judgment. In general, overall public debt and public external debt
+46
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+can be regarded as sustainable when there is a high likelihood that a country will be able to meet all
+its current and future financial obligations. In practice, sustainability would imply that the debt level
+and debt service profile are such that the policies needed for debt stabilization under both the
+baseline and realistic shock scenarios are politically feasible and socially acceptable, and consistent
+with preserving growth at a satisfactory level while making adequate progress towards the
+authorities’ development goals. Thus, other factors not captured in the model, like feasibility issues,
+debt structure and holders, and impact on development goals, also need to be accounted for.
+99.
+The same considerations can help guide DSA users when they need to construct a
+sustainable scenario from a starting point of a DSA where debt has been deemed “in distress
+”. Such a circumstance can arise, for example, when the authorities are considering an adjustment
+program and/or when they have decided to restructure their debt. Thus, consistent with the
+considerations above, in these circumstances significant or sustained breaches as described above
+should no longer be observable, the macroeconomic framework should have strong credibility,
+and/or judgment should also have brought in robust and supportive arguments about the impact of
+other factors. A higher probability that debt is sustainable would generally be associated with even
+stronger performance relative to thresholds (for instance, indicators not just converging beneath
+high risk thresholds, but below the sub-thresholds in the moderate category).
+
+Fiscal Space
+100. Fiscal space in general refers to the room a government has to undertake discretionary
+policy relative to existing plans without undermining debt sustainability or market access.
+Fiscal space can be assessed via a careful consideration of context, financing, fiscal indicators, and
+fiscal impacts (IMF (2016a). 47
+101. It is not straightforward to apply a fiscal space framework to low income countries. For
+the least developed countries, which are dependent at the margin on donor aid for financing, a
+qualitative assessment based on careful consultation with donors is necessary. For countries which
+finance at the margin from markets (and/or other non-concessional lenders), a deeper consideration
+of context, financing, fiscal indicators, and fiscal impacts can be undertaken.
+102. The LIC DSF does not require a fiscal space assessment, but does provide tools to
+inform such an assessment. In particular, the framework allows insights into macro context, the
+availability of financing, fiscal indicators, and fiscal impacts:
+Context. The realism tools available in the DSF can help the user understand the context in
+which fiscal expansion is considered. They can facilitate a discussion about policy mix, fiscal
+multipliers, and investment efficiency, all of which can help inform a judgment about the
+macroeconomic space for fiscal expansion (and thus whether there could be any feedbacks onto
+financing availability).
+
+•
+
+47
+
+Also see Kose et. al, 2017.
+INTERNATIONAL MONETARY FUND
+
+47
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+Availability of financing. To the extent marginal finance is expected to come from markets,
+then the DSF’s market financing module can flag risks of market financing pressures. This would
+then need to be complemented with analysis of how markets could respond to the considered
+volumes of additional financing.
+
+•
+
+The state of public debt burden indicators. The external and the overall risk rating in the
+framework can give an insight into risks to sustainability. However, it is important to note that in
+a low-income country high risk indicators do not necessarily rule out fiscal expansions (as they
+could in an emerging or advanced economies) if expansions are to a large extent financed
+through grant financing or concessional borrowing. Thus. careful consideration of context and
+financing remains critical.
+
+•
+
+Fiscal expansion scenarios. The DSF can be used to evaluate fiscal policy experiments, such as
+expansion or a slower pace of consolidation, through its primary balance stress test. This test can
+help verify the extent to which fiscal expansion could lead to a downgrade in the external and or
+the overall debt risk rating to levels that would be putting fiscal sustainability in danger.
+However, careful consideration is still needed of context and grant financing prospects even
+where signals flash red.
+
+103. DSF users who wish to conduct a full fiscal space assessment need to consult and
+consider a wider range of tools and indicators before coming to a conclusion about fiscal
+space. Again, the user must first determine if a framework-based assessment is even feasible, given
+the state of a country’s development. For cases where it is, the DSF itself does not support a full
+fiscal space assessment—many other indicators of context and financing pressures, and models of
+investment impacts can and should be deployed. Moreover, the guidance herein does not cover
+how to aggregate and weight the various considerations. DSF users interested in such a wider
+assessment should consult IMF (2016a) for more guidance.
+
+48
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix I. Review Process and Dispute Resolution Between
+IMF and the World Bank
+This appendix discusses the expected review process for IMF and World Bank and dispute
+resolution process between IMF and World Bank in producing DSAs.
+
+Review Process
+1.
+
+The IMF and World Bank staff are expected to follow the review process summarized
+below.
+Stage
+
+Preparation of DSA
+
+Preparation of the
+draft DSA.
+
+IMF country teams and World Bank country economists begin to jointly prepare
+a draft DSA (write-up and template; see Appendix II). A preliminary meeting is
+held between the teams to discuss the macroeconomic assumptions and
+coverage of the DSA.
+The draft DSA is included in the IMF policy note.
+
+World Bank country economist informs the Global Macro and Debt
+Analytics Unit in Macroeconomic, Trade, and Investment (MTI) about the
+schedule for the preparation of DSA. At this stage, the Bank country team
+can request technical support (“upstream comments”) from the unit.
+Departmental
+review of the draft
+DSA.
+
+The IMF country team sends the draft DSA (write-up, charts, and tables),
+together with the policy note, to SPR and other departments, and the World
+Bank country economist (when needed).
+The World Bank country economist sends the draft DSA (write-up and
+template) to the MTI Global Macro and Debt Analytics Unit for formal review.
+At this stage, it should be understood that the draft DSA is subject to change
+depending on the mission’s findings (if any). This review of the draft DSA in the
+IMF and World Bank has the objective of raising and resolving all major issues
+related to content, coverage, and broad assumptions.
+
+Policy consultation
+meeting (PCM)
+
+Where possible, contentious issues related to the draft DSA should be
+discussed at a Policy Consultation Meeting, with World Bank staff participation.
+Where this is not possible, every effort should be made to resolve these issues
+at the earliest date (i.e. before a pending mission)
+
+Management
+clearance of the
+draft DSA
+
+IMF Management clears the policy note and draft DSA.
+
+Mission
+
+IMF country teams and World Bank country economists continue to refine the
+DSA, with input from country authorities. At a minimum, staff should share the
+draft tables and figures from the DSA with the authorities, and explain the
+(tentative) conclusions that are being drawn. If one of the two teams did not
+participate in the mission, another meeting must be held between the teams to
+discuss the new information gathered during the mission, possible changes to
+
+The World Bank Practice Manager of the Global Macro and Debt Analytics Unit
+concurs and the MTI Director clears the draft DSA.
+
+INTERNATIONAL MONETARY FUND
+
+49
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+the draft DSA, and the authorities’ views to be reflected in the DSA. Any
+significant differences in views between IMF and World Bank country teams
+should be resolved at this stage.
+Departmental
+review of the DSA
+
+IMF country team sends the DSA, along with the staff report, to SPR and other
+departments.
+World Bank country team sends the DSA (write-up and template) to the MTI
+Global Macro and Debt Analytics Unit for review and formal clearance.
+
+Management
+clearance of the
+DSA
+
+IMF Management clears the staff report and the DSA.
+
+Circulation of the
+staff report to
+IMF’s Executive
+Board (this step
+concerns the IMF
+country team only)
+
+IMF country team sends the staff report and the DSA to SEC for circulation to
+the Executive Board.
+
+Circulation of the
+DSA to IDA’s
+Executive Board
+(this step concerns
+the World Bank
+team only)
+
+MTI ensures circulation of the DSA to IDA’s Executive Board either included in a
+Board document or as a stand-alone DSA for information only within two
+months of submission of the DSA to the IMF’s Board.
+
+The World Bank Practice Manager of the Global Macro and Debt Analytics Unit
+concurs and the MTI Director with regional responsibility clears the DSA.
+
+Following IMF’s Executive Board meeting, the DSA is published as a supplement
+to the staff report, assuming the country authorities have given their consent.
+
+The DSA is published as a standalone document, assuming the authorities have
+given their consent.
+
+Dispute Resolution
+2.
+Although the DSA should normally represent a common Bank-Fund assessment of a
+country’s debt outlook, there may be cases of disagreement. In such rare cases, country teams
+should first seek to resolve the disagreement at the working level before resorting to the dispute
+resolution mechanism agreed in 2005. 1
+•
+
+At the working level, country economists should discuss the basis for their disagreements and
+seek to determine whether the different viewpoints lead to a material difference in risk
+classification. If not, they should seek to accommodate differences. If material differences arise,
+the Fund mission chief and the Bank’s MTI Director should attempt to reach an agreement.
+
+•
+
+The mission chief and the MTI director should, after consultation with their respective review
+departments (SPR in the Fund, Global Macro and Debt Analytics Unit in the Bank), seek a
+resolution within five working days. If they are unsuccessful, the matter should be elevated to
+the level of area department director at the Fund and vice president at the Bank to seek
+resolution, again within five working days. Failures to resolve differences at this level will cause
+the matter to be brought to the attention of the managements of the two institutions.
+
+1
+
+See IMF and World Bank (2005).
+
+50
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+3.
+The managements can, within five working days, either resolve the dispute or decide
+that the DSA document will present the different views of the staffs to the Executive Boards
+of the two institutions. In the latter case, each institution will present its views in its own words.
+
+INTERNATIONAL MONETARY FUND
+
+51
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix II. The DSA Write Up
+Any DSA should be a standalone document. Staff are encouraged to follow the outline below,
+attaching in each case the standard figures and tables.
+Country X
+Joint Bank-Fund Debt Sustainability Analysis
+Risk of external debt distress:
+
+[low/medium/high/in debt distress]
+
+Overall risk of debt distress
+
+[low/medium/high/in debt distress]
+
+Granularity in the risk rating
+
+[Sustainability/moderate risk tool/
+tool not applicable]
+
+Application of judgment
+
+[yes/no; key judgments applied]
+
+The chapeau paragraph should specify the country’s external risk rating, disclosing the risk
+rating signaled by the model and how judgment has been applied if relevant. The chapeau
+paragraph should also include an assessment of the overall risk of debt distress, and explain the
+reason for any difference from the external risk rating. Commentary should be given on any deeper
+assessed granularity in the risk rating (e.g., “moderate, with significant space”). The vulnerability of
+the risk rating to policy slippages, or other factors, should be noted. A footnote linked to the
+chapeau paragraph should report the country’s Composite Indicator score and the classification of
+debt-carrying capacity (weak, medium, or strong). 1
+
+Public debt coverage
+•
+
+The public debt used for the DSA should by default be PPG external and public debt. The DSA
+should provide an explanation when full public debt coverage is not attainable and cover the
+requirements for the tailored stress test for contingent liabilities based on the debt coverage.
+The Discussion should also cover any known weaknesses or gaps in the data being used.
+ Table: the coverage of the public sector debt and design of contingent liability stress test
+(See Table 9)
+
+Background on debt
+•
+
+Evolution of PPG external debt and total public debt in recent years, including compared with
+the previous DSA (developments related to debt relief, where relevant).
+
+1
+This can be included in the main text of the Country classification section if there are substantive discussions with
+the authorities or meaningful changes in the key variables.
+
+52
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+Composition and structure of public external and domestic debt (creditors, and
+terms/concessionality).
+
+•
+
+Evolution of private external debt in recent years, where relevant.
+
+Background on macro forecasts
+•
+
+Main features in macroeconomic projections and major changes compared to the previous DSA.
+ Box to describe in detail the main assumptions in the macroeconomic framework
+underlying the DSA, including projections of real sector (real economic growth with main
+drivers of growth, and inflation), fiscal variables (medium- and long-term fiscal measures,
+primary balance, and borrowing costs), external sector (current account variables,
+external financing sources such as FDI, public external borrowing, private external
+borrowing, exceptional financing) and dynamics of foreign reserves.
+
+•
+
+Assumed financing mix between domestic and external financing. External financing should
+include the prospects of concessional financing / grants and non-concessional / market
+financing with projected grant elements in the medium- and long-term.
+
+•
+
+Discussions of the output of the realism tools, explaining clearly why any flags should not be of
+concern. 2
+
+
+Charts: Realism tool charts
+
+Country classification and determination of scenario stress tests
+•
+
+Description of the composite indicator, and applicable thresholds. Note any changes and why
+they have occurred.
+
+
+•
+
+Table: Composite indicator and threshold tables
+
+Note any prominent economic features (e.g., prone to natural disasters, significant reliance on
+commodity exports, market financing, etc.), which qualify the country for tailored stress tests and
+the market financing risk module. Explanation of how scenario stress test have been set up
+(including clear justification for any changes in default settings)
+
+External DSA
+•
+
+Signal from the model:
+
+2
+
+The write-up should include a clear justification for changing the default settings in the realism tools.
+
+INTERNATIONAL MONETARY FUND
+
+53
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+ Projected evolution of PPG external debt burden indicators compared to thresholds in
+the baseline scenario. Discussion of breaches, if any.
+ Projected evolution of PPG external debt burden indicators under stress tests including
+tailored stress tests, 3 compared to thresholds. Discussion of breaches, if any.
+ Results of customized scenarios, where relevant.
+
+Overall risk of public debt distress
+•
+
+Signal from the model:
+ Projected evolution of total public debt under the baseline, including with respect to the
+benchmark on public debt to GDP.
+ Projected evolution of total public debt under stress tests, including with respect to the
+benchmark on public debt to GDP.
+ Results of customized scenarios, where relevant.
+
+Market module (where relevant)
+Risks identified by the market-financing pressures tool.
+
+•
+
+ Table: Market Financing Pressures
+Deeper discussion of liquidity risks and creditors exposures (where the tool provides a red flag)
+
+•
+
+Other factors to account for (application of judgment)
+•
+
+Existence of arrears/restructuring (with few exceptions this would lead to an “in debt distress”
+rating)
+
+•
+
+Discussion of one-off/marginal breaches (where relevant).
+
+•
+
+Are market risks important enough to over-ride the risk rating?
+
+•
+
+Discussion of assets (where relevant)
+
+•
+
+Long-term considerations (where relevant)
+
+•
+
+Private external debt (should always be covered)
+
+•
+
+Other considerations (where relevant)
+
+3
+
+The write-up should include a clear justification for changing the default settings in standard or tailored stress tests.
+
+54
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Risk rating and vulnerabilities
+•
+
+Summary of assigned external and overall risk ratings (taking into account judgment)
+
+•
+
+Granularity in the risk rating (moderate-risk tool)
+
+
+•
+
+Table: Qualification of the Moderate Risk Rating Category chart
+
+Discussions on key risks to debt sustainability and recommendations.
+
+Authorities’ views
+•
+
+The DSA assumptions and results should be discussed with the authorities. The authorities’
+views, including any disagreement with staff’s main findings, should be reflected in the
+concluding section of DSA write-ups.
+
+Tables and Charts
+Tables:
+•
+•
+•
+
+Debt Sustainability Framework, Baseline Scenario (external and public)
+Sensitivity Analysis for Key Indicators of Debt (external and public)
+Risk signals summary table
+
+Charts:
+•
+
+Debt accumulation and debt ratio charts (external and public).
+
+INTERNATIONAL MONETARY FUND
+
+55
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix III. Treatment of State-Owned Enterprises
+This appendix discusses the criteria for excluding the debt of a public enterprise from the DSA. 1
+1.
+Removing a public enterprise from the DSA can be considered if the enterprise can
+borrow externally without a public guarantee and its operations pose limited fiscal risk. If the
+enterprise is judged to meet these conditions, its external debt would be excluded from the external
+DSA and its total debt from the public DSA. The case for such exclusions, which should be explicitly
+described in the write-up, should be based on the following:
+•
+
+For each enterprise being considered, staff should collect available information regarding its
+managerial independence; relations with the government; the periodicity of audits; publication
+of comprehensive annual reports and protection of shareholders’ rights; financial indices and
+sustainability; and other risk factors (see Box AIII.1).
+
+•
+
+Given that comprehensive information on public enterprises may not be readily available in LICs,
+two criteria would be binding in the determination of fiscal risks: an enterprise would normally
+be judged to pose a high fiscal risk if it carries out uncompensated quasi-fiscal activities or has
+negative operating balances.
+
+•
+
+By contrast, an enterprise could be deemed to have a low fiscal risk even if the criteria listed
+above paint a mixed picture, or when not all information is available. For example, such a
+judgment could be based on an enterprise’s financial strength or its track record.
+
+2.
+The decision to remove a public enterprise from the DSA is simplified in cases where
+there is an IMF-supported program. In such cases, the technical memorandum of understanding
+would specify any exclusion of enterprises for the purpose of the external debt limits. The same
+exclusions would be expected to apply in the DSA.
+
+1
+
+While ownership by the government of at least 50 percent of the shares guarantees its control over the enterprise,
+such control may exist even when it owns a smaller proportion of the total share capital of the company.
+
+56
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Box AIII.1. Indicator for the Exclusion of SOEs
+•
+
+Managerial independence, including pricing and employment policies. Relevant criteria include:
+(i) cost-covering price setting for non-tradables; (ii) average prices within 10 percent of the international
+benchmark for producers of tradables; and (iii) a tariff setting regime compatible with the long-term
+sustainability of the SOE in regulated sectors, which is comparable to private firms in the sector.
+Employment policies should be independent of civil service laws and should not be subject to
+intervention by the government in wage setting or hiring, except when clearly justified to address
+specific risks.
+
+•
+
+Relations with the government, including: (i) the absence of direct or indirect subsidies, on-lending
+by the government and/or explicit or implicit loan guarantees that go beyond those given to private
+enterprises; (ii) the absence of quasi-fiscal activities such as uncompensated functions or absorbed costs
+which are not directly related to the SOE’s business objective and/or substituted for government
+spending (e.g. subsidies to the public given directly by the SOE compensated with government
+transfers); (iii) the nature of the regulatory and tax regimes, wherein the SOE should be subjected to the
+same standards as private firms in the industry; and (iv) a high frequency of profit transfers from the SOE
+to the central budget.
+
+•
+
+Periodic audits. There should be periodic audits carried out and published by a reputable private
+accounting firm applying international standards. A major international firm should ideally audit large
+public enterprises.
+
+•
+
+Publication of comprehensive annual reports and protection of shareholders’ rights. Published
+annual reports should include i) audited balance sheets; ii) profit and loss statements; iii) off-balance
+sheet liabilities; iv) levels and changes in the enterprise’s overall activity; v) employment and investment;
+and vi) comparisons against other firms in the industry and international benchmarks. Moreover, the
+governance structure should allow for the appropriate protection of minority shareholder rights.
+
+•
+
+Financial conditions and sustainability. Relevant indicators include: i) market access, including
+industry-wide comparable costs of debt and borrowing rates comparable to private firms without a
+government loan guarantee; ii) less-than-full leveraging entailing a debt-to-asset ratio comparable to
+the industry average; iii) profitability, defined as operating balance to assets ratio, or defined as a
+positive ratio and higher than the average cost of debt in cases where there is no relevant comparator;
+and iv) records and evaluations of past investments, demonstrating an average rate of return at least
+equivalent to that required by cost-benefit analyses to approve new projects.
+
+•
+
+Absence of other risk factors including, but not limited to, vulnerabilities stemming from i) contingent
+liabilities relative to its operating balance; ii) currency mismatches between the SOE’s main sources of
+revenue and its debt; and iii) the importance of the public enterprise, as defined by size (e.g. debt
+service, employment, customer base, sales) and/or function (e.g. the provision of essential inputs or
+services).
+
+INTERNATIONAL MONETARY FUND
+
+57
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix IV. Long-Term Macroeconomic Projections (Beyond
+5 Years) and Financing Assumptions
+Macroeconomic projections (beyond 5 years)
+1.
+Projections about policy should reflect several considerations (with assumptions
+carefully justified):
+•
+
+Regarding fiscal policy, care needs to be taken in assuming a long-term structural improvement
+in the primary balance. Empirical evidence suggests that short-run improvements in the primary
+balance are rarely sustained over the longer term. Permanent improvements need to be justified,
+such as due to the introduction of a fiscal rule or other structural changes to policies or
+institutions. Further, long-term fiscal policy should take account of spending pressures
+associated with making progress towards a country’s development goals (for example, the
+SDGs).
+
+•
+
+Concerning monetary policy, care needs to be taken in projecting a long-term improvement in
+inflation dynamics. Again, permanent improvements need to be justified, such as due to the
+introduction of a rule or other structural changes to policies or institutions. Care also needs to
+be taken where there is a rigid monetary regime in place (e.g. a currency union or currency
+board) to ensure that inflation dynamics keep the real exchange rate in equilibrium over the
+medium term.
+
+2.
+External sector developments need to be realistic and in line with typical long-term
+development trends. In this context, high growth rates and increases in productivity in the
+tradables sector are usually expected to lead to higher wage growth, and an appreciation of the
+equilibrium real exchange rate over time (i.e. Balassa-Samuelson effects). On the financing side,
+while FDI helps finance current account deficits without creating debt, it leads to an increase in
+imports of capital goods and, once the investment matures, outflows in the form of profits and
+dividends, which both need to be properly captured in external sector, and REER projections.
+3.
+Long-term growth projections need to consider the country’s stage of development
+and reflect considerations such as natural disasters and resource production:
+•
+
+As income level rises, the average growth rate tends to fall. Low-income countries typically grow
+at a faster rate than more advanced economies. 1 But as countries grow, the average growth rate
+tends to taper off. Such “catching-up” effects should be reflected in long-term growth
+projections.
+
+1
+
+The neo-classical growth model suggests that poorer countries should grow at a faster pace than richer ones. Under
+this framework, poorer countries are assumed to have a low capital-to-labor ratio, and in the presence of freely
+transferable technology, have a high marginal product of capital. This raises the returns from domestic and external
+investment, spurring growth.
+
+58
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+•
+
+Natural disasters or persistent domestic instability lower long-term growth prospects. Countries
+exposed to frequent natural catastrophes and fragile states suffer economic disruptions and loss
+in resilience that hamper long-term growth prospects. One way to account for this is to
+incorporate into the baseline the average annual expected impact of natural disasters or wars, as
+is recommended for small states at risk of natural disasters and climate change. 2 For instance, if
+a hurricane occurs once every 5 years on average and reduces growth by 2.5 percentage points,
+projected growth would be reduced by 0.5 percentage point per year. For such states, emerging
+from a period of instability/disaster may involve a temporary boost to growth and the
+macroeconomy more generally, and care needs to be taken not to extrapolate too far into the
+projection period.
+
+•
+
+Natural resource discovery does not always result in production. A 2016 World Bank study shows
+that since 1950, only about half of resource discoveries resulted in eventual production.3 The
+study also shows that the period between discovery and investment inflows can be lengthy, with
+even longer lags to the actual extraction. Such findings caution against incorporating natural
+resource discovery in the baseline before most of the related investment has been made and the
+high likelihood of project implementation is affirmed. Once effects are incorporated, evidence
+from the resource curse literature still points to the need for conservatism in the long-run
+projections for growth, fiscal revenue, or the current account in resource-rich countries, as
+natural resource dependence has been associated with poorer long-term growth, greater
+revenue volatility and procyclicality in fiscal policy, and a less competitive export sector (Dutch
+disease). 4
+
+Domestic Financing Assumptions: Debt Market Development and
+
+Financing Structure
+
+4.
+The financing assumptions used for a DSA should reflect a financing mix anchored, if
+available, by the government’s medium-debt management strategy (MTDS). 5 While the main
+focus of the LIC DSF is on external debt, the recent development of domestic financing markets in
+LICs points to a need for more granular and detailed analysis of domestic financing. In developing a
+domestic financing strategy, the country authorities should assess thoroughly the quality of
+instruments (characterized by an interest rate and tenor) and quantity that can be realistically
+absorbed by the domestic debt market. Alternative financing strategies, including using external
+
+2
+
+See Table 10 and Annex IV of the “Small States’ Resilience to Natural Disasters and Climate Change—Role for the
+IMF” (IMF, 2016).
+
+3
+
+Cust and Mihalyi (2017), for example, find that in countries with oil or gas discovery, growth is overestimated by 0.83
+percentage point per year over the five years following the discovery, with the degree of overestimation increasing
+with the size of the discovery.
+4
+
+See, for example, Ross (1999), Sachs and Warner (1995), Bova and others (2016).
+
+5
+
+An MTDS is a plan that the government intends to implement over the medium term in order to achieve a desired
+composition of the government debt portfolio, which captures the government’s preferences with regard to the costrisk tradeoff. For the detailed process of preparing an MTDS, see IMF and World Bank (2009).
+
+INTERNATIONAL MONETARY FUND
+
+59
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+financing, should be examined in terms of their cost and risk implications under the baseline and
+risk pricing assumptions. 6
+5.
+Domestic financing should be expected to evolve over the medium to long term. The
+pace at which domestic debt markets can absorb larger debt with longer maturities depends,
+among other things, on macroeconomic stability, the desire not to crowd out private sector
+borrowing and investments, domestic savings rate, as well as market microstructures. 7 As domestic
+issuances increase, the need to borrow externally is reduced, helping governments to mitigate
+external debt vulnerabilities emanating from exchange rate depreciation.
+6.
+Broadly, countries can be categorized into three groups – low, moderate and mature
+market development:
+•
+
+Countries with low domestic government debt market development will rely heavily on shortterm financing (T-bill issuance) and central bank financing.
+
+•
+
+Countries with a moderate domestic government debt market development will display less
+reliance on short-term and central bank financing and would have begun issuing government
+bonds with medium-term maturities (3-7 years) and contracting commercial loans. Government
+domestic debt will be typically largely held by domestic banks.
+
+•
+
+Countries with mature domestic market development would display a broader range of
+government bonds, with longer-term maturities (greater than 7 years) being issued regularly. It
+is likely also that government bonds would be issued competitively via auctions. Holders of
+government debt would be more varied, extending beyond domestic banks to other long-term
+domestic institutional investors such as insurance and pension companies, and foreign investors.
+
+7.
+In the long-term, as countries grow, they experience shifts in the composition of both
+external and domestic financing. The faster the economy is expected to grow, the more quickly
+this transition would take place. Table AIV.1 summarizes the average effective nominal interest rates
+observed across income deciles. The combination of convergence (high growth and an appreciating
+real exchange rate) and low but rising interest rates generally results in a negative interest-growth
+differential for developing economies that closes gradually over time (Escolano and others, 2011).
+
+6
+
+For example, the analysis should ensure that the expected cost of borrowing domestically is over the medium term
+broadly equivalent to borrowing externally, taking account of exchange rate risks and the objective to develop the
+domestic debt market. This can be achieved by pricing the securities such that interest rate parity conditions hold.
+The initial market development cost could, however, exceed interest rates derived based on parity conditions.
+7
+
+See IMF and World Bank (2004). See also EBRD, IMF, OECD, and World Bank (2011). “Local Currency Bond Market: A
+Diagnostic Framework”, which may be found at https://www.imf.org/external/np/pp/eng/2013/070913.pdf.
+
+60
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Table AIV.1. Average Cost of Borrowing (LICs and EMs)
+Decile
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+90
+
+GDP per capita*, US$
+
+576
+
+1019
+
+1467
+
+2816
+
+3542
+
+4852
+
+6501
+
+9333
+
+13636
+
+Implied interest rate, percent
+
+2.8
+
+3.1
+
+3.4
+
+3.8
+
+3.9
+
+4.1
+
+4.3
+
+4.5
+
+4.7
+
+* Relationship based on average GDP per capita during 2007-2016.
+
+Source: Fund staff calculations.
+
+INTERNATIONAL MONETARY FUND
+
+61
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix V. HIPC Initiative and MDRI
+HIPC Initiative and MDRI debt relief should be accounted for in the baseline or in a customized
+scenario, depending on a country’s HIPC status. The DSA should include the following baseline
+and customized scenarios (Section VI.D. for a further discussion of customized scenarios):
+•
+
+For post-completion point countries, the DSA should incorporate HIPC Initiative and MDRI debt
+relief in the baseline scenario. This assumption of full debt relief on HIPC terms from all external
+creditors should be maintained as long as country authorities are actively working toward
+concluding bilateral agreements, and the prospects for concluding such agreements are deemed
+reasonable. Once it becomes apparent that full debt relief on HIPC terms is unlikely, the baseline
+scenario should reflect the amount of contractually-owed debt less any debt relief expected.
+
+•
+
+For countries in the interim period between decision point and completion point, the baseline
+scenario should assume HIPC interim relief (the risk rating should not be predicated on the
+country reaching completion point). HIPC and MDRI debt relief starting at the assumed
+completion point date should be incorporated in a customized scenario.
+
+•
+
+For countries that have not yet reached the decision point, but for which the IMF and IDA
+Executive Boards have reviewed the HIPC preliminary document, the baseline scenario should
+incorporate only traditional debt relief. Interim HIPC relief starting at the assumed decision point
+date should be incorporated in a customized scenario.
+
+62
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix VI. How Stress Tests Work in the DSF: Illustrative
+Examples
+This appendix explains how shocks in the standard stress tests result in a deterioration in the
+relevant debt indicators through interactions among key variables.
+1.
+Stress tests in the DSF are conducted by adding a temporary shock onto the baseline
+macroeconomic indicators (e.g., real GDP growth rate, primary balance, and exchange rate).
+They are partial-equilibrium (rather than general-equilibrium) analyses meaning that shocks are
+simulated through changes in a small number of variables with other variables kept unchanged. 1
+The impact of stress tests is channeled in two ways: through changes in indebtedness and debt
+service (numerators of the debt burden indicators) and through changes in the capacity to repay
+(denominators of the debt burden indicators). Figure AVI.1 illustrates the mechanic interactions of
+key economic variables under shocks.
+2.
+Shocks to exports (and therefore to the non-interest current account balance with
+other components in the current account assumed to be unchanged), or other flows (net FDI
+plus remittances) would increase external financing needs, which are met by additional public
+external borrowing (private sector external borrowing is assumed to be unchanged). The
+additional public external borrowing occurs on terms used in the template (an average of assumed
+external borrowing terms).
+3.
+Similarly, a worsening in a primary balance increases public financing needs, which
+have to be met by additional public borrowing (either external or domestic financing) based
+on terms specified by the DSF user for residual financing.
+4.
+The additional borrowing under these shocks leads to an increase in indebtedness,
+which would inevitably involve more debt service payments. An increase in debt services in turn
+increase future financing needs and future debt. Note that the DSF assumes that an increase in the
+financing need is met by additional public borrowing, and not by adjustments in government
+policies.
+5.
+A shock to the nominal exchange rate would increase foreign currency-denominated
+debt measured in a local currency through valuation effects, leading to a worsening in debt
+burden indicators. Nominal GDP in US dollars tends to deteriorate in the face of nominal
+depreciation without a full exchange rate pass-through. 2
+6.
+The reduction in real GDP growth results in a lower nominal GDP growth rate, and
+therefore a smaller nominal GDP. 3 The decline in nominal GDP vis-à-vis the baseline in turn leads
+1
+A few key interactions between macroeconomic variables under stress tests have been introduced (see Table 8 in
+Section VI).
+2
+The default exchange rate pass-through to domestic inflation is assumed to be 0.3 under the nominal depreciation
+stress test in the DSF (and therefore domestic inflation does not fully offset the impacts of nominal depreciation).
+3
+Inflation, as measured by a GDP deflator, is modeled to be reduced during the growth shock, which further
+deteriorate a nominal GDP growth rate.
+
+INTERNATIONAL MONETARY FUND
+
+63
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+to a proportional decline in public sector revenue, as the revenue-to-GDP ratio is assumed to be
+unchanged in stress tests, whereas the real GDP shock is assumed not to have an impact on the level
+of government spending. The lower tax revenue and unchanged spending result in a wider noninterest (primary) fiscal deficit, and therefore increased financing needs, leading to additional
+borrowing.
+7.
+It is important to notice that, under a GDP shock, debt burden indicators would
+further deteriorate, reflecting a decline in the measure of the capacity to repay (nominal GDP,
+and public sector revenue) in conjunction with an increase in indebtedness. Thus, a shock to
+real GDP growth impacts both indebtedness and capacity to pay. Although a shock to GDP growth
+rate is modeled to last for only 2 years, the shock has a permanent impact on the levels of real and
+nominal GDP, as a return to the baseline real GDP growth rates after 2 years would not restore the
+original GDP levels projected in the baseline. In a similar vein, a shock to exports would deteriorate
+debt burden indicators through both numerator and denominator effects, with permanent impacts
+on export levels.
+Figure AVI.1. Mechanic Interactions of Key Economic Variables Under Shocks
+
+64
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Appendix VII. The Use of the Probability Approach in
+Borderline Cases
+1.
+The probability approach focuses on the evolution of the probability of debt distress
+over time, rather than on the evolution of debt burden indicators. Under the probability
+approach, the country-specific probability of debt distress is directly calculated from the estimated
+probit equations, using country-specific debt indicators and other key economic variables, along
+with global economic growth. 1
+6
+
+𝑃𝑃𝑗𝑗 (𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷 𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷𝐷) = Φ �𝛼𝛼𝑗𝑗 + 𝛾𝛾𝑗𝑗 𝑑𝑑𝑗𝑗 + � 𝛽𝛽𝑗𝑗,𝑘𝑘 𝑋𝑋𝑘𝑘 �
+𝑘𝑘=1
+
+where 𝑑𝑑𝑗𝑗 represents one of the four different debt burden indicators (PV of debt to GDP, PV of debt
+to exports, debt service to revenues, and debt service to exports) and 𝑋𝑋𝑘𝑘 represents the non-debt
+explanatory variables included in the probit regressions (CPIA, country growth, reserves, squared
+reserves, remittances, and world growth).
+2.
+The probabilities of debt distress are subsequently compared with relevant probability
+cut-offs to derive a risk signal. The probability cut-offs are those that minimize the loss function
+(that penalizes Type I (“missed calls”) and Type II errors (“false alarms”) with the weight on Type I
+error set at 0.67). The evolution of the probabilities under the baseline and stress tests are compared
+with these cutoffs in the same way as the traditional approach (see below an illustrative case). The
+probability cut-offs are summarized in Table AVII.1 below.
+Table AVII.1. Probability Cutoffs Used for the Probability Approach
+
+Probability cutoff
+
+PV of PPG external debt
+in percent of
+
+PPG exernal debt service
+in percent of
+
+GDP
+
+Exports
+
+Revenue
+
+Exports
+
+0.155
+
+0.160
+
+0.150
+
+0.138
+
+3.
+The probability can be optionally used for cases when a country’s risk rating is on the
+border between two categories with the relevant debt indicators close to the thresholds.
+Borderline cases are defined as those where one of the debt indicator trajectories (under the
+baseline or most extreme stress test) has marginal breaches of a threshold, 2 or where it hovers
+
+1
+To generate country-specific probabilities of debt distress, the DSF requires averages of the relevant variables
+(country growth, reserves, remittances, and world growth) over a 16-year period consisting of 5 years of historical
+data, and the current year plus the following 10-year projected data.
+2
+
+Marginal breaches are defined as temporary breaches of a small magnitude that last more than one year.
+
+INTERNATIONAL MONETARY FUND
+
+65
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+below a threshold but with small margins. Thus, the probability approach could be used to both
+upgrade and downgrade a mechanical rating under the traditional approach.
+4.
+
+In practice, the following borderline cases can be considered:
+
+•
+
+A borderline low/moderate case is one where: (i) debt burden indicators are below thresholds
+in the baseline scenario, but (ii) a threshold is nearly breached under a standardized stress test,
+or there is a small breach of a threshold under a standardized stress test.
+
+•
+
+A borderline moderate/high case is one where: (i) stress tests result in one or more breaches,
+and (ii) a threshold is nearly breached in the baseline scenario, or there is a small breach of a
+threshold in the baseline scenario.
+
+5.
+There might be cases where the probability approach generates different results from
+those under the traditional thresholds approach. Figure AVII.1 presents the “traditional” DSF
+approach alongside the probability approach for a hypothetical country case. Under the traditional
+approach, the evolution of the four PPG external debt burden indicators is compared to their
+respective thresholds in the baseline scenario and under standardized stress tests. Under the
+probability approach, the projected probability of debt distress (expressed as a percent) associated
+with each debt burden indicator is compared to probability cutoffs, once again in the baseline
+scenario and under standardized stress tests. In this case, the traditional approach points to a
+moderate risk of debt distress with the most extreme stress test breaching thresholds, whereas the
+probability approach suggests a low risk with both baseline and stress tests staying strictly below
+the thresholds.
+6.
+The probability approach is a complementary tool to inform judgement in borderline
+cases. The final determination of the risk rating should take into account other relevant factors
+discussed in Section VIII. Also, users should be mindful that the probability approach sometimes
+point to implausible outlying probabilities using country-specific economic variables, which might
+be outliers in the LICs’ distribution.
+7.
+The template shows if the probability approach is applicable to a user’s country, and
+automatically generates the outcome of the probability approach along with charts and
+tables. A DSA write-up should include charts and tables for both the traditional and probability
+approach when the latter informs judgement.
+
+66
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Figure AVII.1. Traditional Approach vs. Probability Approach vs. Probability Approach
+Threshold approach
+
+Probability approach
+
+b.PV of debt-to GDP ratio
+
+50
+
+b.PV of debt-to GDP
+
+20
+
+45
+40
+
+15
+
+35
+30
+
+10
+
+25
+20
+
+5
+
+15
+10
+5
+0
+
+0
+
+2016
+
+2018
+
+2020
+
+2022
+
+c.PV of debt-to-exports ratio
+
+250
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+2026
+
+2024
+
+c.PV of debt-to-exports
+
+18
+16
+14
+
+200
+
+12
+10
+
+150
+
+8
+100
+
+6
+4
+
+50
+0
+
+18
+
+2
+0
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+d.Debt service-to-exports ratio
+
+16
+
+16
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+d.Debt service-to-exports ratio
+
+14
+
+14
+
+12
+
+12
+
+10
+
+10
+
+8
+
+8
+6
+
+6
+
+4
+
+4
+
+2
+
+2
+
+0
+
+2016
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+0
+
+2016
+
+e.Debt service-to-revenue ratio
+
+25
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+e.Debt service-to-revenue
+
+20
+
+20
+15
+
+15
+
+10
+
+10
+
+5
+
+5
+0
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+0
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+INTERNATIONAL MONETARY FUND
+
+67
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+References
+Aisen, A., and D. Hauner, 2008, “Budget Deficits and Interest Rates: A Fresh Perspective,” IMF
+Working Paper No. 08/42. (Washington: International Monetary Fund).
+Arbelaez, C., and N. Sobrinho, 2017, “Government Financial Assets and Debt Sustainability,” IMF
+Working Paper No. 17/173. (Washington: International Monetary Fund).
+Bova, Elva, Paulo Medas, and Tigran Poghosyan, 2016, “Macroeconomic Stability in Resource-Rich
+Countries: The Role of Fiscal Policy,” IMF Working Paper No. 16/36 (Washington:
+International Monetary Fund).
+Buffie, E., A. Berg, C. Pattillo, R. Portillo, and L. Zanna, 2012, “Public Investment, Growth, and Debt
+Sustainability: Putting Together the Pieces,” IMF Working Paper No. 12/144. (Washington:
+International Monetary Fund).
+Cespedes, L. F., and A. Velasco, 2013, “Was This Time Different? Fiscal Policy in Commodity
+Republics,” NBER Working Paper No. 19748.
+Cust, J., and D. Mihalyi, 2017, “Evidence for a Presource Curse? Oil Discoveries, Elevated
+Expectations, and Growth Disappointments,” (Washington: The World Bank).
+EBRD, International Monetary Fund, OECD, and The World Bank, 2011, “Local Currency Bond Market:
+A Diagnostic Framework”, (Washington: International Monetary Fund)
+Escolano, J., A. Shabunina, and J .Woo, 2011, “The Puzzle of Persistently Negative Interest RateGrowth Differentials: Financial Repression or Income Catch-Up?”, IMF Working Paper
+No.11/260. (Washington: International Monetary Fund).
+International Development Association, 2005, “Operational Framework for Debt-Sustainability
+Assessments in Low-Income Countries—Further Considerations,” (Washington).
+International Monetary Fund—The World Bank, 2004, “Revised Guidelines for Public Debt
+Management,” (Washington).
+———, 2005, “Operational Framework for Debt-Sustainability Assessments in Low-Income
+Countries—Further Considerations,” (Washington).
+———, 2009, “Developing a Medium-Term Debt Management Strategy (MTDS)—Guidance Note for
+Country Authorities,” (Washington).
+———, 2013, “Staff Guidance Note on the Application of the Joint Bank-Fund Debt Sustainability
+Framework for Low Income Countries,” (November) (Washington).
+
+68
+
+INTERNATIONAL MONETARY FUND
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+———, 2017, “Review on the Debt Sustainability Framework in Low-income Countries: Proposed
+Reforms” (September) (Washington).
+International Monetary Fund, 2007, “Manual on Fiscal Transparency,” (Washington).
+———, 2012, “Commodity Price Swings and Commodity Exporters,” Chapter 4, World Economic
+Outlook (April). (Washington).
+———, 2012a, “What Lies Beneath: The Statistical Definition of Public Sector Debt,” (July).
+(Washington).
+———, 2014, “Government Finance Statistics Manual 2014,”. (Washington).
+———, 2014a, “Fiscal Multipliers: Size, Determinants, and Use in Macroeconomic Projections,”
+(2014). (Washington).
+———, 2014b, “Reform of the Policy on Public Debt Limits in Fund-supported Programs,”
+(December) (Washington).
+———, 2015, “Guidance Note for Surveillance Under Article IV Consultations,” (March)
+(Washington).
+———, 2015a, “Exchange Rates and Trade Flows: Disconnected?” Chapter 3, World Economic
+Outlook (October) (Washington).
+———, 2015b, “Where Are Commodity Exporters Headed? Output Growth in the Aftermath of the
+Commodity Boom”, Chapter 2, World Economic Outlook (October) (Washington).
+———, 2016, “Small States’ Resilience to Natural Disasters and Climate Change: Role for the IMF,”
+(November) (Washington).
+———, 2016a, “Assessing Fiscal Space: An Initial Consistent Set of Considerations,” (December)
+(Washington).
+———, 2017, “Estimating the Stock of Public Capital in 170 Countries: January 2017 Update.”
+Available at: http://www.imf.org/external/np/fad/publicinvestment/pdf/csupdate_jan17.pdf
+(Washington).
+———, 2017a, “Eligibility to Use the Fund's Facilities for Concessional Financing, 2017” (May)
+(Washington).
+———, 2017b, “Regional Economic Outlook: Fiscal Adjustment and Economic Diversification,”
+(October) (Washington).
+
+INTERNATIONAL MONETARY FUND
+
+69
+
+GUIDANCE NOTE ON THE BANK-FUND LIC DSF
+
+Kaminsky, G, and C. Reinhart, 1999, “The Twin Crises: The Causes of Banking and Balance-OfPayments Problems,” The American Economic Review, Vol. 89, No. 3, pp. 473–500.
+Kose, M. Ayhan, S. Kurlat, F. Ohnsorge, and N. Sugawara, 2017, "A Cross-Country Database of Fiscal
+Space." Policy Research Working Paper 8157, (Washington: World Bank).
+Kraay, A., and V. Nehru, 2006, "When is Debt Sustainable?" The World Bank Economic Review, 20(3):
+pp. 341–65, (Washington).
+Mauro, P., and M. Villafuerte, 2013, “Past Fiscal Adjustments: Lessons from Failures and Successes,”
+IMF Economic Review, 61(2): pp. 379–404. (Washington: International Monetary Fund).
+Melina, G., S. Yang, and L. Zanna, 2016, “Debt Sustainability, Public Investment and Natural
+Resources in Developing countries: The DIGNAR model,” Economic Modelling, 52, 630649.
+Pennings, S., 2017, “Long-term Growth Model v4.0: Model Description,” available at
+http://globalpractices.worldbank.org/mfm/Pages/SitePages/MFM Online Tools.aspx
+Ross, Michael, 1999, “The Political Economy of the Resource Curse,” available at:
+https://www.researchgate.net/publication/235737580_The_Political_Economy_of_the_Reso
+urce_Curse
+Sachs, D. Jeffrey, and Andrew M. Warner, 1995, “Natural Resource Abundance and Economic
+Growth,” NBER Working Paper No. 5398 (December).
+Spatafora, N., and I. Samake, 2012, “Commodity Price Shocks and Fiscal Outcomes,” IMF Working
+Paper No. 12/112. (Washington: International Monetary Fund).
+UNCTAD, 2015, “State of Commodity Dependence, 2016,” (New York and Geneva: United Nations
+Conference on Trade and Development).
+World Bank, 2015a, “IDA's Non-Concessional Borrowing Policy: Review and Update,” (Washington).
+———, 2015b, “The Economics of the Macro-Fiscal Model,” (Washington).
+———, 2017, “Private Participation in Infrastructure (PPI) Database Half Year Report”.
+
+70
+
+INTERNATIONAL MONETARY FUND
+
+
